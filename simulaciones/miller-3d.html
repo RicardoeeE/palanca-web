@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visor 3D de Planos de Miller</title>
+<link href="../assets/vendor/fonts/miller.css" rel="stylesheet">
+<style>
+:root{
+  --font-sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-serif:'Cormorant Garamond','EB Garamond',Georgia,'Times New Roman',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+
+/* ═══ PROPUESTA 1 — LABORATORIO NOCTURNO ═══ */
+[data-theme="lab"]{
+  --font-sans:'JetBrains Mono',ui-monospace,monospace;
+  --font-serif:'Fraunces',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --paper:#0a0d15;
+  --stage-bg:#0b0e17;
+  --ink:#e4e7f0;
+  --line:#1f2642;
+  --line2:#2f3652;
+  --mute:#8b92a8;
+  --mute2:#6b7288;
+  --accent:#e8a060;
+  --edge:#4a5680;
+  --edge2:#3a4568;
+  --vtx-hollow:#141a2e;
+  --vtx-stroke:#8b92a8;
+  --plane-main:rgba(232,160,96,0.32);
+  --plane-fam:rgba(94,234,212,0.12);
+  --plane-stroke:#e8a060;
+  --plane-stroke2:#5eead4;
+  --atom-fill:#1a2038;
+  --input-bg:#141a2e;
+  --card-bg:#141a2e;
+  --badge-bg:#1f2642;
+  --hover-bg:#1f2850;
+  --stage-bg-gradient:radial-gradient(ellipse at center, rgba(94,234,212,0.06) 0%, transparent 70%), linear-gradient(#12172a 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(90deg, #12172a 1px, transparent 1px) 0 0 / 40px 40px, #0b0e17;
+}
+
+/* ═══ PROPUESTA 2 — BLUEPRINT INGENIERÍA ═══ */
+[data-theme="blueprint"]{
+  --font-sans:'Inconsolata',ui-monospace,monospace;
+  --font-serif:'Archivo Narrow',sans-serif;
+  --font-mono:'Inconsolata',ui-monospace,monospace;
+  --paper:#f4ecd8;
+  --stage-bg:#0f3a6b;
+  --ink:#0a1d3a;
+  --line:#c5bda5;
+  --line2:#a39b80;
+  --mute:#5a6f8c;
+  --mute2:#7a8a9c;
+  --accent:#e05d44;
+  --edge:rgba(244,236,216,0.55);
+  --edge2:rgba(244,236,216,0.65);
+  --vtx-hollow:#f4ecd8;
+  --vtx-stroke:#0a1d3a;
+  --plane-main:rgba(224,93,68,0.32);
+  --plane-fam:rgba(244,185,66,0.16);
+  --plane-stroke:#e05d44;
+  --plane-stroke2:#f4b942;
+  --atom-fill:#f4ecd8;
+  --input-bg:#e8dfc7;
+  --card-bg:#f4ecd8;
+  --badge-bg:#e8dfc7;
+  --hover-bg:#e8dfc7;
+  --stage-bg-gradient:linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 20px 20px, linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 20px 20px, linear-gradient(rgba(255,255,255,0.10) 1px, transparent 1px) 0 0 / 100px 100px, linear-gradient(90deg, rgba(255,255,255,0.10) 1px, transparent 1px) 0 0 / 100px 100px, #0f3a6b;
+}
+
+/* ═══ PROPUESTA 3 — PAPER SCIENTIFIC ═══ */
+[data-theme="paper"]{
+  --font-sans:'IBM Plex Sans',system-ui,sans-serif;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --paper:#faf7f0;
+  --stage-bg:#faf7f0;
+  --ink:#1a1a1a;
+  --line:#d4cbb8;
+  --line2:#a8a090;
+  --mute:#6b6258;
+  --mute2:#8a8170;
+  --accent:#8b2635;
+  --edge:#b8b098;
+  --edge2:#d4cbb8;
+  --vtx-hollow:#faf7f0;
+  --vtx-stroke:#6b6258;
+  --plane-main:rgba(139,38,53,0.20);
+  --plane-fam:rgba(61,79,61,0.09);
+  --plane-stroke:#8b2635;
+  --plane-stroke2:#6b6258;
+  --atom-fill:#f2ede0;
+  --input-bg:#faf7f0;
+  --card-bg:#f2ede0;
+  --badge-bg:#f2ede0;
+  --hover-bg:#ede6d4;
+  --stage-bg-gradient:#faf7f0;
+}
+
+/* ═══ PROPUESTA 4 — CRYSTALLINE CONTEMPORARY ═══ */
+[data-theme="crystalline"]{
+  --font-sans:'Instrument Sans',system-ui,sans-serif;
+  --font-serif:'Instrument Serif',Georgia,serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --paper:#f5f0e8;
+  --stage-bg:#f5f0e8;
+  --ink:#0a0a0a;
+  --line:#1a1a1a;
+  --line2:#333;
+  --mute:#666;
+  --mute2:#888;
+  --accent:#ec4899;
+  --edge:#777;
+  --edge2:#999;
+  --vtx-hollow:#f5f0e8;
+  --vtx-stroke:#0a0a0a;
+  --plane-main:rgba(236,72,153,0.22);
+  --plane-fam:rgba(132,204,22,0.14);
+  --plane-stroke:#ec4899;
+  --plane-stroke2:#84cc16;
+  --atom-fill:#84cc16;
+  --input-bg:#ffffff;
+  --card-bg:#ffffff;
+  --badge-bg:#f5f0e8;
+  --hover-bg:#ede6d8;
+  --stage-bg-gradient:radial-gradient(ellipse 55% 45% at 22% 28%, rgba(236,72,153,0.18) 0%, transparent 60%), radial-gradient(ellipse 55% 45% at 78% 72%, rgba(132,204,22,0.18) 0%, transparent 60%), #f5f0e8;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--paper);display:flex;flex-direction:column;overflow:hidden;transition:background .2s, color .2s}
+.sr-only{position:absolute;left:-9999px}
+
+.hd{display:flex;align-items:center;gap:18px;padding:12px 18px;background:var(--paper);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.hd-block{display:flex;align-items:center;gap:10px}
+.lbl{font-size:10.5px;font-weight:500;color:var(--mute);letter-spacing:.08em;text-transform:uppercase}
+.vrr-inputs{display:flex;gap:8px}
+.vrr-step{display:inline-flex;align-items:center;border:1px solid var(--line2);border-radius:6px;background:var(--input-bg);height:30px;transition:border-color .12s,box-shadow .12s}
+.vrr-step:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(120,120,120,.12)}
+.vrr-step>em{display:flex;align-items:center;justify-content:center;width:22px;height:100%;font-family:var(--font-serif);font-style:italic;font-size:15px;font-weight:500;color:var(--ink);border-right:1px solid var(--line);background:var(--badge-bg)}
+.vrr-step button{width:22px;height:100%;border:none;background:transparent;font-size:15px;color:var(--mute);cursor:pointer;padding:0;font-family:inherit;line-height:1}
+.vrr-step button:hover{background:var(--hover-bg);color:var(--ink)}
+.vrr-step input{width:40px;border:none;padding:0;font-family:var(--font-serif);font-weight:500;font-size:15px;text-align:center;color:var(--ink);background:transparent;-moz-appearance:textfield;appearance:textfield}
+.vrr-step input::-webkit-inner-spin-button,.vrr-step input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.vrr-step input:focus{outline:none}
+.notation{font-family:var(--font-serif);font-style:italic;font-size:22px;font-weight:500;letter-spacing:.02em;color:var(--ink)}
+.notation .ovr{text-decoration:overline}
+.eqn{display:flex;gap:10px;align-items:baseline}
+.eqn-l{font-size:10.5px;color:var(--mute2);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.eqn-v{font-family:var(--font-serif);font-style:italic;color:var(--ink);font-size:15px;font-weight:500}
+
+.main{display:flex;flex:1;min-height:0}
+.stage-wrap{flex:1;position:relative;background:var(--stage-bg-gradient, var(--stage-bg));display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none;cursor:grab;transition:background .2s}
+.stage-wrap.dragging{cursor:grabbing}
+.stage-wrap svg{width:100%;height:100%;display:block;touch-action:none}
+.hint{position:absolute;bottom:10px;left:14px;font-size:10.5px;color:var(--mute2);font-style:italic;pointer-events:none;letter-spacing:.02em}
+
+.side{width:280px;background:var(--paper);border-left:1px solid var(--line);padding:14px 16px;overflow-y:auto;flex-shrink:0;transition:background .2s}
+.side-sec{margin-bottom:18px}
+.side-sec:last-child{margin-bottom:0}
+.side-title{font-size:10.5px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline}
+.side-title .suffix{font-size:11px;color:var(--mute2);text-transform:none;letter-spacing:0;font-style:italic;font-family:var(--font-serif)}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px}
+.row:last-child{margin-bottom:0}
+.row label{cursor:pointer;display:flex;align-items:center;gap:7px;color:var(--ink)}
+.row input[type=checkbox]{accent-color:var(--ink);cursor:pointer}
+.row select{flex:1;padding:4px 6px;border:1px solid var(--line2);border-radius:4px;background:var(--input-bg);font-family:inherit;font-size:12.5px;color:var(--ink);cursor:pointer}
+.row select:focus{outline:none;border-color:var(--ink)}
+
+.origin-box{background:var(--card-bg);border:1px solid var(--line);border-radius:6px;padding:8px;display:flex;align-items:center;gap:12px}
+.origin-mini{width:108px;height:108px;flex-shrink:0}
+.origin-mini svg{width:100%;height:100%;display:block}
+.origin-info{flex:1;min-width:0}
+.origin-coord{font-family:var(--font-serif);font-style:italic;font-size:17px;color:var(--ink);font-weight:500}
+.origin-desc{font-size:10.5px;color:var(--mute2);margin-top:3px;line-height:1.35}
+
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pbtn{background:var(--input-bg);border:1px solid var(--line2);color:var(--ink);font-family:var(--font-serif);font-style:italic;font-size:13px;padding:5px 6px;border-radius:4px;cursor:pointer;transition:all .1s}
+.pbtn:hover{background:var(--hover-bg);border-color:var(--ink)}
+.pbtn.on{background:var(--hover-bg);border-color:var(--ink);color:var(--ink)}
+.examples{display:flex;flex-wrap:wrap;gap:4px}
+.ebtn{background:var(--input-bg);border:1px solid var(--line2);color:var(--ink);font-family:var(--font-serif);font-style:italic;font-size:12.5px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .1s}
+.ebtn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ebtn .ovr{text-decoration:overline}
+
+.res{background:var(--card-bg);border:1px solid var(--line);border-radius:5px;padding:8px 10px;font-size:12px;line-height:1.7}
+.res-k{color:var(--mute2);font-family:var(--font-serif);font-style:italic}
+.res-v{color:var(--ink);font-family:var(--font-serif);font-weight:500}
+
+.note{padding:8px 18px 10px;font-size:11.5px;color:var(--mute);font-style:italic;background:var(--paper);border-top:1px solid var(--line);min-height:14px;flex-shrink:0;transition:background .2s}
+.note:empty::before{content:"\2009"}
+
+/* Theme / lang controls */
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:5px;overflow:hidden;background:var(--input-bg)}
+.seg button{border:none;background:transparent;padding:5px 10px;font-family:var(--font-serif);font-style:italic;font-size:12.5px;color:var(--mute);cursor:pointer;transition:all .1s;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button:hover{background:var(--hover-bg);color:var(--ink)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tbtn{display:flex;align-items:center;gap:7px;background:var(--input-bg);border:1px solid var(--line2);color:var(--ink);font-family:var(--font-serif);font-style:italic;font-size:12.5px;padding:5px 8px;border-radius:4px;cursor:pointer;transition:all .1s}
+.tbtn:hover{background:var(--hover-bg);border-color:var(--ink)}
+.tbtn.on{background:var(--hover-bg);border-color:var(--ink)}
+.tbtn .sw{width:14px;height:14px;border-radius:50%;border:1px solid var(--line2);flex-shrink:0}
+
+/* ═══ SELECTOR DE SISTEMA CRISTALINO ═══ */
+.sys-selector{display:inline-flex;border:1px solid var(--line2);border-radius:5px;overflow:hidden;background:var(--input-bg)}
+.sys-selector button{border:none;background:transparent;padding:6px 12px;font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--mute);cursor:pointer;border-right:1px solid var(--line);transition:all .1s}
+.sys-selector button:last-child{border-right:none}
+.sys-selector button.on{background:var(--ink);color:var(--paper)}
+.sys-selector button:hover:not(.on){background:var(--hover-bg);color:var(--ink)}
+
+/* ═══ OVERLAYS DE PASO EN EL STAGE ═══ */
+.step-overlay-top{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--line);border-radius:6px;padding:8px 18px;pointer-events:none;max-width:70%;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.08);opacity:0;transition:opacity .35s}
+.step-overlay-top.show{opacity:1}
+.step-counter{font-size:10.5px;color:var(--mute2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+.step-title-text{font-family:var(--font-serif);font-style:italic;font-size:15.5px;color:var(--ink);font-weight:500}
+
+.step-overlay-bottom{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--line);border-radius:6px;padding:10px 20px;pointer-events:none;max-width:80%;min-width:180px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.08);opacity:0;transition:opacity .35s}
+.step-overlay-bottom.show{opacity:1}
+.step-eqn-line{font-family:var(--font-serif);font-style:italic;font-size:17px;color:var(--ink);line-height:1.5;animation:stepFade .55s}
+.step-eqn-line.sub{font-size:14px;color:var(--mute)}
+.step-eqn-line .hl{color:var(--accent);font-weight:600}
+@keyframes stepFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ CONTROLES DE ANIMACIÓN ═══ */
+.anim-controls{display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:10px}
+.anim-btn{background:var(--input-bg);border:1px solid var(--line2);color:var(--ink);width:30px;height:30px;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .1s;font-family:inherit;padding:0}
+.anim-btn:hover{background:var(--hover-bg);border-color:var(--ink)}
+.anim-btn:disabled{opacity:0.35;cursor:not-allowed}
+.anim-btn.play-btn{width:42px;background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.anim-btn.play-btn:hover{opacity:0.82}
+
+.step-progress{display:flex;gap:3px;margin-bottom:8px}
+.step-dot{flex:1;height:4px;background:var(--line);border-radius:2px;cursor:pointer;transition:all .15s;border:none;padding:0}
+.step-dot.done{background:var(--mute)}
+.step-dot.active{background:var(--accent);height:5px;margin-top:-0.5px}
+
+.speed-row{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--mute);font-family:var(--font-serif);font-style:italic}
+.speed-seg{display:inline-flex;border:1px solid var(--line2);border-radius:4px;overflow:hidden;margin-left:auto;background:var(--input-bg)}
+.speed-seg button{background:transparent;border:none;padding:3px 7px;font-family:var(--font-serif);font-style:italic;font-size:11px;color:var(--mute);cursor:pointer;border-right:1px solid var(--line)}
+.speed-seg button:last-child{border-right:none}
+.speed-seg button:hover:not(.on){color:var(--ink);background:var(--hover-bg)}
+.speed-seg button.on{background:var(--ink);color:var(--paper)}
+
+.ratio-display{background:var(--card-bg);border:1px solid var(--line);border-radius:5px;padding:8px 10px;text-align:center;margin-top:10px}
+.ratio-display .rv{font-family:var(--font-serif);font-style:italic;font-size:16px;color:var(--ink);font-weight:500}
+.ratio-display .rv .hl{color:var(--accent)}
+.ratio-display .ri{font-size:10.5px;color:var(--mute2);margin-top:3px;font-family:var(--font-serif);font-style:italic}
+
+/* Sliders de parámetros HCP en el header */
+.hcp-slider{display:inline-flex;align-items:center;gap:8px;font-size:12px}
+.hcp-slider label{font-family:var(--font-serif);font-style:italic;color:var(--ink);font-size:15px;font-weight:500;min-width:14px}
+.hcp-slider input[type=range]{width:90px;accent-color:var(--accent);cursor:pointer}
+.hcp-slider .sv{font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--mute);min-width:38px}
+
+/* Campo "i" bloqueado (se calcula automáticamente) */
+.vrr-step.vrr-locked{background:var(--hover-bg);opacity:0.85}
+.vrr-step.vrr-locked em{color:var(--mute2)}
+.vrr-step.vrr-locked input{color:var(--mute);cursor:not-allowed;background:transparent}
+
+/* Toggle de notación hkil / hkl */
+.notation-toggle{display:inline-flex;border:1px solid var(--line2);border-radius:4px;overflow:hidden;margin-left:6px;background:var(--input-bg)}
+.notation-toggle button{border:none;background:transparent;padding:4px 9px;font-family:var(--font-serif);font-style:italic;font-size:11.5px;color:var(--mute);cursor:pointer;border-right:1px solid var(--line)}
+.notation-toggle button:last-child{border-right:none}
+.notation-toggle button.on{background:var(--ink);color:var(--paper)}
+.notation-toggle button:hover:not(.on){color:var(--ink);background:var(--hover-bg)}
+
+@media (max-width:900px){.main{flex-direction:column}.side{width:100%;border-left:none;border-top:1px solid var(--line);max-height:45vh}}
+</style>
+</head>
+<body data-theme="paper">
+<h1 class="sr-only">Visor 3D interactivo de planos de Miller en red cúbica</h1>
+
+<div class="hd">
+  <div class="hd-block">
+    <span class="lbl" data-i18n="system">Sistema</span>
+    <div class="sys-selector" id="sys-selector">
+      <button data-sys="cubic" class="on" data-i18n="sys_cubic">cúbico</button>
+      <button data-sys="hcp" data-i18n="sys_hcp">HCP</button>
+    </div>
+  </div>
+
+  <div class="hd-block" id="hd-hcp-mode" style="display:none">
+    <span class="lbl" data-i18n="mode">Modo</span>
+    <div class="sys-selector" id="hcp-mode-selector">
+      <button data-mode="steps" class="on" data-i18n="mode_steps">análisis c/a</button>
+      <button data-mode="planes" data-i18n="mode_planes">planos (hkil)</button>
+    </div>
+  </div>
+
+  <div class="hd-block" id="hd-cubic">
+    <span class="lbl" data-i18n="indices">Índices</span>
+    <div class="vrr-inputs">
+      <div class="vrr-step"><em>h</em><button type="button" data-op="d" data-t="h">−</button><input type="number" id="h" value="1" step="1"><button type="button" data-op="i" data-t="h">+</button></div>
+      <div class="vrr-step"><em>k</em><button type="button" data-op="d" data-t="k">−</button><input type="number" id="k" value="1" step="1"><button type="button" data-op="i" data-t="k">+</button></div>
+      <div class="vrr-step"><em>l</em><button type="button" data-op="d" data-t="l">−</button><input type="number" id="l" value="1" step="1"><button type="button" data-op="i" data-t="l">+</button></div>
+    </div>
+    <span class="notation" id="notation">(1 1 1)</span>
+  </div>
+
+  <div class="hd-block" id="hd-hcp" style="display:none">
+    <span class="lbl" data-i18n="parameters">Parámetros</span>
+    <div class="hcp-slider"><label>a</label><input type="range" id="hcp-a" min="0.6" max="1.4" step="0.01" value="1"><span class="sv" id="hcp-a-v">1.00</span></div>
+    <div class="hcp-slider"><label>c</label><input type="range" id="hcp-c" min="0.8" max="2.6" step="0.01" value="1.633"><span class="sv" id="hcp-c-v">1.633</span></div>
+  </div>
+
+  <div class="hd-block" id="hd-hcp-idx" style="display:none">
+    <span class="lbl" data-i18n="indices">Índices</span>
+    <div class="vrr-inputs">
+      <div class="vrr-step"><em>h</em><button type="button" data-hop="d" data-ht="h">−</button><input type="number" id="hcp-h" value="1" step="1"><button type="button" data-hop="i" data-ht="h">+</button></div>
+      <div class="vrr-step"><em>k</em><button type="button" data-hop="d" data-ht="k">−</button><input type="number" id="hcp-k" value="0" step="1"><button type="button" data-hop="i" data-ht="k">+</button></div>
+      <div class="vrr-step vrr-locked" id="hcp-i-wrap"><em>i</em><input type="number" id="hcp-i" value="-1" step="1" readonly tabindex="-1"></div>
+      <div class="vrr-step"><em>l</em><button type="button" data-hop="d" data-ht="l">−</button><input type="number" id="hcp-l" value="1" step="1"><button type="button" data-hop="i" data-ht="l">+</button></div>
+    </div>
+    <span class="notation" id="hcp-notation">(1 0 -1 1)</span>
+    <div class="notation-toggle" id="hcp-notation-toggle">
+      <button data-notation="4" class="on">hkil</button>
+      <button data-notation="3">hkl</button>
+    </div>
+  </div>
+
+  <div class="eqn" style="margin-left:auto">
+    <span class="eqn-l" id="eqn-label" data-i18n="equation">Ecuación</span>
+    <span class="eqn-v" id="eqn">x + y + z = 1</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="stage-wrap" id="stage-wrap">
+    <div id="stage" style="width:100%;height:100%"></div>
+    <div class="step-overlay-top" id="step-title-box">
+      <div class="step-counter" id="step-counter">Paso 1 / 8</div>
+      <div class="step-title-text" id="step-title"></div>
+    </div>
+    <div class="step-overlay-bottom" id="step-eqn-box"></div>
+    <div class="hint" data-i18n="hint">Arrastra para rotar · rueda para zoom · doble clic para reset</div>
+  </div>
+
+  <aside class="side">
+    <div id="side-cubic">
+    <div class="side-sec">
+      <div class="side-title"><span data-i18n="origin">Origen</span> <span class="suffix" data-i18n="origin_hint">clic en un vértice</span></div>
+      <div class="origin-box">
+        <div class="origin-mini" id="origin-mini"></div>
+        <div class="origin-info">
+          <div class="origin-coord" id="origin-coord">(0, 0, 0)</div>
+          <div class="origin-desc" id="origin-desc">Los ejes apuntan hacia el interior de la celda desde el vértice elegido.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="visualization">Visualización</div>
+      <div class="row"><label><input type="checkbox" id="opt-family"> <span data-i18n="family">Familia de planos</span> <em style="font-family:var(--font-serif)">(hkl)</em></label></div>
+      <div class="row"><label><input type="checkbox" id="opt-normal" checked> <span data-i18n="normal">Vector normal</span> <em style="font-family:var(--font-serif)">n̂</em></label></div>
+      <div class="row"><label><input type="checkbox" id="opt-intercepts" checked> <span data-i18n="intercepts">Interceptos</span></label></div>
+      <div class="row"><label><input type="checkbox" id="opt-atoms"> <span data-i18n="atoms">Átomos en vértices</span></label></div>
+      <div class="row">
+        <span style="font-size:12.5px;color:var(--ink)" data-i18n="cells">Celdas</span>
+        <select id="cells"><option value="1">1 × 1 × 1</option><option value="2">2 × 2 × 2</option><option value="3">3 × 3 × 3</option></select>
+      </div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="view">Vista</div>
+      <div class="preset-grid">
+        <button class="pbtn" data-view="iso" data-i18n="view_iso">isométrica</button>
+        <button class="pbtn" data-view="front" data-i18n="view_front">x (frontal)</button>
+        <button class="pbtn" data-view="side" data-i18n="view_side">y (lateral)</button>
+        <button class="pbtn" data-view="top" data-i18n="view_top">z (superior)</button>
+      </div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="examples">Ejemplos</div>
+      <div class="examples" id="examples"></div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="results">Resultados</div>
+      <div class="res" id="results">—</div>
+    </div>
+    </div>
+
+    <div id="side-hcp" style="display:none">
+    <div id="hcp-mode-steps">
+    <div class="side-sec">
+      <div class="side-title"><span data-i18n="step_analysis">Análisis paso a paso</span> <span class="suffix" id="speed-label">relación c/a</span></div>
+      <div class="anim-controls">
+        <button class="anim-btn" id="btn-reset" title="Reset">⟲</button>
+        <button class="anim-btn" id="btn-prev" title="Anterior">⏮</button>
+        <button class="anim-btn play-btn" id="btn-play" title="Play">▶</button>
+        <button class="anim-btn" id="btn-next" title="Siguiente">⏭</button>
+      </div>
+      <div class="step-progress" id="step-progress"></div>
+      <div class="speed-row">
+        <span data-i18n="speed">Velocidad</span>
+        <div class="speed-seg" id="speed-seg">
+          <button data-speed="0.5">0.5×</button>
+          <button data-speed="1" class="on">1×</button>
+          <button data-speed="2">2×</button>
+        </div>
+      </div>
+      <div class="ratio-display">
+        <div class="rv">c/a = <span class="hl" id="ratio-val">1.633</span></div>
+        <div class="ri"><span data-i18n="ideal">ideal</span>: √(8/3) ≈ 1.6330</div>
+      </div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="view">Vista</div>
+      <div class="preset-grid">
+        <button class="pbtn" data-view="iso" data-i18n="view_iso">isométrica</button>
+        <button class="pbtn" data-view="front" data-i18n="view_front">x (frontal)</button>
+        <button class="pbtn" data-view="side" data-i18n="view_side">y (lateral)</button>
+        <button class="pbtn" data-view="top" data-i18n="view_top">z (superior)</button>
+      </div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="key_relations">Relaciones clave</div>
+      <div class="res">
+        <div><span class="res-k">a = </span><span class="res-v">2r</span></div>
+        <div><span class="res-k">d = </span><span class="res-v">a/√3</span> <span class="res-k">(centroide→vértice)</span></div>
+        <div><span class="res-k">(a/√3)² + (c/2)² = </span><span class="res-v">a²</span></div>
+        <div><span class="res-k">c/a = </span><span class="res-v">√(8/3) ≈ 1.6330</span></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="hcp-mode-planes" style="display:none">
+    <div class="side-sec">
+      <div class="side-title" data-i18n="visualization">Visualización</div>
+      <div class="row"><label><input type="checkbox" id="hcp-opt-family"> <span data-i18n="family">Familia de planos</span> <em style="font-family:var(--font-serif)">(hkil)</em></label></div>
+      <div class="row"><label><input type="checkbox" id="hcp-opt-normal" checked> <span data-i18n="normal">Vector normal</span> <em style="font-family:var(--font-serif)">n̂</em></label></div>
+      <div class="row"><label><input type="checkbox" id="hcp-opt-intercepts" checked> <span data-i18n="intercepts">Interceptos</span></label></div>
+      <div class="row"><label><input type="checkbox" id="hcp-opt-atoms"> <span data-i18n="atoms">Átomos en vértices</span></label></div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="view">Vista</div>
+      <div class="preset-grid">
+        <button class="pbtn" data-view="iso" data-i18n="view_iso">isométrica</button>
+        <button class="pbtn" data-view="front" data-i18n="view_front">x (frontal)</button>
+        <button class="pbtn" data-view="side" data-i18n="view_side">y (lateral)</button>
+        <button class="pbtn" data-view="top" data-i18n="view_top">z (superior)</button>
+      </div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="examples">Ejemplos</div>
+      <div class="examples" id="hcp-examples"></div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="results">Resultados</div>
+      <div class="res" id="hcp-results">—</div>
+    </div>
+    </div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="appearance">Apariencia</div>
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-title" data-i18n="language">Idioma</div>
+      <div class="seg" id="lang-seg">
+        <button data-lang="es">Español</button>
+        <button data-lang="en">English</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="note" id="note"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   §0 I18N — Diccionario bilingüe
+   ═══════════════════════════════════════════════════════ */
+const I18N={
+  es:{
+    indices:'Índices', equation:'Ecuación',
+    hint:'Arrastra · rueda para zoom · WASD o flechas para rotar · doble clic reset',
+    origin:'Origen', origin_hint:'clic en un vértice',
+    visualization:'Visualización',
+    family:'Familia de planos', normal:'Vector normal',
+    intercepts:'Interceptos', atoms:'Átomos en vértices',
+    cells:'Celdas', view:'Vista',
+    view_iso:'isométrica', view_front:'x (frontal)',
+    view_side:'y (lateral)', view_top:'z (superior)',
+    examples:'Ejemplos', results:'Resultados',
+    appearance:'Apariencia', language:'Idioma',
+    system:'Sistema', sys_cubic:'cúbico', sys_hcp:'HCP',
+    parameters:'Parámetros',
+    step_analysis:'Análisis paso a paso',
+    speed:'Velocidad', ideal:'ideal',
+    key_relations:'Relaciones clave',
+    step_label:'Paso',
+    mode:'Modo', mode_steps:'análisis c/a', mode_planes:'planos (hkil)',
+    plane_family:'Familia {hkil}', plane_eqn:'Ecuación del plano',
+    d_spacing:'Distancia interplanar', hexagonal:'hexagonal',
+    constraint:'con i = −(h+k)',
+    no_intersect:'sin intersección', no_plane:'Sin plano definido',
+    primitive:'primitiva', planes_cell:'planos en celda',
+    note_zero:'Los índices (0 0 0) no definen un plano.',
+    parallel_to:'paralelo al eje', through_origin:'pasa por el origen',
+    showing_plane:'mostrando plano con',
+    primitive_form:'forma primitiva',
+    family_with:'familia completa con', planes_per_cell:'planos por celda',
+    origin_shifted:'origen desplazado a',
+    axes_dir:'Ejes locales en dirección',
+    world:'mundial',
+    theme_paper:'Papel científico', theme_lab:'Laboratorio', theme_blueprint:'Blueprint', theme_crystalline:'Cristalino',
+    keyboard_hint:'Teclado: WASD / ↑↓←→ para rotar'
+  },
+  en:{
+    indices:'Indices', equation:'Equation',
+    hint:'Drag · wheel to zoom · WASD or arrows to rotate · double-click to reset',
+    origin:'Origin', origin_hint:'click a vertex',
+    visualization:'Visualization',
+    family:'Plane family', normal:'Normal vector',
+    intercepts:'Intercepts', atoms:'Atoms at vertices',
+    cells:'Cells', view:'View',
+    view_iso:'isometric', view_front:'x (front)',
+    view_side:'y (side)', view_top:'z (top)',
+    examples:'Examples', results:'Results',
+    appearance:'Appearance', language:'Language',
+    system:'System', sys_cubic:'cubic', sys_hcp:'HCP',
+    parameters:'Parameters',
+    step_analysis:'Step-by-step analysis',
+    speed:'Speed', ideal:'ideal',
+    key_relations:'Key relations',
+    step_label:'Step',
+    mode:'Mode', mode_steps:'c/a analysis', mode_planes:'planes (hkil)',
+    plane_family:'Family {hkil}', plane_eqn:'Plane equation',
+    d_spacing:'Interplanar distance', hexagonal:'hexagonal',
+    constraint:'with i = −(h+k)',
+    no_intersect:'no intersection', no_plane:'No plane defined',
+    primitive:'primitive', planes_cell:'planes in cell',
+    note_zero:'Indices (0 0 0) do not define a plane.',
+    parallel_to:'parallel to axis', through_origin:'passes through the origin',
+    showing_plane:'showing plane with',
+    primitive_form:'primitive form',
+    family_with:'full family with', planes_per_cell:'planes per cell',
+    origin_shifted:'origin shifted to',
+    axes_dir:'Local axes pointing',
+    world:'world',
+    theme_paper:'Scientific paper', theme_lab:'Laboratory', theme_blueprint:'Blueprint', theme_crystalline:'Crystalline',
+    keyboard_hint:'Keyboard: WASD / ↑↓←→ to rotate'
+  }
+};
+let currentLang='es';
+function tr(key){ return (I18N[currentLang] && I18N[currentLang][key]) || I18N.es[key] || key; }
+
+/* ═══════════════════════════════════════════════════════
+   §0.b TEMAS — Metadata de cada paleta
+   ═══════════════════════════════════════════════════════ */
+const THEMES=[
+  {id:'paper',       labelKey:'theme_paper',       swatch:'#8b2635'},
+  {id:'lab',         labelKey:'theme_lab',         swatch:'#e8a060'},
+  {id:'blueprint',   labelKey:'theme_blueprint',   swatch:'#f4b942'},
+  {id:'crystalline', labelKey:'theme_crystalline', swatch:'#ec4899'}
+];
+let currentTheme='paper';
+
+/* ═══════════════════════════════════════════════════════
+   §1 GEOMETRÍA
+   ═══════════════════════════════════════════════════════ */
+const CV=[[0,0,0],[1,0,0],[0,1,0],[1,1,0],[0,0,1],[1,0,1],[0,1,1],[1,1,1]];
+const CE=[[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
+
+function polyAt(h,k,l,d){
+  const vals=CV.map(v=>h*v[0]+k*v[1]+l*v[2]);
+  const tol=1e-9, pts=[];
+  for(const [a,b] of CE){
+    const va=vals[a], vb=vals[b];
+    const oa=Math.abs(va-d)<tol, ob=Math.abs(vb-d)<tol;
+    if(oa) pts.push([...CV[a]]);
+    if(ob) pts.push([...CV[b]]);
+    if(!oa && !ob && (va-d)*(vb-d)<0){
+      const t=(d-va)/(vb-va);
+      pts.push([CV[a][0]+t*(CV[b][0]-CV[a][0]), CV[a][1]+t*(CV[b][1]-CV[a][1]), CV[a][2]+t*(CV[b][2]-CV[a][2])]);
+    }
+  }
+  const u=[];
+  for(const p of pts){
+    if(!u.some(q=>Math.abs(q[0]-p[0])<1e-5&&Math.abs(q[1]-p[1])<1e-5&&Math.abs(q[2]-p[2])<1e-5)) u.push(p);
+  }
+  if(u.length<3) return u;
+  const cx=u.reduce((s,p)=>s+p[0],0)/u.length, cy=u.reduce((s,p)=>s+p[1],0)/u.length, cz=u.reduce((s,p)=>s+p[2],0)/u.length;
+  const nl=Math.hypot(h,k,l);
+  const n=[h/nl,k/nl,l/nl];
+  let ux=Math.abs(n[0])<0.9?[1,0,0]:[0,1,0];
+  const dt=ux[0]*n[0]+ux[1]*n[1]+ux[2]*n[2];
+  ux=[ux[0]-dt*n[0],ux[1]-dt*n[1],ux[2]-dt*n[2]];
+  const ul=Math.hypot(...ux); ux=ux.map(x=>x/ul);
+  const vv=[n[1]*ux[2]-n[2]*ux[1], n[2]*ux[0]-n[0]*ux[2], n[0]*ux[1]-n[1]*ux[0]];
+  u.forEach(p=>{
+    const a=p[0]-cx, b=p[1]-cy, c=p[2]-cz;
+    p._ang=Math.atan2(a*vv[0]+b*vv[1]+c*vv[2], a*ux[0]+b*ux[1]+c*ux[2]);
+  });
+  u.sort((a,b)=>a._ang-b._ang);
+  return u;
+}
+function planeFamily(h,k,l){
+  if(h===0&&k===0&&l===0) return [];
+  const vals=CV.map(v=>h*v[0]+k*v[1]+l*v[2]);
+  const vmin=Math.min(...vals), vmax=Math.max(...vals);
+  const out=[];
+  for(let d=Math.ceil(vmin-1e-9); d<=Math.floor(vmax+1e-9); d++){
+    const poly=polyAt(h,k,l,d);
+    if(poly.length>=3) out.push({d,poly});
+  }
+  return out;
+}
+function principalPlane(h,k,l){
+  const fam=planeFamily(h,k,l);
+  if(!fam.length) return null;
+  const byOne=fam.find(p=>p.d===1);
+  if(byOne) return byOne;
+  fam.sort((a,b)=>Math.abs(a.d-1)-Math.abs(b.d-1));
+  return fam[0];
+}
+
+let originIdx=0;
+let originSigns=[1,1,1];
+function updateOriginSigns(){
+  const v=CV[originIdx];
+  originSigns=[v[0]===0?1:-1, v[1]===0?1:-1, v[2]===0?1:-1];
+}
+function localToWorld(p){
+  const o=CV[originIdx];
+  return [o[0]+originSigns[0]*p[0], o[1]+originSigns[1]*p[1], o[2]+originSigns[2]*p[2]];
+}
+
+let yaw=0.65, pitch=-0.35, scale=130;
+function rotate(p){
+  const cy=Math.cos(yaw), sy=Math.sin(yaw);
+  const cp=Math.cos(pitch), sp=Math.sin(pitch);
+  const x=p[0], y=p[1], z=p[2];
+  const x1=x*cy - y*sy, y1=x*sy + y*cy, z1=z;
+  return [x1, y1*cp - z1*sp, y1*sp + z1*cp];
+}
+const W=720, H=540;
+const Ox=W/2, Oy=H/2;
+function makeTransform(Ncells){
+  const localCenter=[Ncells/2, Ncells/2, Ncells/2];
+  const wc=localToWorld(localCenter);
+  const baseScale=(Math.min(W,H)*0.32)/Math.max(1, Ncells*0.85);
+  const effScale=Math.max(30, Math.min(400, baseScale*(scale/130)));
+  return p_local=>{
+    const p_world=localToWorld(p_local);
+    const centered=[p_world[0]-wc[0], p_world[1]-wc[1], p_world[2]-wc[2]];
+    const r=rotate(centered);
+    return {x: Ox+r[0]*effScale, y: Oy-r[2]*effScale, d: r[1]};
+  };
+}
+
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);return b?gcd(b,a%b):a||1}
+function fmtFrac(n,dd){
+  if(dd===0) return '∞';
+  if(n===0) return '0';
+  const g=gcd(n,dd), sg=(n*dd<0)?'−':'';
+  n=Math.abs(n)/g; dd=Math.abs(dd)/g;
+  return sg+n+(dd===1?'':'/'+dd);
+}
+function millerHTML(i){return i<0?'<span class="ovr">'+Math.abs(i)+'</span>':String(i)}
+function eqnText(h,k,l,d){
+  const t=[];
+  const add=(c,v)=>{
+    if(c===0) return;
+    const f=t.length===0, sg=c<0?'−':(f?'':'+'), m=Math.abs(c);
+    t.push((f?sg:' '+sg+' ')+(m===1?'':m)+v);
+  };
+  add(h,'x'); add(k,'y'); add(l,'z');
+  return (t.join('')||'0')+' = '+(d<0?'−'+Math.abs(d):String(d));
+}
+
+function renderCubic(){
+  const h=parseInt(document.getElementById('h').value,10)||0;
+  const k=parseInt(document.getElementById('k').value,10)||0;
+  const l=parseInt(document.getElementById('l').value,10)||0;
+  const Ncells=parseInt(document.getElementById('cells').value,10)||1;
+  const showFamily=document.getElementById('opt-family').checked;
+  const showNormal=document.getElementById('opt-normal').checked;
+  const showInt=document.getElementById('opt-intercepts').checked;
+  const showAtoms=document.getElementById('opt-atoms').checked;
+  const all0=(h===0&&k===0&&l===0);
+
+  const cs=getComputedStyle(document.body);
+  const C={
+    stageBg:cs.getPropertyValue('--stage-bg').trim(),
+    ink:cs.getPropertyValue('--ink').trim(),
+    edge:cs.getPropertyValue('--edge').trim(),
+    vtxHollow:cs.getPropertyValue('--vtx-hollow').trim(),
+    vtxStroke:cs.getPropertyValue('--vtx-stroke').trim(),
+    planeMain:cs.getPropertyValue('--plane-main').trim(),
+    planeFam:cs.getPropertyValue('--plane-fam').trim(),
+    planeStroke:cs.getPropertyValue('--plane-stroke').trim(),
+    planeStroke2:cs.getPropertyValue('--plane-stroke2').trim(),
+    atomFill:cs.getPropertyValue('--atom-fill').trim(),
+    accent:cs.getPropertyValue('--accent').trim()
+  };
+
+  updateOriginSigns();
+  const T=makeTransform(Ncells);
+  const items=[];
+
+  for(let i=0;i<Ncells;i++)
+    for(let j=0;j<Ncells;j++)
+      for(let kk=0;kk<Ncells;kk++){
+        for(const [a,b] of CE){
+          const pa=T([CV[a][0]+i, CV[a][1]+j, CV[a][2]+kk]);
+          const pb=T([CV[b][0]+i, CV[b][1]+j, CV[b][2]+kk]);
+          items.push({d:(pa.d+pb.d)/2, svg:`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${C.edge}" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>`});
+        }
+      }
+
+  if(showAtoms){
+    for(let i=0;i<=Ncells;i++)
+      for(let j=0;j<=Ncells;j++)
+        for(let kk=0;kk<=Ncells;kk++){
+          const p=T([i,j,kk]);
+          items.push({d:p.d-0.001, svg:`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${C.atomFill}" stroke="${C.ink}" stroke-width="1.1"/>`});
+        }
+  }
+
+  let planes=[];
+  if(!all0){
+    planes=showFamily?planeFamily(h,k,l):(()=>{const p=principalPlane(h,k,l);return p?[p]:[];})();
+  }
+  for(const plane of planes){
+    const isMain=(plane.d===1);
+    for(let i=0;i<Ncells;i++)
+      for(let j=0;j<Ncells;j++)
+        for(let kk=0;kk<Ncells;kk++){
+          const pts=plane.poly.map(p=>T([p[0]+i, p[1]+j, p[2]+kk]));
+          const depth=pts.reduce((s,p)=>s+p.d,0)/pts.length;
+          const pStr=pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+          const fill=isMain?C.planeMain:C.planeFam;
+          const stroke=isMain?C.planeStroke:C.planeStroke2;
+          const sw=isMain?1.5:1;
+          items.push({d:depth+0.0005, svg:`<polygon points="${pStr}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/>`});
+        }
+  }
+  items.sort((a,b)=>b.d-a.d);
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">`;
+  svg+='<defs>';
+  svg+='<marker id="ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="context-stroke" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></marker>';
+  svg+=`<marker id="narr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="${C.accent}" stroke="none"/></marker>`;
+  svg+='</defs>';
+  svg+=`<rect width="${W}" height="${H}" fill="none" pointer-events="none"/>`;
+  svg+=items.map(i=>i.svg).join('');
+
+  const O3=T([0,0,0]);
+  const axEnd={x:T([Ncells*1.18,0,0]), y:T([0,Ncells*1.18,0]), z:T([0,0,Ncells*1.18])};
+  svg+=`<g stroke="${C.ink}" stroke-width="1.3" fill="none" stroke-linecap="round">`;
+  svg+=`<line x1="${O3.x}" y1="${O3.y}" x2="${axEnd.x.x}" y2="${axEnd.x.y}" marker-end="url(#ax)"/>`;
+  svg+=`<line x1="${O3.x}" y1="${O3.y}" x2="${axEnd.y.x}" y2="${axEnd.y.y}" marker-end="url(#ax)"/>`;
+  svg+=`<line x1="${O3.x}" y1="${O3.y}" x2="${axEnd.z.x}" y2="${axEnd.z.y}" marker-end="url(#ax)"/>`;
+  svg+=`</g>`;
+  svg+=`<g font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="17" font-weight="500" fill="${C.ink}">`;
+  svg+=`<text x="${(axEnd.x.x+8).toFixed(1)}" y="${(axEnd.x.y+5).toFixed(1)}">x</text>`;
+  svg+=`<text x="${(axEnd.y.x+8).toFixed(1)}" y="${(axEnd.y.y+5).toFixed(1)}">y</text>`;
+  svg+=`<text x="${(axEnd.z.x-4).toFixed(1)}" y="${(axEnd.z.y-8).toFixed(1)}">z</text>`;
+  svg+=`</g>`;
+  // Marcadores en los 8 vértices del cubo (si Ncells=1): origen relleno, resto hueco.
+  // Así hay correspondencia visual 1:1 con el mini-cubo selector.
+  if(Ncells===1 && !showAtoms){
+    for(let i=0;i<8;i++){
+      if(i===0){ continue; } // el origen (vértice local 0,0,0) se pinta aparte, más grande
+      const p=T(CV[i]);
+      svg+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${C.vtxHollow}" stroke="${C.vtxStroke}" stroke-width="1.3"/>`;
+    }
+  }
+
+  svg+=`<circle cx="${O3.x}" cy="${O3.y}" r="6.5" fill="${C.ink}" stroke="${C.ink}" stroke-width="1.4"/>`;
+  svg+=`<text x="${(O3.x-18).toFixed(1)}" y="${(O3.y+18).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="14" font-weight="500" fill="${C.ink}">O</text>`;
+
+  const main=all0?null:principalPlane(h,k,l);
+  if(showInt && main && main.d!==0){
+    const coeffs=[h,k,l], d=main.d;
+    const offs=[[8,16],[10,14],[8,-8]];
+    for(let i=0;i<3;i++){
+      const c=coeffs[i];
+      if(c===0) continue;
+      const frac=d/c;
+      if(frac<=0 || frac>Ncells+0.001) continue;
+      const p3=[0,0,0]; p3[i]=frac;
+      const sp=T(p3);
+      svg+=`<circle cx="${sp.x.toFixed(1)}" cy="${sp.y.toFixed(1)}" r="3.4" fill="${C.ink}"/>`;
+      svg+=`<text x="${(sp.x+offs[i][0]).toFixed(1)}" y="${(sp.y+offs[i][1]).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="13" fill="${C.ink}">${fmtFrac(d,c)}</text>`;
+    }
+  }
+
+  if(showNormal && main){
+    const cx=main.poly.reduce((s,p)=>s+p[0],0)/main.poly.length;
+    const cy=main.poly.reduce((s,p)=>s+p[1],0)/main.poly.length;
+    const cz=main.poly.reduce((s,p)=>s+p[2],0)/main.poly.length;
+    const nl=Math.hypot(h,k,l);
+    const nlen=0.35;
+    const p0=T([cx,cy,cz]);
+    const p1=T([cx+h/nl*nlen, cy+k/nl*nlen, cz+l/nl*nlen]);
+    svg+=`<line x1="${p0.x.toFixed(1)}" y1="${p0.y.toFixed(1)}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="${C.accent}" stroke-width="2" marker-end="url(#narr)"/>`;
+    svg+=`<text x="${(p1.x+6).toFixed(1)}" y="${(p1.y-3).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="14" fill="${C.accent}" font-weight="600">n̂</text>`;
+  }
+
+  svg+=`</svg>`;
+  document.getElementById('stage').innerHTML=svg;
+
+  document.getElementById('notation').innerHTML=all0?'(0 0 0)':('('+millerHTML(h)+' '+millerHTML(k)+' '+millerHTML(l)+')');
+  document.getElementById('eqn').textContent=all0?'—':(main?eqnText(h,k,l,main.d):('('+tr('no_intersect')+')'));
+
+  const res=document.getElementById('results');
+  if(all0){
+    res.innerHTML=`<span class="res-k">${tr('no_plane')}</span>`;
+  } else {
+    const g=gcd(gcd(Math.abs(h),Math.abs(k)),Math.abs(l));
+    const hp=h/g, kp=k/g, lp=l/g;
+    const Ssq=hp*hp+kp*kp+lp*lp;
+    const dhkl=1/Math.sqrt(Ssq);
+    const fam=planeFamily(h,k,l);
+    res.innerHTML=`
+      <div><span class="res-k">d<sub>hkl</sub> = </span><span class="res-v">a / √${Ssq} = ${dhkl.toFixed(4)} a</span></div>
+      <div><span class="res-k">|n| = </span><span class="res-v">√${h*h+k*k+l*l} = ${Math.sqrt(h*h+k*k+l*l).toFixed(4)}</span></div>
+      <div><span class="res-k">${tr('primitive')}: </span><span class="res-v">(${millerHTML(hp)} ${millerHTML(kp)} ${millerHTML(lp)})</span></div>
+      <div><span class="res-k">${tr('planes_cell')}: </span><span class="res-v">${fam.length}</span></div>
+    `;
+  }
+
+  let note='';
+  if(all0){ note=tr('note_zero'); }
+  else {
+    const parts=[];
+    const zs=[h,k,l].filter(x=>x===0).length;
+    if(zs>0 && zs<3){
+      const a=[]; if(h===0)a.push('x'); if(k===0)a.push('y'); if(l===0)a.push('z');
+      parts.push(tr('parallel_to')+' '+a.join(', '));
+    }
+    if(main && main.d===0) parts.push(tr('through_origin'));
+    else if(main && main.d!==1) parts.push(tr('showing_plane')+' d = '+main.d);
+    const g=gcd(gcd(Math.abs(h),Math.abs(k)),Math.abs(l));
+    if(g>1) parts.push(tr('primitive_form')+' ('+h/g+' '+k/g+' '+l/g+')');
+    if(showFamily) parts.push(tr('family_with')+' '+planeFamily(h,k,l).length+' '+tr('planes_per_cell'));
+    const o=CV[originIdx];
+    if(o[0]||o[1]||o[2]) parts.push(tr('origin_shifted')+' ('+o[0]+','+o[1]+','+o[2]+')');
+    note=parts.length?parts.map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' · '):'';
+  }
+  document.getElementById('note').innerHTML=note;
+
+  renderOriginMini();
+}
+
+function renderOriginMini(){
+  const wrap=document.getElementById('origin-mini');
+  const cs=getComputedStyle(document.body);
+  const cEdge=cs.getPropertyValue('--edge2').trim();
+  const cInk=cs.getPropertyValue('--ink').trim();
+  const cHollow=cs.getPropertyValue('--vtx-hollow').trim();
+  const cStroke=cs.getPropertyValue('--vtx-stroke').trim();
+  const ox=54, oy=54, S=26;
+  const proj=p=>{
+    const centered=[p[0]-0.5, p[1]-0.5, p[2]-0.5];
+    const r=rotate(centered);
+    return {x: ox+r[0]*S, y: oy-r[2]*S, d: r[1]};
+  };
+
+  const edgeItems=CE.map(([a,b])=>{
+    const pa=proj(CV[a]), pb=proj(CV[b]);
+    return {depth:(pa.d+pb.d)/2, svg:`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${cEdge}" stroke-width="1" fill="none"/>`};
+  });
+  edgeItems.sort((a,b)=>b.depth-a.depth);
+
+  const vtxItems=[];
+  for(let i=0;i<8;i++){
+    const p=proj(CV[i]);
+    const sel=(i===originIdx);
+    const r=sel?6:4.5;
+    const fill=sel?cInk:cHollow;
+    const stroke=sel?cInk:cStroke;
+    vtxItems.push({depth:p.d, svg:`<circle class="ovtx" data-i="${i}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.4" style="cursor:pointer"><title>(${CV[i][0]},${CV[i][1]},${CV[i][2]})</title></circle>`});
+  }
+  vtxItems.sort((a,b)=>b.depth-a.depth);
+
+  let svg=`<svg viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">`;
+  svg+=edgeItems.map(e=>e.svg).join('');
+  svg+=vtxItems.map(v=>v.svg).join('');
+  svg+=`</svg>`;
+  wrap.innerHTML=svg;
+  wrap.querySelectorAll('.ovtx').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      originIdx=parseInt(c.dataset.i,10);
+      render();
+    });
+  });
+  const o=CV[originIdx];
+  document.getElementById('origin-coord').textContent=`(${o[0]}, ${o[1]}, ${o[2]})`;
+  const signs=[o[0]===0?'+x':'−x', o[1]===0?'+y':'−y', o[2]===0?'+z':'−z'];
+  document.getElementById('origin-desc').textContent=`${tr('axes_dir')} ${signs.join(', ')} (${tr('world')}).`;
+}
+
+const stageWrap=document.getElementById('stage-wrap');
+let dragging=false, lastX=0, lastY=0;
+function startDrag(x,y){dragging=true;lastX=x;lastY=y;stageWrap.classList.add('dragging')}
+function moveDrag(x,y){
+  if(!dragging) return;
+  const dx=x-lastX, dy=y-lastY;
+  yaw+=dx*0.009; pitch-=dy*0.009;
+  const lim=Math.PI/2-0.01;
+  pitch=Math.max(-lim,Math.min(lim,pitch));
+  lastX=x; lastY=y; render();
+}
+function endDrag(){dragging=false;stageWrap.classList.remove('dragging')}
+stageWrap.addEventListener('mousedown', e=>{e.preventDefault();startDrag(e.clientX,e.clientY)});
+window.addEventListener('mousemove', e=>moveDrag(e.clientX,e.clientY));
+window.addEventListener('mouseup', endDrag);
+stageWrap.addEventListener('touchstart', e=>{if(e.touches.length===1){const t=e.touches[0];startDrag(t.clientX,t.clientY)}}, {passive:true});
+stageWrap.addEventListener('touchmove', e=>{if(e.touches.length===1){const t=e.touches[0];moveDrag(t.clientX,t.clientY);e.preventDefault()}}, {passive:false});
+stageWrap.addEventListener('touchend', endDrag);
+stageWrap.addEventListener('wheel', e=>{
+  e.preventDefault();
+  scale*=(e.deltaY>0?0.9:1.1);
+  scale=Math.max(40,Math.min(400,scale));
+  render();
+}, {passive:false});
+stageWrap.addEventListener('dblclick', ()=>{yaw=0.65;pitch=-0.35;scale=130;render()});
+
+const views={
+  iso:{yaw:0.65,pitch:-0.35},
+  front:{yaw:0,pitch:0},
+  side:{yaw:-Math.PI/2,pitch:0},
+  top:{yaw:0,pitch:-Math.PI/2+0.01}
+};
+document.querySelectorAll('.pbtn[data-view]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const v=views[btn.dataset.view];
+    yaw=v.yaw; pitch=v.pitch;
+    document.querySelectorAll('.pbtn[data-view]').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    render();
+  });
+});
+
+const examples=[[1,0,0],[1,1,0],[1,1,1],[2,1,0],[2,1,1],[3,2,1],[1,0,-1],[-1,1,0]];
+const exBox=document.getElementById('examples');
+examples.forEach(([h,k,l])=>{
+  const b=document.createElement('button');
+  b.className='ebtn';
+  b.innerHTML='('+millerHTML(h)+millerHTML(k)+millerHTML(l)+')';
+  b.addEventListener('click', ()=>{
+    document.getElementById('h').value=h;
+    document.getElementById('k').value=k;
+    document.getElementById('l').value=l;
+    render();
+  });
+  exBox.appendChild(b);
+});
+['h','k','l'].forEach(id=>document.getElementById(id).addEventListener('input', render));
+document.querySelectorAll('button[data-op]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const inp=document.getElementById(btn.dataset.t);
+    inp.value=(parseInt(inp.value,10)||0)+(btn.dataset.op==='i'?1:-1);
+    render();
+  });
+});
+['opt-family','opt-normal','opt-intercepts','opt-atoms','cells'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', render);
+});
+document.querySelector('.pbtn[data-view="iso"]').classList.add('on');
+
+/* ═══════════════════════════════════════════════════════
+   §7.b TECLADO — WASD + flechas para rotar
+   ═══════════════════════════════════════════════════════ */
+// Convención (como en los juegos):
+//   W / ↑  → la vista sube  (pitch disminuye, +z del cubo se hace más visible)
+//   S / ↓  → la vista baja  (pitch aumenta, -z más visible)
+//   A / ←  → la vista gira a la izquierda (yaw disminuye, -y visible)
+//   D / →  → la vista gira a la derecha  (yaw aumenta, +y visible)
+const keysDown=new Set();
+const KEY_ROT_SPEED=0.035;  // rad por frame mantenido
+let keyLoopRunning=false;
+
+function keyLoop(){
+  if(keysDown.size===0){ keyLoopRunning=false; return; }
+  keyLoopRunning=true;
+  let changed=false;
+  if(keysDown.has('w')||keysDown.has('arrowup'))    { pitch-=KEY_ROT_SPEED; changed=true; }
+  if(keysDown.has('s')||keysDown.has('arrowdown'))  { pitch+=KEY_ROT_SPEED; changed=true; }
+  if(keysDown.has('a')||keysDown.has('arrowleft'))  { yaw-=KEY_ROT_SPEED;   changed=true; }
+  if(keysDown.has('d')||keysDown.has('arrowright')) { yaw+=KEY_ROT_SPEED;   changed=true; }
+  if(changed){
+    const lim=Math.PI/2-0.01;
+    pitch=Math.max(-lim, Math.min(lim, pitch));
+    render();
+  }
+  requestAnimationFrame(keyLoop);
+}
+
+window.addEventListener('keydown', e=>{
+  // No interceptar si está escribiendo en un input
+  const tag=(e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea') return;
+  const k=e.key.toLowerCase();
+  if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){
+    e.preventDefault();
+    keysDown.add(k);
+    if(!keyLoopRunning) requestAnimationFrame(keyLoop);
+  }
+});
+window.addEventListener('keyup', e=>{
+  keysDown.delete(e.key.toLowerCase());
+});
+window.addEventListener('blur', ()=>{ keysDown.clear(); });
+
+/* ═══════════════════════════════════════════════════════
+   §8 TEMAS E IDIOMAS
+   ═══════════════════════════════════════════════════════ */
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent=tr(el.dataset.i18n);
+  });
+  document.documentElement.setAttribute('lang', currentLang);
+  document.querySelectorAll('#lang-seg button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.lang===currentLang);
+  });
+}
+function applyTheme(){
+  document.body.setAttribute('data-theme', currentTheme);
+  document.querySelectorAll('#theme-grid .tbtn').forEach(b=>{
+    b.classList.toggle('on', b.dataset.theme===currentTheme);
+  });
+}
+
+// Construir botones de tema
+const themeGrid=document.getElementById('theme-grid');
+THEMES.forEach(t=>{
+  const b=document.createElement('button');
+  b.className='tbtn';
+  b.dataset.theme=t.id;
+  b.innerHTML=`<span class="sw" style="background:${t.swatch}"></span><span data-theme-label="${t.labelKey}">${tr(t.labelKey)}</span>`;
+  b.addEventListener('click', ()=>{
+    currentTheme=t.id;
+    applyTheme();
+    render();
+  });
+  themeGrid.appendChild(b);
+});
+
+// Listeners de idioma
+document.querySelectorAll('#lang-seg button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    currentLang=b.dataset.lang;
+    applyLang();
+    // Actualizar etiquetas de los botones de tema (que dependen de tr())
+    document.querySelectorAll('#theme-grid [data-theme-label]').forEach(span=>{
+      span.textContent=tr(span.dataset.themeLabel);
+    });
+    render();
+  });
+});
+
+/* ═══════════════════════════════════════════════════════
+   §9 HCP — Sistema hexagonal compacto + análisis paso a paso
+   ═══════════════════════════════════════════════════════ */
+let currentSystem='cubic';   // 'cubic' | 'hcp'
+let hcpA=1.0;
+let hcpC=Math.sqrt(8/3);     // 1.6329...
+let currentStep=0;
+let isPlaying=false;
+let playTimer=null;
+let playSpeed=1;
+let viewAnimFrame=null;
+
+// Geometría HCP: hexágono basal, superior e intermedios
+function hcpGeometry(a,c){
+  const C0=[0,0,0];
+  const V=[];
+  for(let i=0;i<6;i++){
+    const ang=i*Math.PI/3;
+    V.push([a*Math.cos(ang), a*Math.sin(ang), 0]);
+  }
+  const CT=[0,0,c];
+  const VT=V.map(v=>[v[0],v[1],c]);
+  // 3 átomos intermedios en centroides de triángulos alternos (C,V0,V1)(C,V2,V3)(C,V4,V5)
+  const M=[];
+  for(let i=0;i<3;i++){
+    const v1=V[2*i], v2=V[(2*i+1)%6];
+    M.push([(v1[0]+v2[0])/3, (v1[1]+v2[1])/3, c/2]);
+  }
+  return {C0,V,CT,VT,M};
+}
+
+// Configuración de los 8 pasos
+const STEPS_HCP=[
+  { // 0: intro
+    title:{es:'Celda unidad HCP',en:'HCP unit cell'},
+    eqn:[],
+    view:{yaw:0.65,pitch:-0.42,scale:95},
+    show:{basal:true,top:true,mid:true,prism:true,hexB:true,hexT:true,showA:true,showC:true},
+    duration:2500
+  },
+  { // 1: tangencia basal
+    title:{es:'Tangencia en el plano basal',en:'Tangency in basal plane'},
+    eqn:[{t:'a = 2r',m:true}],
+    view:{yaw:0.2,pitch:-1.1,scale:130},
+    show:{basal:true,prism:false,hexB:true,tangency:true,showA:true},
+    duration:2800
+  },
+  { // 2: triángulo equilátero de apoyo
+    title:{es:'Triángulo equilátero de apoyo',en:'Equilateral support triangle'},
+    eqn:[],
+    view:{yaw:0.25,pitch:-1.0,scale:150},
+    show:{basal:true,mid:true,hexB:true,triangle:0},
+    duration:2200
+  },
+  { // 3: centroide y a/√3
+    title:{es:'Proyección del átomo intermedio',en:'Projection of the middle atom'},
+    eqn:[{t:'d = a/√3',m:true}],
+    view:{yaw:0.3,pitch:-1.25,scale:170},
+    show:{basal:true,mid:true,hexB:true,triangle:0,centroid:true,showD:true},
+    duration:2800
+  },
+  { // 4: altura c/2
+    title:{es:'Altura del átomo intermedio',en:'Height of the middle atom'},
+    eqn:[{t:'h = c/2',m:true}],
+    view:{yaw:0.05,pitch:-0.05,scale:110},
+    show:{basal:true,top:true,mid:true,prism:true,hexB:true,hexT:true,heightC2:true,showC:true},
+    duration:2800
+  },
+  { // 5: triángulo rectángulo + pitágoras
+    title:{es:'Pitágoras en el tetraedro',en:'Pythagoras in the tetrahedron'},
+    eqn:[{t:'(a/√3)² + (c/2)² = a²',m:true}],
+    view:{yaw:0.85,pitch:-0.25,scale:160},
+    show:{basal:true,mid:true,hexB:true,triangle:0,centroid:true,heightC2:true,rightTri:true},
+    duration:3200
+  },
+  { // 6: despeje
+    title:{es:'Despejando c²',en:'Solving for c²'},
+    eqn:[
+      {t:'a²/3 + c²/4 = a²',s:true},
+      {t:'c²/4 = 2a²/3',s:true},
+      {t:'c² = 8a²/3',m:true}
+    ],
+    view:{yaw:0.85,pitch:-0.25,scale:160},
+    show:{basal:true,mid:true,hexB:true,triangle:0,centroid:true,heightC2:true,rightTri:true},
+    duration:3500
+  },
+  { // 7: resultado
+    title:{es:'Relación ideal HCP',en:'Ideal HCP ratio'},
+    eqn:[{t:'c/a = √(8/3) ≈ 1.6330',m:true,hl:true}],
+    view:{yaw:0.65,pitch:-0.42,scale:95},
+    show:{basal:true,top:true,mid:true,prism:true,hexB:true,hexT:true,showA:true,showC:true,showRatio:true},
+    duration:3000
+  }
+];
+
+// Transform 3D para HCP (centrado en c/2)
+function makeTransformHCP(a,c){
+  const cen=[0,0,c/2];
+  const span=Math.max(a*2.1, c*1.1);
+  const baseScale=(Math.min(W,H)*0.34)/span;
+  const effScale=Math.max(30, Math.min(400, baseScale*(scale/130)));
+  return p=>{
+    const centered=[p[0]-cen[0], p[1]-cen[1], p[2]-cen[2]];
+    const r=rotate(centered);
+    return {x:Ox+r[0]*effScale, y:Oy-r[2]*effScale, d:r[1], s:effScale};
+  };
+}
+
+// Render principal HCP
+function renderHCP(){
+  const a=hcpA, c=hcpC;
+  const s=STEPS_HCP[currentStep];
+  const show=s.show;
+
+  const cs=getComputedStyle(document.body);
+  const C={
+    ink:cs.getPropertyValue('--ink').trim(),
+    edge:cs.getPropertyValue('--edge').trim(),
+    edge2:cs.getPropertyValue('--edge2').trim(),
+    accent:cs.getPropertyValue('--accent').trim(),
+    planeMain:cs.getPropertyValue('--plane-main').trim(),
+    planeFam:cs.getPropertyValue('--plane-fam').trim(),
+    planeStroke:cs.getPropertyValue('--plane-stroke').trim(),
+    planeStroke2:cs.getPropertyValue('--plane-stroke2').trim(),
+    atomFill:cs.getPropertyValue('--atom-fill').trim(),
+    mute:cs.getPropertyValue('--mute').trim(),
+    vtxHollow:cs.getPropertyValue('--vtx-hollow').trim(),
+    vtxStroke:cs.getPropertyValue('--vtx-stroke').trim()
+  };
+
+  const G=hcpGeometry(a,c);
+  const T=makeTransformHCP(a,c);
+  const items=[];
+  const atomRpx=Math.max(5, Math.min(15, a*T([0,0,0]).s*0.22));
+
+  // Hexágono basal (edges)
+  if(show.hexB){
+    for(let i=0;i<6;i++){
+      const pa=T(G.V[i]), pb=T(G.V[(i+1)%6]);
+      items.push({d:(pa.d+pb.d)/2, svg:`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${C.edge}" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>`});
+      // También desde centro al vértice (radios internos)
+      const pc=T(G.C0), pv=T(G.V[i]);
+      items.push({d:(pc.d+pv.d)/2+0.001, svg:`<line x1="${pc.x.toFixed(1)}" y1="${pc.y.toFixed(1)}" x2="${pv.x.toFixed(1)}" y2="${pv.y.toFixed(1)}" stroke="${C.edge2}" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.4"/>`});
+    }
+  }
+
+  // Hexágono superior
+  if(show.hexT){
+    for(let i=0;i<6;i++){
+      const pa=T(G.VT[i]), pb=T(G.VT[(i+1)%6]);
+      items.push({d:(pa.d+pb.d)/2, svg:`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${C.edge}" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>`});
+    }
+  }
+
+  // Prism lateral edges
+  if(show.prism){
+    for(let i=0;i<6;i++){
+      const pa=T(G.V[i]), pb=T(G.VT[i]);
+      items.push({d:(pa.d+pb.d)/2, svg:`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${C.edge}" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.55"/>`});
+    }
+  }
+
+  // Triángulo equilátero de apoyo (fill)
+  if(show.triangle!==undefined){
+    const idx=show.triangle;
+    const v1=G.V[2*idx], v2=G.V[(2*idx+1)%6];
+    const tp=[T(G.C0), T(v1), T(v2)];
+    const pts=tp.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const depth=(tp[0].d+tp[1].d+tp[2].d)/3;
+    items.push({d:depth+0.002, svg:`<polygon points="${pts}" fill="${C.planeFam}" stroke="${C.planeStroke2}" stroke-width="1.2" stroke-linejoin="round" opacity="0.85"/>`});
+  }
+
+  // Triángulo rectángulo 3D (centroide basal, vértice basal, átomo intermedio)
+  if(show.rightTri){
+    const idx=0;
+    const v1=G.V[2*idx], v2=G.V[(2*idx+1)%6];
+    const centroid=[(v1[0]+v2[0])/3, (v1[1]+v2[1])/3, 0]; // proyección basal del M[0]
+    const m=G.M[idx];
+    const p1=T(centroid), p2=T(v1), p3=T(m);
+    const pts=`${p1.x.toFixed(1)},${p1.y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)} ${p3.x.toFixed(1)},${p3.y.toFixed(1)}`;
+    const depth=(p1.d+p2.d+p3.d)/3;
+    items.push({d:depth+0.003, svg:`<polygon points="${pts}" fill="${C.planeMain}" stroke="${C.planeStroke}" stroke-width="1.8" stroke-linejoin="round" opacity="0.92"/>`});
+    // Etiquetas de catetos e hipotenusa
+    const midH=[(centroid[0]+v1[0])/2,(centroid[1]+v1[1])/2,0];
+    const midV=[centroid[0],centroid[1],c/4];
+    const midHyp=[(v1[0]+m[0])/2,(v1[1]+m[1])/2,(v1[2]+m[2])/2];
+    const pmH=T(midH), pmV=T(midV), pmHyp=T(midHyp);
+    items.push({d:-100, svg:`<text x="${(pmH.x+6).toFixed(1)}" y="${(pmH.y+14).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="13" fill="${C.accent}" font-weight="600">a/√3</text>`});
+    items.push({d:-100, svg:`<text x="${(pmV.x-38).toFixed(1)}" y="${(pmV.y+4).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="13" fill="${C.accent}" font-weight="600">c/2</text>`});
+    items.push({d:-100, svg:`<text x="${(pmHyp.x+8).toFixed(1)}" y="${(pmHyp.y-6).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="14" fill="${C.planeStroke}" font-weight="700">a</text>`});
+  }
+
+  // Centroide marcado + segmento centroide→vértice
+  if(show.centroid){
+    const idx=0;
+    const v1=G.V[2*idx], v2=G.V[(2*idx+1)%6];
+    const centroid=[(v1[0]+v2[0])/3, (v1[1]+v2[1])/3, 0];
+    const pc=T(centroid), pv=T(v1);
+    items.push({d:(pc.d+pv.d)/2-0.001, svg:`<line x1="${pc.x.toFixed(1)}" y1="${pc.y.toFixed(1)}" x2="${pv.x.toFixed(1)}" y2="${pv.y.toFixed(1)}" stroke="${C.accent}" stroke-width="2.2"/>`});
+    items.push({d:pc.d-0.01, svg:`<circle cx="${pc.x.toFixed(1)}" cy="${pc.y.toFixed(1)}" r="4.5" fill="${C.accent}" stroke="${C.ink}" stroke-width="1.2"/>`});
+    if(show.showD){
+      const midHor=[(centroid[0]+v1[0])/2,(centroid[1]+v1[1])/2,0];
+      const pmH=T(midHor);
+      items.push({d:-100, svg:`<text x="${(pmH.x+6).toFixed(1)}" y="${(pmH.y+16).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="14" fill="${C.accent}" font-weight="700">a/√3</text>`});
+    }
+  }
+
+  // Altura c/2 (segmento vertical desde centroide a átomo intermedio)
+  if(show.heightC2){
+    const idx=0;
+    const v1=G.V[2*idx], v2=G.V[(2*idx+1)%6];
+    const centroid=[(v1[0]+v2[0])/3, (v1[1]+v2[1])/3, 0];
+    const m=G.M[idx];
+    const pc=T(centroid), pm=T(m);
+    items.push({d:(pc.d+pm.d)/2-0.002, svg:`<line x1="${pc.x.toFixed(1)}" y1="${pc.y.toFixed(1)}" x2="${pm.x.toFixed(1)}" y2="${pm.y.toFixed(1)}" stroke="${C.accent}" stroke-width="2.4" stroke-dasharray="4 3"/>`});
+  }
+
+  // Tangencia: arista resaltada entre V0 y V1 con etiqueta "a"
+  if(show.tangency){
+    const pa=T(G.V[0]), pb=T(G.V[1]);
+    items.push({d:(pa.d+pb.d)/2-0.001, svg:`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${C.accent}" stroke-width="2.8"/>`});
+    const mp=T([(G.V[0][0]+G.V[1][0])/2, (G.V[0][1]+G.V[1][1])/2, 0]);
+    items.push({d:-100, svg:`<text x="${(mp.x+10).toFixed(1)}" y="${(mp.y+5).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="16" fill="${C.accent}" font-weight="700">a = 2r</text>`});
+  }
+
+  // ÁTOMOS — se dibujan al final para quedar encima
+  const atomRadius=atomRpx;
+  const drawAtom=(p3,color,label)=>{
+    const p=T(p3);
+    items.push({d:p.d-0.02, svg:`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${atomRadius.toFixed(1)}" fill="${color}" stroke="${C.ink}" stroke-width="1.3" opacity="0.92"/>`});
+    if(label){
+      items.push({d:p.d-0.03, svg:`<text x="${p.x.toFixed(1)}" y="${(p.y+4).toFixed(1)}" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="11" fill="${C.ink}" font-weight="600">${label}</text>`});
+    }
+  };
+
+  if(show.basal){
+    drawAtom(G.C0, C.atomFill);
+    G.V.forEach(v=>drawAtom(v, C.atomFill));
+  }
+  if(show.top){
+    drawAtom(G.CT, C.atomFill);
+    G.VT.forEach(v=>drawAtom(v, C.atomFill));
+  }
+  if(show.mid){
+    G.M.forEach(m=>drawAtom(m, C.accent));
+  }
+
+  // Etiquetas a y c
+  const labelItems=[];
+  if(show.showA && show.basal && !show.tangency){
+    // Mostrar "a" entre dos vértices basales
+    const mp=T([(G.V[0][0]+G.V[1][0])/2, (G.V[0][1]+G.V[1][1])/2, 0]);
+    labelItems.push(`<text x="${(mp.x+8).toFixed(1)}" y="${(mp.y+16).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="15" fill="${C.ink}" font-weight="600">a</text>`);
+  }
+  if(show.showC){
+    // Mostrar "c" en el borde lateral
+    const pa=T(G.V[0]), pb=T(G.VT[0]);
+    const mp={x:(pa.x+pb.x)/2, y:(pa.y+pb.y)/2};
+    labelItems.push(`<line x1="${(pa.x+20).toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${(pb.x+20).toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${C.ink}" stroke-width="1" opacity="0.6"/>`);
+    labelItems.push(`<text x="${(mp.x+28).toFixed(1)}" y="${(mp.y+4).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="15" fill="${C.ink}" font-weight="600">c</text>`);
+  }
+
+  items.sort((a,b)=>b.d-a.d);
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">`;
+  svg+='<defs>';
+  svg+=`<marker id="narr-hcp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="${C.accent}" stroke="none"/></marker>`;
+  svg+='</defs>';
+  svg+=`<rect width="${W}" height="${H}" fill="none" pointer-events="none"/>`;
+  svg+=items.map(i=>i.svg).join('');
+
+  // Ejes
+  const O3=T([0,0,0]);
+  const axLen=Math.max(a*1.4, 0.8);
+  const axEnd={x:T([axLen,0,0]), y:T([0,axLen,0]), z:T([0,0,c*1.15])};
+  svg+=`<g stroke="${C.ink}" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.55">`;
+  svg+=`<line x1="${O3.x}" y1="${O3.y}" x2="${axEnd.x.x}" y2="${axEnd.x.y}" marker-end="url(#ax)"/>`;
+  svg+=`<line x1="${O3.x}" y1="${O3.y}" x2="${axEnd.y.x}" y2="${axEnd.y.y}" marker-end="url(#ax)"/>`;
+  svg+=`<line x1="${O3.x}" y1="${O3.y}" x2="${axEnd.z.x}" y2="${axEnd.z.y}" marker-end="url(#ax)"/>`;
+  svg+=`</g>`;
+  svg+=`<g font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="15" font-weight="500" fill="${C.ink}" opacity="0.7">`;
+  svg+=`<text x="${(axEnd.x.x+8).toFixed(1)}" y="${(axEnd.x.y+5).toFixed(1)}">x</text>`;
+  svg+=`<text x="${(axEnd.y.x+8).toFixed(1)}" y="${(axEnd.y.y+5).toFixed(1)}">y</text>`;
+  svg+=`<text x="${(axEnd.z.x-4).toFixed(1)}" y="${(axEnd.z.y-8).toFixed(1)}">z</text>`;
+  svg+=`</g>`;
+
+  svg+=labelItems.join('');
+
+  // Nota final: razón c/a en el paso 7
+  if(show.showRatio){
+    const ratio=(c/a).toFixed(4);
+    svg+=`<g transform="translate(${W-180},${H-60})"><rect x="0" y="0" width="160" height="42" fill="${C.vtxHollow}" stroke="${C.accent}" stroke-width="1.5" rx="6"/><text x="80" y="18" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="12" fill="${C.mute}">c/a (actual)</text><text x="80" y="35" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="17" fill="${C.accent}" font-weight="700">${ratio}</text></g>`;
+  }
+
+  svg+=`</svg>`;
+  document.getElementById('stage').innerHTML=svg;
+
+  // Overlays de paso (título + ecuaciones)
+  updateStepOverlays();
+  updateStepUI();
+  updateRatioDisplay();
+
+  // Ecuación lateral y nota
+  document.getElementById('notation').innerHTML='HCP';
+  document.getElementById('eqn').innerHTML=`c/a = ${(c/a).toFixed(4)}`;
+  document.getElementById('note').innerHTML='';
+}
+
+// Actualizar overlays del stage (título superior + ecuaciones inferior)
+function updateStepOverlays(){
+  const s=STEPS_HCP[currentStep];
+  const titleBox=document.getElementById('step-title-box');
+  const eqnBox=document.getElementById('step-eqn-box');
+  const counter=document.getElementById('step-counter');
+  const titleText=document.getElementById('step-title');
+
+  counter.textContent=`${tr('step_label')} ${currentStep+1} / ${STEPS_HCP.length}`;
+  titleText.textContent=s.title[currentLang]||s.title.es;
+  titleBox.classList.add('show');
+
+  if(s.eqn && s.eqn.length>0){
+    const html=s.eqn.map(e=>{
+      const cls=['step-eqn-line'];
+      if(e.s) cls.push('sub');
+      const inner=e.hl?`<span class="hl">${e.t}</span>`:e.t;
+      return `<div class="${cls.join(' ')}">${inner}</div>`;
+    }).join('');
+    eqnBox.innerHTML=html;
+    eqnBox.classList.add('show');
+  } else {
+    eqnBox.classList.remove('show');
+  }
+}
+
+// Actualizar UI de los controles (dots, botones habilitados)
+function updateStepUI(){
+  const progress=document.getElementById('step-progress');
+  if(!progress.hasChildNodes() || progress.children.length!==STEPS_HCP.length){
+    progress.innerHTML='';
+    STEPS_HCP.forEach((_,i)=>{
+      const d=document.createElement('button');
+      d.className='step-dot';
+      d.dataset.step=i;
+      d.addEventListener('click', ()=>{ pausePlay(); goToStep(i); });
+      progress.appendChild(d);
+    });
+  }
+  [...progress.children].forEach((d,i)=>{
+    d.classList.toggle('active', i===currentStep);
+    d.classList.toggle('done', i<currentStep);
+  });
+  document.getElementById('btn-prev').disabled=(currentStep===0);
+  document.getElementById('btn-next').disabled=(currentStep===STEPS_HCP.length-1);
+  document.getElementById('btn-play').textContent=isPlaying?'⏸':'▶';
+}
+
+function updateRatioDisplay(){
+  const rv=document.getElementById('ratio-val');
+  if(rv) rv.textContent=(hcpC/hcpA).toFixed(4);
+  document.getElementById('hcp-a-v').textContent=hcpA.toFixed(2);
+  document.getElementById('hcp-c-v').textContent=hcpC.toFixed(3);
+}
+
+// Animación suave de vista entre pasos
+function animateViewTo(toYaw, toPitch, toScale, duration){
+  if(viewAnimFrame){ cancelAnimationFrame(viewAnimFrame); viewAnimFrame=null; }
+  const fromYaw=yaw, fromPitch=pitch, fromScale=scale;
+  const start=performance.now();
+  const tick=(tt)=>{
+    const el=tt-start;
+    const k=Math.min(1, el/duration);
+    const ease=1-Math.pow(1-k,3);
+    yaw=fromYaw+(toYaw-fromYaw)*ease;
+    pitch=fromPitch+(toPitch-fromPitch)*ease;
+    scale=fromScale+(toScale-fromScale)*ease;
+    render();
+    if(k<1) viewAnimFrame=requestAnimationFrame(tick);
+    else viewAnimFrame=null;
+  };
+  viewAnimFrame=requestAnimationFrame(tick);
+}
+
+// Control de pasos
+function goToStep(n){
+  n=Math.max(0, Math.min(STEPS_HCP.length-1, n));
+  currentStep=n;
+  const s=STEPS_HCP[n];
+  animateViewTo(s.view.yaw, s.view.pitch, s.view.scale, 650);
+}
+
+function nextStep(){
+  if(currentStep<STEPS_HCP.length-1) goToStep(currentStep+1);
+}
+function prevStep(){
+  if(currentStep>0) goToStep(currentStep-1);
+}
+function resetSteps(){
+  pausePlay();
+  goToStep(0);
+}
+function togglePlay(){
+  if(isPlaying) pausePlay();
+  else playSteps();
+}
+function playSteps(){
+  if(currentStep>=STEPS_HCP.length-1) currentStep=0;
+  isPlaying=true;
+  document.getElementById('btn-play').textContent='⏸';
+  scheduleNextStep();
+}
+function pausePlay(){
+  isPlaying=false;
+  if(playTimer){ clearTimeout(playTimer); playTimer=null; }
+  const btn=document.getElementById('btn-play');
+  if(btn) btn.textContent='▶';
+}
+function scheduleNextStep(){
+  if(!isPlaying) return;
+  const s=STEPS_HCP[currentStep];
+  const dur=(s.duration||2500)/playSpeed;
+  playTimer=setTimeout(()=>{
+    if(currentStep<STEPS_HCP.length-1){
+      currentStep++;
+      goToStep(currentStep);
+      scheduleNextStep();
+    } else {
+      pausePlay();
+    }
+  }, dur);
+}
+
+/* ═══════════════════════════════════════════════════════
+   §10 HCP PLANES — Visualización de planos (hkil)
+   ═══════════════════════════════════════════════════════ */
+let hcpMode='steps';  // 'steps' | 'planes'
+let hcpH=1, hcpK=0, hcpI=-1, hcpL=1;
+let hcpNotation=4;    // 4 = hkil, 3 = hkl
+let hcpPlaneOpts={family:false, normal:true, intercepts:true, atoms:false};
+
+const HCP_EXAMPLES=[
+  {label:'(0001)', h:0,k:0,l:1, name:{es:'basal',en:'basal'}},
+  {label:'(10-10)', h:1,k:0,l:0, name:{es:'prismático I',en:'prismatic I'}},
+  {label:'(11-20)', h:1,k:1,l:0, name:{es:'prismático II',en:'prismatic II'}},
+  {label:'(10-11)', h:1,k:0,l:1, name:{es:'piramidal I',en:'pyramidal I'}},
+  {label:'(10-12)', h:1,k:0,l:2, name:{es:'piramidal I',en:'pyramidal I'}},
+  {label:'(11-22)', h:1,k:1,l:2, name:{es:'piramidal II',en:'pyramidal II'}},
+  {label:'(20-21)', h:2,k:0,l:1, name:{es:'piramidal',en:'pyramidal'}},
+  {label:'(11-21)', h:1,k:1,l:1, name:{es:'piramidal',en:'pyramidal'}}
+];
+
+// Geometría del prisma hexagonal completo: 12 vértices + 18 aristas
+function hcpPrismVerticesAndEdges(a,c){
+  const V=[];
+  // 6 basales (z=0) y 6 superiores (z=c)
+  for(let i=0;i<6;i++){
+    const ang=i*Math.PI/3;
+    V.push([a*Math.cos(ang), a*Math.sin(ang), 0]);
+  }
+  for(let i=0;i<6;i++){
+    const ang=i*Math.PI/3;
+    V.push([a*Math.cos(ang), a*Math.sin(ang), c]);
+  }
+  const E=[];
+  for(let i=0;i<6;i++){ E.push([i,(i+1)%6]); }          // basales
+  for(let i=0;i<6;i++){ E.push([i+6,(i+1)%6+6]); }      // superiores
+  for(let i=0;i<6;i++){ E.push([i,i+6]); }              // laterales
+  return {V,E};
+}
+
+// Ecuación cartesiana del plano (h k l) en base hexagonal (a1=a, a2 a 120°, c)
+// Normal: g = (h/a, (h+2k)/(a√3), l/c),  ecuación: g·r = 1
+function hcpPlaneFromIndices(h,k,l,a,c){
+  if(h===0 && k===0 && l===0) return null;
+  const A=h/a, B=(h+2*k)/(a*Math.sqrt(3)), C=l/c;
+  return {A,B,C,D:1};
+}
+
+// d_hkil = 1/√( 4(h²+hk+k²)/(3a²) + l²/c² )
+function hcpDSpacing(h,k,l,a,c){
+  const inv2=(4*(h*h+h*k+k*k))/(3*a*a) + (l*l)/(c*c);
+  if(inv2===0) return Infinity;
+  return 1/Math.sqrt(inv2);
+}
+
+// Intercepción del plano con el prisma: devuelve polígono ordenado
+function hcpPlanePolygon(plane,a,c){
+  if(!plane) return [];
+  const {V,E}=hcpPrismVerticesAndEdges(a,c);
+  const {A,B,C,D}=plane;
+  const val=p=>A*p[0]+B*p[1]+C*p[2]-D;
+  const EPS=1e-6;
+  const pts=[];
+
+  // Para cada arista, buscar corte
+  E.forEach(([i1,i2])=>{
+    const v1=V[i1], v2=V[i2];
+    const d1=val(v1), d2=val(v2);
+    if(Math.abs(d1)<EPS){ pts.push(v1.slice()); }
+    if(Math.abs(d2)<EPS){ pts.push(v2.slice()); }
+    if(d1*d2<-EPS){
+      const t=d1/(d1-d2);
+      pts.push([v1[0]+t*(v2[0]-v1[0]), v1[1]+t*(v2[1]-v1[1]), v1[2]+t*(v2[2]-v1[2])]);
+    }
+  });
+
+  // Dedup
+  const uniq=[];
+  pts.forEach(p=>{
+    if(!uniq.some(q=>Math.abs(q[0]-p[0])<1e-4 && Math.abs(q[1]-p[1])<1e-4 && Math.abs(q[2]-p[2])<1e-4)){
+      uniq.push(p);
+    }
+  });
+  if(uniq.length<3) return uniq;
+
+  // Ordenar por ángulo alrededor del centroide, proyectado sobre el plano
+  const cx=uniq.reduce((s,p)=>s+p[0],0)/uniq.length;
+  const cy=uniq.reduce((s,p)=>s+p[1],0)/uniq.length;
+  const cz=uniq.reduce((s,p)=>s+p[2],0)/uniq.length;
+  // Base 2D en el plano: u perpendicular a normal, v = n×u
+  const nL=Math.hypot(A,B,C);
+  const n=[A/nL,B/nL,C/nL];
+  let u=Math.abs(n[0])<0.9?[1,0,0]:[0,1,0];
+  // Gram-Schmidt
+  const dot=u[0]*n[0]+u[1]*n[1]+u[2]*n[2];
+  u=[u[0]-dot*n[0], u[1]-dot*n[1], u[2]-dot*n[2]];
+  const uL=Math.hypot(u[0],u[1],u[2]);
+  u=[u[0]/uL, u[1]/uL, u[2]/uL];
+  const v=[n[1]*u[2]-n[2]*u[1], n[2]*u[0]-n[0]*u[2], n[0]*u[1]-n[1]*u[0]];
+
+  uniq.sort((p,q)=>{
+    const pa=[p[0]-cx,p[1]-cy,p[2]-cz];
+    const qa=[q[0]-cx,q[1]-cy,q[2]-cz];
+    const pu=pa[0]*u[0]+pa[1]*u[1]+pa[2]*u[2];
+    const pv=pa[0]*v[0]+pa[1]*v[1]+pa[2]*v[2];
+    const qu=qa[0]*u[0]+qa[1]*u[1]+qa[2]*u[2];
+    const qv=qa[0]*v[0]+qa[1]*v[1]+qa[2]*v[2];
+    return Math.atan2(pv,pu)-Math.atan2(qv,qu);
+  });
+  return uniq;
+}
+
+// Familia completa de planos: desplazar el plano por múltiplos de d en dirección de la normal
+function hcpPlaneFamilyPolygons(plane,a,c,h,k,l){
+  if(!plane) return [];
+  const d=hcpDSpacing(h,k,l,a,c);
+  if(!isFinite(d)) return [];
+  const {A,B,C}=plane;
+  const nL=Math.hypot(A,B,C);
+  // D = 1 ↔ distancia d al origen. D=2 ↔ 2d, etc.
+  const polygons=[];
+  for(let k2=-3;k2<=3;k2++){
+    if(k2===0) continue; // el principal se pinta aparte
+    const p={A,B,C,D:k2};
+    const poly=hcpPlanePolygon(p,a,c);
+    if(poly.length>=3) polygons.push(poly);
+  }
+  return polygons;
+}
+
+// Interceptos sobre los 3 ejes (a1, a2, c)
+function hcpIntercepts(h,k,l,a,c){
+  const r=[];
+  if(h!==0) r.push({axis:'a1', point:[a/h, 0, 0]});
+  if(k!==0){
+    // Intercepto sobre a₂ = (-a/2, a√3/2, 0), posición a₂/k
+    r.push({axis:'a2', point:[-a/(2*k), a*Math.sqrt(3)/(2*k), 0]});
+  }
+  if(l!==0) r.push({axis:'c', point:[0, 0, c/l]});
+  return r;
+}
+
+// Render principal del modo planos
+function renderHCPPlanes(){
+  const a=hcpA, c=hcpC, h=hcpH, k=hcpK, l=hcpL;
+  const plane=hcpPlaneFromIndices(h,k,l,a,c);
+
+  const cs=getComputedStyle(document.body);
+  const C={
+    ink:cs.getPropertyValue('--ink').trim(),
+    edge:cs.getPropertyValue('--edge').trim(),
+    edge2:cs.getPropertyValue('--edge2').trim(),
+    accent:cs.getPropertyValue('--accent').trim(),
+    planeMain:cs.getPropertyValue('--plane-main').trim(),
+    planeFam:cs.getPropertyValue('--plane-fam').trim(),
+    planeStroke:cs.getPropertyValue('--plane-stroke').trim(),
+    planeStroke2:cs.getPropertyValue('--plane-stroke2').trim(),
+    atomFill:cs.getPropertyValue('--atom-fill').trim(),
+    mute:cs.getPropertyValue('--mute').trim(),
+    vtxHollow:cs.getPropertyValue('--vtx-hollow').trim(),
+    vtxStroke:cs.getPropertyValue('--vtx-stroke').trim()
+  };
+
+  const G=hcpGeometry(a,c);
+  const T=makeTransformHCP(a,c);
+  const items=[];
+
+  // Aristas del prisma (punteadas)
+  const {V:Vp,E:Ep}=hcpPrismVerticesAndEdges(a,c);
+  Ep.forEach(([i1,i2])=>{
+    const pa=T(Vp[i1]), pb=T(Vp[i2]);
+    items.push({d:(pa.d+pb.d)/2, svg:`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${C.edge}" stroke-width="1.1" stroke-dasharray="3 3" opacity="0.7"/>`});
+  });
+
+  // Familia de planos (si activo)
+  if(hcpPlaneOpts.family){
+    const fams=hcpPlaneFamilyPolygons(plane,a,c,h,k,l);
+    fams.forEach(poly=>{
+      const tp=poly.map(T);
+      const pts=tp.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+      const depth=tp.reduce((s,p)=>s+p.d,0)/tp.length;
+      items.push({d:depth+0.002, svg:`<polygon points="${pts}" fill="${C.planeFam}" stroke="${C.planeStroke2}" stroke-width="1" stroke-linejoin="round" opacity="0.5"/>`});
+    });
+  }
+
+  // Plano principal
+  const poly=hcpPlanePolygon(plane,a,c);
+  if(poly.length>=3){
+    const tp=poly.map(T);
+    const pts=tp.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const depth=tp.reduce((s,p)=>s+p.d,0)/tp.length;
+    items.push({d:depth, svg:`<polygon points="${pts}" fill="${C.planeMain}" stroke="${C.planeStroke}" stroke-width="1.8" stroke-linejoin="round" opacity="0.92"/>`});
+  }
+
+  // Átomos en vértices y centros (opcional)
+  if(hcpPlaneOpts.atoms){
+    const atomR=Math.max(4, Math.min(10, a*T([0,0,0]).s*0.15));
+    const drawAtom=(p3,color)=>{
+      const p=T(p3);
+      items.push({d:p.d-0.02, svg:`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${atomR.toFixed(1)}" fill="${color}" stroke="${C.ink}" stroke-width="1.1" opacity="0.85"/>`});
+    };
+    drawAtom(G.C0, C.atomFill); G.V.forEach(v=>drawAtom(v, C.atomFill));
+    drawAtom(G.CT, C.atomFill); G.VT.forEach(v=>drawAtom(v, C.atomFill));
+    G.M.forEach(m=>drawAtom(m, C.accent));
+  }
+
+  // Interceptos
+  if(hcpPlaneOpts.intercepts){
+    const ints=hcpIntercepts(h,k,l,a,c);
+    ints.forEach(it=>{
+      const p=T(it.point);
+      items.push({d:p.d-0.05, svg:`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.2" fill="${C.ink}" stroke="${C.paper||'#fff'}" stroke-width="1.2"/>`});
+      const frac=it.axis==='a1'?`a/${h}`:it.axis==='a2'?`a/${k}`:`c/${l}`;
+      items.push({d:-100, svg:`<text x="${(p.x+8).toFixed(1)}" y="${(p.y-6).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="12" fill="${C.mute}">${frac}</text>`});
+    });
+  }
+
+  // Vector normal
+  if(hcpPlaneOpts.normal && plane){
+    const {A,B,C:Cn}=plane;
+    const nL=Math.hypot(A,B,Cn);
+    const d=hcpDSpacing(h,k,l,a,c);
+    // Punto de la normal: origen + d·n̂
+    const pN=[d*A/nL, d*B/nL, d*Cn/nL];
+    const p0=T([0,0,0]), p1=T(pN);
+    items.push({d:-50, svg:`<line x1="${p0.x.toFixed(1)}" y1="${p0.y.toFixed(1)}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="${C.accent}" stroke-width="2" marker-end="url(#narr)"/>`});
+    items.push({d:-50, svg:`<text x="${(p1.x+8).toFixed(1)}" y="${(p1.y-4).toFixed(1)}" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="14" fill="${C.accent}" font-weight="600">n̂</text>`});
+  }
+
+  items.sort((a,b)=>b.d-a.d);
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">`;
+  svg+='<defs>';
+  svg+=`<marker id="narr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="${C.accent}" stroke="none"/></marker>`;
+  svg+=`<marker id="ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="${C.ink}" stroke="none" opacity="0.55"/></marker>`;
+  svg+='</defs>';
+  svg+=`<rect width="${W}" height="${H}" fill="none" pointer-events="none"/>`;
+  svg+=items.map(i=>i.svg).join('');
+
+  // Ejes a₁, a₂, a₃, c
+  const O3=T([0,0,0]);
+  const axLen=a*1.35;
+  const axes=[
+    {end:[axLen,0,0], label:'a₁', dx:8, dy:6},
+    {end:[axLen*Math.cos(2*Math.PI/3), axLen*Math.sin(2*Math.PI/3), 0], label:'a₂', dx:-16, dy:2},
+    {end:[axLen*Math.cos(4*Math.PI/3), axLen*Math.sin(4*Math.PI/3), 0], label:'a₃', dx:-16, dy:10},
+    {end:[0,0,c*1.12], label:'c', dx:-4, dy:-8}
+  ];
+  svg+=`<g stroke="${C.ink}" stroke-width="1.1" fill="none" stroke-linecap="round" opacity="0.55">`;
+  axes.forEach(ax=>{
+    const pa=T(ax.end);
+    svg+=`<line x1="${O3.x.toFixed(1)}" y1="${O3.y.toFixed(1)}" x2="${pa.x.toFixed(1)}" y2="${pa.y.toFixed(1)}" marker-end="url(#ax)"/>`;
+  });
+  svg+=`</g>`;
+  svg+=`<g font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="14" font-weight="500" fill="${C.ink}" opacity="0.75">`;
+  axes.forEach(ax=>{
+    const pa=T(ax.end);
+    svg+=`<text x="${(pa.x+ax.dx).toFixed(1)}" y="${(pa.y+ax.dy).toFixed(1)}">${ax.label}</text>`;
+  });
+  svg+=`</g>`;
+
+  svg+=`</svg>`;
+  document.getElementById('stage').innerHTML=svg;
+
+  // Actualizar header y resultados
+  updateHCPPlaneUI();
+}
+
+// Actualiza UI derivada del estado (notación, ecuación, resultados)
+function updateHCPPlaneUI(){
+  const h=hcpH, k=hcpK, l=hcpL, i=-(h+k);
+  hcpI=i;
+  document.getElementById('hcp-i').value=i;
+  document.getElementById('hcp-h').value=h;
+  document.getElementById('hcp-k').value=k;
+  document.getElementById('hcp-l').value=l;
+
+  // Notación mostrada
+  const fmt=n=>(n<0?String(n):' '+n);  // alinea ligeramente
+  const notBox=document.getElementById('hcp-notation');
+  if(hcpNotation===4){
+    notBox.textContent=`(${h} ${k} ${i} ${l})`;
+    document.getElementById('hcp-i-wrap').style.display='';
+  } else {
+    notBox.textContent=`(${h} ${k} ${l})`;
+    document.getElementById('hcp-i-wrap').style.display='none';
+  }
+
+  // Ecuación del plano en el header
+  const eqnEl=document.getElementById('eqn');
+  const eqnLab=document.getElementById('eqn-label');
+  if(h===0 && k===0 && l===0){
+    eqnEl.textContent='—';
+    eqnLab.textContent=tr('plane_eqn');
+  } else {
+    const parts=[];
+    if(h!==0) parts.push(`${h===1?'':h===-1?'−':h}·x/a`);
+    if(h!==0 && k!==0) parts.push(`${h+2*k>0?'+':'−'} ${Math.abs(h+2*k)}·y/(a√3)`);
+    else if(k!==0) parts.push(`${2*k>0?'':'−'}${Math.abs(2*k)===1?'':Math.abs(2*k)}·y/(a√3)`);
+    if(l!==0) parts.push(`${l>0 && parts.length?'+ ':''}${l===1?'':l===-1?'−':l}·z/c`);
+    eqnEl.innerHTML=parts.join(' ')+' = 1';
+    eqnLab.textContent=tr('plane_eqn');
+  }
+
+  // Resultados
+  const d=hcpDSpacing(h,k,l,hcpA,hcpC);
+  const resEl=document.getElementById('hcp-results');
+  if(h===0 && k===0 && l===0){
+    resEl.innerHTML=`<div style="color:${getComputedStyle(document.body).getPropertyValue('--mute').trim()}">${currentLang==='es'?'Índices (0 0 0 0) no definen un plano.':'Indices (0 0 0 0) do not define a plane.'}</div>`;
+  } else {
+    const aVal=hcpA, cVal=hcpC;
+    resEl.innerHTML=`
+      <div><span class="res-k">d<sub>hkil</sub> = </span><span class="res-v">${d.toFixed(4)}</span> ${isFinite(d)?'':''}</div>
+      <div><span class="res-k">1/d² = </span><span class="res-v">4(h²+hk+k²)/(3a²) + l²/c²</span></div>
+      <div><span class="res-k">= </span><span class="res-v">${(4*(h*h+h*k+k*k)/(3*aVal*aVal) + l*l/(cVal*cVal)).toFixed(4)}</span></div>
+      <div><span class="res-k">i = −(h+k) = </span><span class="res-v">${-(h+k)}</span></div>
+    `;
+  }
+
+  // Actualizar también sliders display (siempre al día)
+  updateRatioDisplay();
+}
+
+// Cambio de modo HCP (steps ↔ planes)
+function switchHCPMode(m){
+  if(m===hcpMode) return;
+  pausePlay();
+  hcpMode=m;
+  document.getElementById('hcp-mode-steps').style.display=(m==='steps')?'block':'none';
+  document.getElementById('hcp-mode-planes').style.display=(m==='planes')?'block':'none';
+  document.getElementById('hd-hcp-idx').style.display=(m==='planes')?'flex':'none';
+  document.querySelectorAll('#hcp-mode-selector button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.mode===m);
+  });
+  const eqnLab=document.getElementById('eqn-label');
+  // Vista adaptada: isométrica en planes, el paso actual en steps
+  if(m==='planes'){
+    yaw=0.65; pitch=-0.42; scale=95;
+    document.getElementById('step-title-box').classList.remove('show');
+    document.getElementById('step-eqn-box').classList.remove('show');
+    eqnLab.textContent=tr('plane_eqn');
+  } else {
+    const s=STEPS_HCP[currentStep];
+    yaw=s.view.yaw; pitch=s.view.pitch; scale=s.view.scale;
+    eqnLab.textContent='c/a';
+    document.getElementById('eqn').textContent=(hcpC/hcpA).toFixed(4);
+  }
+  render();
+}
+
+// Poblar ejemplos HCP
+function populateHCPExamples(){
+  const box=document.getElementById('hcp-examples');
+  box.innerHTML='';
+  HCP_EXAMPLES.forEach(ex=>{
+    const b=document.createElement('button');
+    b.className='ebtn';
+    b.textContent=ex.label;
+    b.title=ex.name[currentLang]||ex.name.es;
+    b.addEventListener('click', ()=>{
+      hcpH=ex.h; hcpK=ex.k; hcpL=ex.l;
+      render();
+    });
+    box.appendChild(b);
+  });
+}
+
+// ═══ Router maestro: cúbico vs HCP (con modos) ═══
+function render(){
+  if(currentSystem==='cubic'){
+    document.getElementById('step-title-box').classList.remove('show');
+    document.getElementById('step-eqn-box').classList.remove('show');
+    renderCubic();
+  } else if(hcpMode==='steps'){
+    renderHCP();
+  } else {
+    renderHCPPlanes();
+  }
+}
+
+// ═══ Switch entre sistemas (cúbico ↔ HCP) ═══
+function switchSystem(sys){
+  if(sys===currentSystem) return;
+  pausePlay();
+  currentSystem=sys;
+  const isHCP=(sys==='hcp');
+  document.getElementById('hd-cubic').style.display=isHCP?'none':'flex';
+  document.getElementById('hd-hcp').style.display=isHCP?'flex':'none';
+  document.getElementById('hd-hcp-mode').style.display=isHCP?'flex':'none';
+  document.getElementById('hd-hcp-idx').style.display=(isHCP && hcpMode==='planes')?'flex':'none';
+  document.getElementById('side-cubic').style.display=isHCP?'none':'block';
+  document.getElementById('side-hcp').style.display=isHCP?'block':'none';
+  document.querySelectorAll('#sys-selector button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.sys===sys);
+  });
+  if(isHCP){
+    if(hcpMode==='steps'){
+      currentStep=0;
+      const s=STEPS_HCP[0];
+      yaw=s.view.yaw; pitch=s.view.pitch; scale=s.view.scale;
+      document.getElementById('eqn-label').textContent='c/a';
+    } else {
+      yaw=0.65; pitch=-0.42; scale=95;
+      document.getElementById('eqn-label').textContent=tr('plane_eqn');
+    }
+  } else {
+    yaw=0.65; pitch=-0.35; scale=130;
+    document.getElementById('eqn-label').textContent=tr('equation');
+  }
+  render();
+}
+
+// ═══ Listeners ═══
+document.querySelectorAll('#sys-selector button').forEach(b=>{
+  b.addEventListener('click', ()=>switchSystem(b.dataset.sys));
+});
+document.querySelectorAll('#hcp-mode-selector button').forEach(b=>{
+  b.addEventListener('click', ()=>switchHCPMode(b.dataset.mode));
+});
+document.getElementById('btn-prev').addEventListener('click', ()=>{ pausePlay(); prevStep(); });
+document.getElementById('btn-next').addEventListener('click', ()=>{ pausePlay(); nextStep(); });
+document.getElementById('btn-play').addEventListener('click', togglePlay);
+document.getElementById('btn-reset').addEventListener('click', resetSteps);
+document.querySelectorAll('#speed-seg button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    playSpeed=parseFloat(b.dataset.speed);
+    document.querySelectorAll('#speed-seg button').forEach(bb=>bb.classList.remove('on'));
+    b.classList.add('on');
+  });
+});
+document.getElementById('hcp-a').addEventListener('input', e=>{
+  hcpA=parseFloat(e.target.value);
+  if(currentSystem==='hcp') render();
+  else updateRatioDisplay();
+});
+document.getElementById('hcp-c').addEventListener('input', e=>{
+  hcpC=parseFloat(e.target.value);
+  if(currentSystem==='hcp') render();
+  else updateRatioDisplay();
+});
+
+// Listeners de índices HCP (h, k, l) — con botones +/− e input directo
+['h','k','l'].forEach(t=>{
+  const el=document.getElementById('hcp-'+t);
+  el.addEventListener('input', ()=>{
+    const v=parseInt(el.value);
+    if(!isNaN(v)){
+      if(t==='h') hcpH=v;
+      else if(t==='k') hcpK=v;
+      else hcpL=v;
+      render();
+    }
+  });
+});
+document.querySelectorAll('[data-hop]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const t=btn.dataset.ht, op=btn.dataset.hop;
+    const delta=op==='i'?1:-1;
+    if(t==='h') hcpH+=delta;
+    else if(t==='k') hcpK+=delta;
+    else if(t==='l') hcpL+=delta;
+    render();
+  });
+});
+document.querySelectorAll('#hcp-notation-toggle button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    hcpNotation=parseInt(b.dataset.notation);
+    document.querySelectorAll('#hcp-notation-toggle button').forEach(bb=>bb.classList.remove('on'));
+    b.classList.add('on');
+    updateHCPPlaneUI();
+  });
+});
+
+// Opciones de visualización HCP planos
+document.getElementById('hcp-opt-family').addEventListener('change', e=>{ hcpPlaneOpts.family=e.target.checked; render(); });
+document.getElementById('hcp-opt-normal').addEventListener('change', e=>{ hcpPlaneOpts.normal=e.target.checked; render(); });
+document.getElementById('hcp-opt-intercepts').addEventListener('change', e=>{ hcpPlaneOpts.intercepts=e.target.checked; render(); });
+document.getElementById('hcp-opt-atoms').addEventListener('change', e=>{ hcpPlaneOpts.atoms=e.target.checked; render(); });
+
+populateHCPExamples();
+
+/* ═══════════════════════════════════════════════════════
+   §11 INICIO
+   ═══════════════════════════════════════════════════════ */
+applyTheme();
+applyLang();
+render();
+</script>
+</body>
+</html>

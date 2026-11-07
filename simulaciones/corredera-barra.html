@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080d12;color:#a0b4c4;font-family:'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.top{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#0a0f18;border-bottom:1px solid #1e2d3d;flex-shrink:0}
+.top h1{font-size:.82rem;color:#90cdf4;font-weight:600}
+.badge{background:#1a3a5c;color:#63b3ed;font-size:.6rem;padding:1px 7px;border-radius:8px;border:1px solid #2b6cb0}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:210px;background:#0a0f18;border-right:1px solid #1e2d3d;padding:12px;overflow-y:auto;flex-shrink:0}
+.diagram{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#060b10;padding:10px;gap:8px}
+.sec{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:#1e3a4a;margin:12px 0 7px;padding-bottom:4px;border-bottom:1px solid #1a2535}
+.sec:first-child{margin-top:0}
+.param{margin-bottom:10px}
+.ph{display:flex;justify-content:space-between;margin-bottom:4px}
+.pn{font-size:.72rem;color:#5a7a8a}
+.pv{font-size:.72rem;color:#90cdf4;font-family:monospace}
+input[type=range]{width:100%;height:3px;-webkit-appearance:none;background:#1e2d3d;border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:#63b3ed;cursor:pointer}
+.preset-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.pbtn{background:#0a0f18;border:1px solid #1e2d3d;color:#3a5a6a;font-size:.62rem;padding:2px 8px;border-radius:3px;cursor:pointer;transition:all .1s}
+.pbtn:hover{color:#7a9ab0;background:#141b27}
+.pbtn.on{background:#0e2038;border-color:#2b6cb0;color:#63b3ed}
+.eq{background:#060b10;border:1px solid #1a2535;border-radius:4px;padding:7px 9px;font-size:.7rem;font-family:monospace;line-height:1.9}
+.dl-row{display:flex;gap:5px;margin-top:10px}
+.dbtn{flex:1;background:#0a0f18;border:1px solid #1e2d3d;color:#3a5a6a;font-size:.65rem;padding:4px 6px;border-radius:3px;cursor:pointer;transition:all .1s}
+.dbtn:hover{color:#90cdf4;border-color:#2b6cb0;background:#0e1c2a}
+#eq-strip{display:flex;gap:14px;font-size:.68rem;font-family:monospace;color:#2d4a62;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>⚙ Corredera + Barra colgante — Proyecciones de G</h1>
+  <span class="badge">CORREDERA-BARRA</span>
+  <div id="eq-strip" style="margin-left:auto"></div>
+</div>
+<div class="main">
+<div class="sidebar">
+  <div class="sec">Preset</div>
+  <div class="preset-row" id="preset-row"></div>
+  <div class="sec">Parámetros</div>
+  <div id="sliders"></div>
+  <div class="dl-row">
+    <button class="dbtn" onclick="dlSVG()">⬇ SVG</button>
+    <button class="dbtn" onclick="dlPNG()">⬇ PNG</button>
+  </div>
+  <div class="sec" style="margin-top:14px">Resultados</div>
+  <div class="eq" id="eq-panel">—</div>
+</div>
+<div class="diagram">
+  <div id="svg-wrap"></div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// PARÁMETROS
+// ═══════════════════════════════════════════════════════
+let params = { x_pos: 1.8, theta_deg: 35, L: 1.4, m: 1 };
+let preset = 'proyecciones';
+const W = 540, H = 440;
+const Ox = 90, Oy = 100, PX = 95;   // origen y escala
+
+// Presets: qué capas mostrar
+const PRESETS = {
+  geometria:    { mecanismo:1, cota_x:1, arco_phi:1 },
+  rG:           { mecanismo:1, cota_x:1, arco_phi:1, rG:1 },
+  proyecciones: { mecanismo:1, cota_x:1, arco_phi:1, triangulo:1, proyecciones:1 },
+  full:         { mecanismo:1, cota_x:1, arco_phi:1, rG:1, triangulo:1, proyecciones:1 }
+};
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function render() {
+  const L = PRESETS[preset];
+  const th = params.theta_deg * Math.PI / 180;
+  const s = Math.sin(th), c = Math.cos(th);
+
+  // geometría
+  const Ax = Ox + params.x_pos * PX;
+  const Ay = Oy + 14;                          // A está dentro del bloque M, justo bajo el techo
+  const Bx = Ax + params.L * PX * s;
+  const By = Ay + params.L * PX * c;
+  const Gx = Ax + (params.L / 2) * PX * s;
+  const Gy = Ay + (params.L / 2) * PX * c;
+
+  const MKS = `
+    <marker id="arr-pink" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 7,3.5 0,7" fill="#e056a0"/></marker>
+    <marker id="arr-pink-b" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="7,0 0,3.5 7,7" fill="#e056a0"/></marker>
+    <marker id="arr-orange" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 7,3.5 0,7" fill="#f39c12"/></marker>
+    <marker id="arr-red" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 7,3.5 0,7" fill="#e74c3c"/></marker>
+    <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 7,3.5 0,7" fill="#3498db"/></marker>
+  `;
+
+  let svg = '';
+
+  // ── 1. TECHO HORIZONTAL (guía de M) con hachas ──────────
+  const CEIL_END = 510;
+  svg += `<line x1="${Ox-5}" y1="${Oy}" x2="${CEIL_END}" y2="${Oy}" stroke="#4a5568" stroke-width="1.5"/>`;
+  for (let x = Ox; x <= CEIL_END - 6; x += 11) {
+    svg += `<line x1="${x}" y1="${Oy}" x2="${x-7}" y2="${Oy-8}" stroke="#4a5568" stroke-width="1"/>`;
+  }
+
+  // ── 2. PARED VERTICAL con hachas ────────────────────────
+  svg += `<line x1="${Ox}" y1="${Oy-8}" x2="${Ox}" y2="410" stroke="#4a5568" stroke-width="1.5"/>`;
+  for (let y = Oy + 6; y <= 405; y += 11) {
+    svg += `<line x1="${Ox}" y1="${y}" x2="${Ox-8}" y2="${y-7}" stroke="#4a5568" stroke-width="1"/>`;
+  }
+
+  // ── 3. ORIGEN O ─────────────────────────────────────────
+  svg += `<circle cx="${Ox}" cy="${Oy}" r="4.5" fill="#141b27" stroke="#90cdf4" stroke-width="1.5"/>`;
+  svg += `<circle cx="${Ox}" cy="${Oy}" r="2" fill="#90cdf4"/>`;
+  svg += `<text x="${Ox-18}" y="${Oy-8}" fill="#90cdf4" font-family="serif" font-style="italic" font-size="14">O</text>`;
+
+  // ── 4. LÍNEA PUNTEADA HORIZONTAL (eje x) ─────────────────
+  svg += `<line x1="${Ox}" y1="${Oy+14}" x2="${CEIL_END}" y2="${Oy+14}" stroke="#1e3a4a" stroke-width="0.8" stroke-dasharray="2,4" opacity="0.7"/>`;
+
+  // ── 5. LÍNEA VERTICAL DE REFERENCIA desde A hacia abajo ──
+  if (L.mecanismo) {
+    svg += `<line x1="${Ax}" y1="${Ay}" x2="${Ax}" y2="400" stroke="#1e3a4a" stroke-width="0.9" stroke-dasharray="3,3"/>`;
+  }
+
+  // ── 6. COTA "x" entre pared y bloque ────────────────────
+  if (L.cota_x) {
+    const cy = Oy - 22;
+    svg += `<line x1="${Ox+2}" y1="${cy}" x2="${Ax-2}" y2="${cy}" stroke="#e056a0" stroke-width="1" marker-start="url(#arr-pink-b)" marker-end="url(#arr-pink)"/>`;
+    svg += `<line x1="${Ox}" y1="${Oy-28}" x2="${Ox}" y2="${Oy-8}" stroke="#e056a0" stroke-width="0.7" opacity="0.7"/>`;
+    svg += `<line x1="${Ax}" y1="${Oy-28}" x2="${Ax}" y2="${Oy-2}" stroke="#e056a0" stroke-width="0.7" opacity="0.7"/>`;
+    svg += `<rect x="${(Ox+Ax)/2 - 7}" y="${cy-10}" width="14" height="14" fill="#080d12"/>`;
+    svg += `<text x="${(Ox+Ax)/2 - 4}" y="${cy+1}" fill="#e056a0" font-family="serif" font-style="italic" font-size="13">x</text>`;
+  }
+
+  // ── 7. BLOQUE M ─────────────────────────────────────────
+  const Mw = 56, Mh = 24;
+  svg += `<rect x="${Ax - Mw/2}" y="${Oy + 2}" width="${Mw}" height="${Mh}" fill="#141b27" stroke="#8899aa" stroke-width="1.6" rx="2"/>`;
+  svg += `<text x="${Ax - 6}" y="${Oy + 18}" fill="#90cdf4" font-family="serif" font-style="italic" font-size="13">M</text>`;
+
+  // ── 8. BARRA AB ─────────────────────────────────────────
+  svg += `<line x1="${Ax}" y1="${Ay}" x2="${Bx}" y2="${By}" stroke="#1a2535" stroke-width="16" stroke-linecap="round"/>`;
+  svg += `<line x1="${Ax}" y1="${Ay}" x2="${Bx}" y2="${By}" stroke="#8899aa" stroke-width="6" stroke-linecap="round"/>`;
+  // pequeña línea clara sobre la barra (detalle visual)
+  svg += `<line x1="${Ax}" y1="${Ay}" x2="${Bx}" y2="${By}" stroke="#a8b8c8" stroke-width="1" stroke-dasharray="3,4" opacity="0.4"/>`;
+
+  // ── 9. TRIÁNGULO AUXILIAR (cateto horizontal y vertical) ─
+  if (L.triangulo) {
+    // Cateto vertical A → H (H = (Ax, Gy))
+    svg += `<line x1="${Ax}" y1="${Ay}" x2="${Ax}" y2="${Gy}" stroke="#3498db" stroke-width="1.6" stroke-dasharray="5,3" opacity="0.85"/>`;
+    // Cateto horizontal H → G
+    svg += `<line x1="${Ax}" y1="${Gy}" x2="${Gx}" y2="${Gy}" stroke="#e74c3c" stroke-width="1.6" stroke-dasharray="5,3" opacity="0.85"/>`;
+    // Marca de ángulo recto en H
+    svg += `<rect x="${Ax}" y="${Gy-8}" width="8" height="8" fill="none" stroke="#5a7a8a" stroke-width="0.8"/>`;
+    // Etiquetas de los catetos
+    const vLen = (params.L/2) * c;
+    const hLen = (params.L/2) * s;
+    svg += `<rect x="${Ax-58}" y="${(Ay+Gy)/2-7}" width="52" height="14" fill="#080d12" opacity="0.9"/>`;
+    svg += `<text x="${Ax-54}" y="${(Ay+Gy)/2+4}" fill="#3498db" font-family="monospace" font-size="10.5">(L/2)cosφ</text>`;
+    svg += `<rect x="${(Ax+Gx)/2-27}" y="${Gy+4}" width="54" height="14" fill="#080d12" opacity="0.9"/>`;
+    svg += `<text x="${(Ax+Gx)/2-24}" y="${Gy+15}" fill="#e74c3c" font-family="monospace" font-size="10.5">(L/2)sinφ</text>`;
+  }
+
+  // ── 10. PROYECCIONES de G sobre los ejes ───────────────
+  if (L.proyecciones) {
+    // horizontal: G → eje y (pared)
+    svg += `<line x1="${Ox}" y1="${Gy}" x2="${Gx}" y2="${Gy}" stroke="#f39c12" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>`;
+    // vertical: G → eje x (techo)
+    svg += `<line x1="${Gx}" y1="${Oy}" x2="${Gx}" y2="${Gy}" stroke="#f39c12" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>`;
+    // puntos de proyección
+    svg += `<circle cx="${Ox}" cy="${Gy}" r="2.5" fill="#f39c12"/>`;
+    svg += `<circle cx="${Gx}" cy="${Oy}" r="2.5" fill="#f39c12"/>`;
+    // etiqueta x_G sobre el techo
+    svg += `<rect x="${Gx-14}" y="${Oy-18}" width="30" height="13" fill="#080d12" opacity="0.9"/>`;
+    svg += `<text x="${Gx-12}" y="${Oy-7}" fill="#f39c12" font-family="monospace" font-size="10.5">x_G</text>`;
+    // etiqueta y_G en la pared
+    svg += `<rect x="${Ox-32}" y="${Gy-7}" width="30" height="13" fill="#080d12" opacity="0.9"/>`;
+    svg += `<text x="${Ox-30}" y="${Gy+4}" fill="#f39c12" font-family="monospace" font-size="10.5">y_G</text>`;
+  }
+
+  // ── 11. VECTOR r_G ──────────────────────────────────────
+  if (L.rG) {
+    svg += `<line x1="${Ox}" y1="${Oy}" x2="${Gx}" y2="${Gy}" stroke="#e056a0" stroke-width="1.8" marker-end="url(#arr-pink)" opacity="0.9"/>`;
+    const lx = (Ox + Gx)/2 - 10, ly = (Oy + Gy)/2 - 3;
+    svg += `<rect x="${lx-3}" y="${ly-11}" width="26" height="14" fill="#080d12" opacity="0.85"/>`;
+    svg += `<text x="${lx}" y="${ly}" fill="#e056a0" font-family="serif" font-size="12" font-style="italic">r⃗_G</text>`;
+  }
+
+  // ── 12. PUNTO A ─────────────────────────────────────────
+  svg += `<circle cx="${Ax}" cy="${Ay}" r="4.5" fill="#141b27" stroke="#f6e05e" stroke-width="1.6"/>`;
+  svg += `<circle cx="${Ax}" cy="${Ay}" r="2" fill="#f6e05e"/>`;
+  svg += `<text x="${Ax-14}" y="${Ay+16}" fill="#f6e05e" font-family="serif" font-style="italic" font-size="13">A</text>`;
+
+  // ── 13. PUNTO G (CM) ────────────────────────────────────
+  svg += `<circle cx="${Gx}" cy="${Gy}" r="7" fill="#0d1117" stroke="#68d391" stroke-width="1.6"/>`;
+  svg += `<line x1="${Gx-7}" y1="${Gy}" x2="${Gx+7}" y2="${Gy}" stroke="#68d391" stroke-width="1"/>`;
+  svg += `<line x1="${Gx}" y1="${Gy-7}" x2="${Gx}" y2="${Gy+7}" stroke="#68d391" stroke-width="1"/>`;
+  svg += `<text x="${Gx+11}" y="${Gy-5}" fill="#68d391" font-family="serif" font-style="italic" font-size="13">G</text>`;
+  svg += `<text x="${Gx+11}" y="${Gy+10}" fill="#7a9ab0" font-family="sans-serif" font-size="10">m, L</text>`;
+
+  // ── 14. PUNTO B ─────────────────────────────────────────
+  svg += `<circle cx="${Bx}" cy="${By}" r="4.5" fill="#141b27" stroke="#f6e05e" stroke-width="1.5"/>`;
+  svg += `<text x="${Bx+7}" y="${By+14}" fill="#f6e05e" font-family="serif" font-style="italic" font-size="13">B</text>`;
+
+  // ── 15. ARCO DEL ÁNGULO φ ───────────────────────────────
+  if (L.arco_phi) {
+    const r = 48;
+    const x1 = Ax, y1 = Ay + r;           // sobre la vertical (punto de partida)
+    const x2 = Ax + r * s, y2 = Ay + r * c; // sobre la barra
+    svg += `<path d="M ${x1} ${y1} A ${r} ${r} 0 0 0 ${x2} ${y2}" fill="none" stroke="#90cdf4" stroke-width="1.3" opacity="0.85"/>`;
+    // etiqueta φ dentro del arco
+    const la = th / 2;
+    const lr = r + 12;
+    svg += `<text x="${Ax + lr*Math.sin(la) - 4}" y="${Ay + lr*Math.cos(la) + 5}" fill="#90cdf4" font-family="serif" font-style="italic" font-size="14">φ</text>`;
+  }
+
+  // ── 16. Etiquetas de ejes (opcional, discreto) ─────────
+  svg += `<text x="${CEIL_END-10}" y="${Oy+12}" fill="#3d5a6e" font-size="10" font-family="serif" font-style="italic">x</text>`;
+  svg += `<text x="${Ox+6}" y="405" fill="#3d5a6e" font-size="10" font-family="serif" font-style="italic">y</text>`;
+
+  document.getElementById('svg-wrap').innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" style="background:#060b10;border-radius:4px"><defs>${MKS}</defs>${svg}</svg>`;
+  window._currentSVG = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" style="background:#060b10"><defs>${MKS}</defs>${svg}</svg>`;
+
+  // Panel de resultados
+  const xG = params.x_pos + (params.L/2)*s;
+  const yG = -(params.L/2)*c;   // con eje y positivo hacia abajo en física, G está por debajo → y_G < 0
+  const eqs = {
+    'x (pos. M)': params.x_pos.toFixed(3) + ' m',
+    'φ':           params.theta_deg.toFixed(1) + '° = ' + th.toFixed(3) + ' rad',
+    'L/2':         (params.L/2).toFixed(3) + ' m',
+    '(L/2)·sinφ':  ((params.L/2)*s).toFixed(4) + ' m',
+    '(L/2)·cosφ':  ((params.L/2)*c).toFixed(4) + ' m',
+    'x_G = x + (L/2)·sinφ': xG.toFixed(4) + ' m',
+    'y_G = −(L/2)·cosφ':    yG.toFixed(4) + ' m'
+  };
+  const strip = Object.entries(eqs).slice(3,6).map(([k,v])=>`<span><span style="color:#1e3a4a">${k}=</span><span style="color:#68d391;font-weight:700">${v}</span></span>`).join('');
+  document.getElementById('eq-strip').innerHTML = strip;
+  document.getElementById('eq-panel').innerHTML = Object.entries(eqs).map(([k,v])=>`<div><span style="color:#2d4a62">${k} = </span><span style="color:#68d391">${v}</span></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════
+const sliderDefs = [
+  {k:'x_pos',     label:'x  (m)',  min:0.3, max:4.2, step:0.05, fmt:v=>v.toFixed(2)},
+  {k:'theta_deg', label:'φ  (°)',  min:-75, max:75,  step:1,    fmt:v=>v.toFixed(0)+'°'},
+  {k:'L',         label:'L  (m)',  min:0.5, max:2.5, step:0.05, fmt:v=>v.toFixed(2)}
+];
+
+function buildUI() {
+  // Presets
+  const pr = document.getElementById('preset-row');
+  Object.keys(PRESETS).forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'pbtn' + (p === preset ? ' on' : '');
+    b.textContent = p;
+    b.onclick = () => {
+      preset = p;
+      pr.querySelectorAll('.pbtn').forEach(x => x.classList.toggle('on', x.textContent === p));
+      render();
+    };
+    pr.appendChild(b);
+  });
+  // Sliders
+  const sl = document.getElementById('sliders');
+  sliderDefs.forEach(cfg => {
+    const div = document.createElement('div'); div.className='param';
+    const head = document.createElement('div'); head.className='ph';
+    const nm = document.createElement('span'); nm.className='pn'; nm.textContent = cfg.label;
+    const vl = document.createElement('span'); vl.className='pv'; vl.textContent = cfg.fmt(params[cfg.k]);
+    head.appendChild(nm); head.appendChild(vl);
+    const inp = document.createElement('input'); inp.type='range';
+    inp.min=cfg.min; inp.max=cfg.max; inp.step=cfg.step; inp.value=params[cfg.k];
+    inp.oninput = () => {
+      params[cfg.k] = parseFloat(inp.value);
+      vl.textContent = cfg.fmt(params[cfg.k]);
+      render();
+    };
+    div.appendChild(head); div.appendChild(inp); sl.appendChild(div);
+  });
+}
+
+function dlSVG(){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([window._currentSVG], {type:'image/svg+xml'}));
+  a.download = `corredera_barra_${preset}.svg`; a.click();
+}
+async function dlPNG(){
+  const blob = new Blob([window._currentSVG], {type:'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const cv = document.createElement('canvas');
+    cv.width = W*2; cv.height = H*2;
+    const ctx = cv.getContext('2d'); ctx.scale(2,2); ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = cv.toDataURL('image/png');
+    a.download = `corredera_barra_${preset}.png`; a.click();
+  };
+  img.src = url;
+}
+
+buildUI();
+render();
+</script>
+</body>
+</html>

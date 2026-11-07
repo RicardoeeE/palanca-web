@@ -1,0 +1,70 @@
+<svg viewBox="0 0 880 640" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'Cascadia Code',Consolas,monospace">
+  <rect width="880" height="640" fill="#f7f0d9"/>
+  <text x="30" y="42" fill="#0d2440" font-size="22" font-weight="bold">TORSIÓN DE EJES CIRCULARES — del par a la potencia</text>
+  <text x="30" y="64" fill="#b64a2a" font-size="13">Tres ecuaciones y un cambio de unidades resuelven el 90% de los problemas</text>
+
+  <!-- eje en perspectiva -->
+  <g>
+    <ellipse cx="120" cy="185" rx="18" ry="52" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+    <line x1="120" y1="133" x2="330" y2="133" stroke="#0d2440" stroke-width="2"/>
+    <line x1="120" y1="237" x2="330" y2="237" stroke="#0d2440" stroke-width="2"/>
+    <ellipse cx="330" cy="185" rx="18" ry="52" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+    <ellipse cx="330" cy="185" rx="8" ry="24" fill="#f7f0d9" stroke="#0d2440" stroke-width="1.5"/>
+    <!-- flechas de par -->
+    <path d="M 330 120 A 40 40 0 0 1 356 160" fill="none" stroke="#b64a2a" stroke-width="2.5"/>
+    <path d="M 356 160 l -11 -6 l 1 13 z" fill="#b64a2a"/>
+    <text x="352" y="112" fill="#b64a2a" font-size="14">T</text>
+    <!-- generatriz deformada -->
+    <line x1="120" y1="133" x2="330" y2="133" stroke="#b64a2a" stroke-width="0"/>
+    <path d="M 120 133 L 330 152" stroke="#b64a2a" stroke-width="2" stroke-dasharray="4 3"/>
+    <text x="196" y="128" fill="#b64a2a" font-size="12">γ (distorsión)</text>
+    <text x="200" y="264" fill="#0d2440" font-size="13">L</text>
+    <line x1="120" y1="252" x2="330" y2="252" stroke="#0d2440" stroke-width="1"/>
+  </g>
+
+  <!-- distribucion de tau -->
+  <g transform="translate(430,60)">
+    <circle cx="110" cy="125" r="72" fill="none" stroke="#0d2440" stroke-width="2"/>
+    <circle cx="110" cy="125" r="3" fill="#0d2440"/>
+    <line x1="110" y1="125" x2="182" y2="125" stroke="#0d2440" stroke-width="1.5"/>
+    <text x="140" y="120" fill="#0d2440" font-size="12">R</text>
+    <!-- triangulo de tensiones -->
+    <path d="M 110 125 L 182 125 L 182 78 z" fill="#b64a2a" opacity="0.25"/>
+    <line x1="182" y1="125" x2="182" y2="78" stroke="#b64a2a" stroke-width="2"/>
+    <line x1="110" y1="125" x2="182" y2="78" stroke="#b64a2a" stroke-width="2"/>
+    <text x="190" y="80" fill="#b64a2a" font-size="13">τmáx</text>
+    <text x="24" y="216" fill="#0d2440" font-size="12">τ crece LINEAL con el radio:</text>
+    <text x="24" y="234" fill="#b64a2a" font-size="13">τ(ρ) = T·ρ/Ip     τmáx = T·R/Ip</text>
+    <text x="24" y="256" fill="#0d2440" font-size="12">El centro no trabaja → por eso los</text>
+    <text x="24" y="272" fill="#0d2440" font-size="12">ejes huecos rinden casi igual pesando menos.</text>
+  </g>
+
+  <!-- formulario -->
+  <rect x="30" y="300" width="400" height="200" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="326" fill="#0d2440" font-size="13" font-weight="bold">LAS TRES ECUACIONES</text>
+  <text x="48" y="354" fill="#0d2440" font-size="12">Tensión:</text>
+  <text x="66" y="374" fill="#b64a2a" font-size="14">τmáx = T·R / Ip   ≤ τadm</text>
+  <text x="48" y="400" fill="#0d2440" font-size="12">Ángulo girado (rad):</text>
+  <text x="66" y="420" fill="#b64a2a" font-size="14">φ = T·L / (G·Ip)</text>
+  <text x="48" y="446" fill="#0d2440" font-size="12">Inercia polar:</text>
+  <text x="66" y="466" fill="#b64a2a" font-size="13">macizo: πd⁴/32 · hueco: π(D⁴−d⁴)/32</text>
+  <text x="48" y="490" fill="#0d2440" font-size="12">Deformación tangencial: γ = τ/G = R·φ/L</text>
+
+  <!-- potencia -->
+  <rect x="450" y="300" width="400" height="200" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="468" y="326" fill="#0d2440" font-size="13" font-weight="bold">POTENCIA ⇄ PAR (donde se pierden los puntos)</text>
+  <text x="468" y="356" fill="#b64a2a" font-size="15">P = T · ω</text>
+  <text x="468" y="382" fill="#0d2440" font-size="12">con P en watts, T en N·m y ω en rad/s.</text>
+  <text x="468" y="410" fill="#0d2440" font-size="12">Conversiones que piden siempre:</text>
+  <text x="486" y="432" fill="#b64a2a" font-size="13">rpm → ω = 2π·n/60</text>
+  <text x="486" y="452" fill="#b64a2a" font-size="13">Hz  → ω = 2π·f</text>
+  <text x="486" y="472" fill="#b64a2a" font-size="13">kW  → ×1000 antes de dividir</text>
+  <text x="468" y="494" fill="#0d2440" font-size="12">P = 2π·n·T/60 si te dan n en rpm.</text>
+
+  <!-- metodo -->
+  <rect x="30" y="516" width="820" height="98" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="542" fill="#0d2440" font-size="13" font-weight="bold">SI TE PIDEN DIMENSIONAR (el caso típico)</text>
+  <text x="48" y="566" fill="#0d2440" font-size="12">1· Del dato de potencia y giro saca T = P/ω.  2· Impón τmáx ≤ τadm → despeja el diámetro.</text>
+  <text x="48" y="588" fill="#0d2440" font-size="12">3· Si además dan un giro máximo (p. ej. 1°/m), impón φ/L ≤ límite → OTRO diámetro.</text>
+  <text x="48" y="608" fill="#b64a2a" font-size="12">4· Manda el MAYOR de los dos: el eje debe cumplir las dos condiciones a la vez.</text>
+</svg>

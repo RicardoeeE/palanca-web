@@ -1,0 +1,52 @@
+<svg viewBox="0 0 860 600" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'Cascadia Code',Consolas,monospace">
+  <rect width="860" height="600" fill="#f7f0d9"/>
+  <text x="30" y="42" fill="#0d2440" font-size="22" font-weight="bold">MÉTODO DE SECCIONES — convenio de signos N, V, M</text>
+  <text x="30" y="64" fill="#b64a2a" font-size="13">Cortas la viga, dibujas los esfuerzos POSITIVOS en la cara del corte, y el equilibrio decide el signo</text>
+
+  <!-- viga original con corte -->
+  <rect x="90" y="120" width="480" height="34" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+  <path d="M 110 154 l -12 22 h 24 z" fill="none" stroke="#0d2440" stroke-width="2"/>
+  <circle cx="530" cy="164" r="9" fill="none" stroke="#0d2440" stroke-width="2"/>
+  <line x1="500" y1="176" x2="560" y2="176" stroke="#0d2440" stroke-width="2"/>
+  <line x1="300" y1="100" x2="300" y2="176" stroke="#b64a2a" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="308" y="104" fill="#b64a2a" font-size="13">corte a-a</text>
+  <path d="M 220 84 l 0 24 m -6 -10 l 6 10 l 6 -10" stroke="#0d2440" stroke-width="2" fill="none"/>
+  <text x="238" y="96" fill="#0d2440" font-size="13">q, P</text>
+
+  <!-- trozo izquierdo -->
+  <text x="100" y="240" fill="#0d2440" font-size="14" font-weight="bold">Trozo IZQUIERDO · cara derecha</text>
+  <rect x="100" y="270" width="190" height="34" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+  <line x1="290" y1="287" x2="352" y2="287" stroke="#b64a2a" stroke-width="2.5"/>
+  <path d="M 352 287 l -12 -6 v 12 z" fill="#b64a2a"/>
+  <text x="300" y="276" fill="#b64a2a" font-size="13">N+</text>
+  <line x1="290" y1="304" x2="290" y2="362" stroke="#b64a2a" stroke-width="2.5"/>
+  <path d="M 290 362 l -6 -12 h 12 z" fill="#b64a2a"/>
+  <text x="300" y="352" fill="#b64a2a" font-size="13">V+ ↓</text>
+  <path d="M 232 246 A 26 26 0 0 1 262 258" fill="none" stroke="#b64a2a" stroke-width="2.5"/>
+  <path d="M 262 258 l -13 -3 l 8 -10 z" fill="#b64a2a"/>
+  <text x="152" y="252" fill="#b64a2a" font-size="13">M+ ⟲</text>
+
+  <!-- trozo derecho -->
+  <text x="520" y="240" fill="#0d2440" font-size="14" font-weight="bold">Trozo DERECHO · cara izquierda</text>
+  <rect x="560" y="270" width="190" height="34" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+  <line x1="560" y1="287" x2="498" y2="287" stroke="#b64a2a" stroke-width="2.5"/>
+  <path d="M 498 287 l 12 -6 v 12 z" fill="#b64a2a"/>
+  <text x="524" y="276" fill="#b64a2a" font-size="13">N+</text>
+  <line x1="560" y1="270" x2="560" y2="212" stroke="#b64a2a" stroke-width="2.5"/>
+  <path d="M 560 212 l -6 12 h 12 z" fill="#b64a2a"/>
+  <text x="520" y="224" fill="#b64a2a" font-size="13">V+ ↑</text>
+  <path d="M 618 246 A 26 26 0 0 0 588 258" fill="none" stroke="#b64a2a" stroke-width="2.5"/>
+  <path d="M 588 258 l 13 -3 l -8 -10 z" fill="#b64a2a"/>
+  <text x="636" y="252" fill="#b64a2a" font-size="13">M+ ⟳</text>
+
+  <!-- pareja acción-reacción -->
+  <text x="330" y="395" fill="#0d2440" font-size="12" text-anchor="middle" x="425">Los dos trozos llevan los MISMOS esfuerzos positivos en sentidos opuestos (acción-reacción).</text>
+
+  <!-- reglas -->
+  <rect x="90" y="410" width="680" height="164" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="108" y="438" fill="#0d2440" font-size="14" font-weight="bold">LAS TRES REGLAS QUE NO FALLAN</text>
+  <text x="108" y="466" fill="#0d2440" font-size="13">1· N+ = tracción: la flecha SIEMPRE sale de la cara cortada (en ambos trozos).</text>
+  <text x="108" y="492" fill="#0d2440" font-size="13">2· V+ = el par de cortantes que hace GIRAR el elemento en sentido horario.</text>
+  <text x="108" y="518" fill="#0d2440" font-size="13">3· M+ = comprime la fibra SUPERIOR: la viga "sonríe" ∪. M− la hace "llorar" ∩.</text>
+  <text x="108" y="550" fill="#b64a2a" font-size="13">Comprobación: dV/dx = −q · dM/dx = V → el M máximo está donde V = 0.</text>
+</svg>

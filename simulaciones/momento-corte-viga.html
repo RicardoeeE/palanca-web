@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Momento en la sección de corte — ¿Por qué M − R_A·x = 0?</title>
+<style>
+  /* ------------------------------------------------------------------
+     Estilo limpio, académico. Sin decoración superflua.
+  ------------------------------------------------------------------ */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', 'Cambria', serif;
+    background: #f7f6f2;
+    color: #1f2328;
+    line-height: 1.5;
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  header { margin-bottom: 20px; border-bottom: 2px solid #1f2328; padding-bottom: 12px; }
+  h1 { font-size: 24px; font-weight: normal; }
+  .subtitle { color: #555; font-size: 15px; margin-top: 4px; font-style: italic; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ---------- Zona del diagrama ---------- */
+  .diagram-area {
+    background: #ffffff;
+    border: 1px solid #d0d0c8;
+    border-radius: 4px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  svg { width: 100%; height: auto; max-width: 720px; }
+
+  .legend {
+    margin-top: 12px;
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: #333;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .sym {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .legend .ccw { color: #c8570d; }
+  .legend .cw { color: #b00020; }
+
+  /* ---------- Panel lateral ---------- */
+  .panel { display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: #ffffff;
+    border: 1px solid #d0d0c8;
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .card h3 {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #1f2328;
+    border-bottom: 1px solid #e0e0d8;
+    padding-bottom: 4px;
+  }
+
+  /* Botones */
+  .controls { display: flex; flex-wrap: wrap; gap: 6px; }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid #888;
+    background: #fafaf7;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  button:hover { background: #eceae0; }
+  button.active { background: #1f2328; color: white; border-color: #1f2328; }
+  button.play { background: #2a7a3c; color: white; border-color: #2a7a3c; }
+  button.play:hover { background: #236a33; }
+  button.pause { background: #b5892b; color: white; border-color: #b5892b; }
+  button.reset { background: #777; color: white; border-color: #777; }
+
+  /* Estado y ecuaciones */
+  #status-text {
+    font-size: 14px;
+    color: #333;
+    min-height: 40px;
+    font-style: italic;
+  }
+
+  .eq {
+    font-family: 'Cambria Math', 'Latin Modern Math', serif;
+    font-size: 16px;
+    padding: 6px 10px;
+    margin: 4px 0;
+    background: #f4f3ee;
+    border-left: 3px solid #888;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .eq.shown { opacity: 1; transform: translateX(0); }
+  .eq .hl { color: #b00020; font-weight: bold; }
+  .eq .hl2 { color: #c8570d; font-weight: bold; }
+  .eq .note { color: #555; font-size: 13px; font-style: italic; margin-left: 6px; }
+
+  .note-box {
+    font-size: 13.5px;
+    color: #333;
+    padding: 4px 0;
+  }
+  .note-box p { margin: 6px 0; }
+  .note-box strong { color: #1f2328; }
+
+  /* ---------- Zona inferior ---------- */
+  .bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 960px) { .bottom { grid-template-columns: 1fr; } }
+
+  .error-box {
+    background: #fff6f6;
+    border: 1px solid #e6b5b5;
+    border-left: 5px solid #b00020;
+    padding: 14px 16px;
+    border-radius: 4px;
+  }
+  .error-box h3 { color: #b00020; margin-bottom: 6px; font-size: 15px; }
+  .error-box p { font-size: 14px; margin: 4px 0; }
+
+  .conclusion {
+    background: #f0f5ea;
+    border: 1px solid #b8cfa0;
+    border-left: 5px solid #2a7a3c;
+    padding: 16px 18px;
+    border-radius: 4px;
+    font-size: 14.5px;
+  }
+  .conclusion strong { color: #b00020; }
+
+  /* ---------- Etiquetas SVG ---------- */
+  .lbl { font-family: 'Cambria Math', serif; font-size: 17px; }
+  .lbl-small { font-family: 'Cambria Math', serif; font-size: 14px; fill: #555; }
+
+  /* Fades SVG */
+  .fade { opacity: 0; transition: opacity 0.5s; }
+  .fade.shown { opacity: 1; }
+
+  /* Pulso para resaltar */
+  @keyframes pulse-scale {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.12); }
+  }
+  .pulsing { animation: pulse-scale 0.9s ease-in-out 2; transform-origin: 320px 220px; transform-box: fill-box; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>¿Por qué la ecuación es <i>M − R<sub>A</sub>·x = 0</i> y no <i>M + R<sub>A</sub>·x = 0</i>?</h1>
+  <p class="subtitle">Viga simplemente apoyada · Tramo 1 (0 ≤ x ≤ a) · Parte izquierda tras el corte</p>
+</header>
+
+<main class="layout">
+
+  <!-- ============================================================
+       DIAGRAMA PRINCIPAL
+       ============================================================ -->
+  <section class="diagram-area">
+    <svg id="mainSvg" viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Defs: marcadores de flecha -->
+      <defs>
+        <!-- Flecha recta genérica -->
+        <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#2a7a3c"/>
+        </marker>
+        <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#1c5aa0"/>
+        </marker>
+        <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#c8570d"/>
+        </marker>
+        <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#b00020"/>
+        </marker>
+        <marker id="arrow-gray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+        </marker>
+      </defs>
+
+      <!-- --- Viga completa (referencia difuminada al fondo, representa toda la viga) --- -->
+      <g opacity="0.15">
+        <rect x="80" y="210" width="560" height="20" fill="#888"/>
+        <!-- Apoyo B -->
+        <polygon points="600,230 620,260 580,260" fill="#888"/>
+        <line x1="560" y1="260" x2="640" y2="260" stroke="#888" stroke-width="2"/>
+      </g>
+
+      <!-- =========================================================
+           GRUPO "leftPiece": trozo izquierdo (lo que animamos al rotar)
+           Pivot de rotación: (320, 220) = sección de corte
+           ========================================================= -->
+      <g id="leftPiece">
+
+        <!-- Viga (trozo izquierdo) -->
+        <rect x="80" y="210" width="240" height="20" fill="#444" stroke="#1f2328" stroke-width="1"/>
+
+        <!-- Apoyo simple en A (triángulo + rayado) -->
+        <polygon points="100,230 115,255 85,255" fill="#2a7a3c" stroke="#1f2328" stroke-width="1.5"/>
+        <line x1="75" y1="255" x2="125" y2="255" stroke="#1f2328" stroke-width="2"/>
+        <!-- Rayado del apoyo -->
+        <g stroke="#1f2328" stroke-width="1">
+          <line x1="78" y1="255" x2="72" y2="265"/>
+          <line x1="86" y1="255" x2="80" y2="265"/>
+          <line x1="94" y1="255" x2="88" y2="265"/>
+          <line x1="102" y1="255" x2="96" y2="265"/>
+          <line x1="110" y1="255" x2="104" y2="265"/>
+          <line x1="118" y1="255" x2="112" y2="265"/>
+        </g>
+
+        <!-- Etiqueta "A" -->
+        <text x="100" y="280" class="lbl" text-anchor="middle" font-style="italic">A</text>
+
+        <!-- Flecha R_A (verde, arriba, en A) — PASO 1 -->
+        <g id="gRA" class="fade">
+          <line x1="100" y1="210" x2="100" y2="130"
+                stroke="#2a7a3c" stroke-width="3"
+                marker-end="url(#arrow-green)"/>
+          <text x="75" y="160" class="lbl" fill="#2a7a3c" font-weight="bold">R<tspan baseline-shift="sub" font-size="12">A</tspan></text>
+        </g>
+
+        <!-- Cota de x (brazo desde A hasta el corte) -->
+        <g>
+          <line x1="100" y1="300" x2="320" y2="300" stroke="#555" stroke-width="1"/>
+          <line x1="100" y1="295" x2="100" y2="305" stroke="#555" stroke-width="1"/>
+          <line x1="320" y1="295" x2="320" y2="305" stroke="#555" stroke-width="1"/>
+          <text x="210" y="318" class="lbl" text-anchor="middle" fill="#555" font-style="italic">x</text>
+        </g>
+      </g>
+      <!-- ====== FIN leftPiece ====== -->
+
+      <!-- Línea vertical del corte (NO rota — pertenece a la parte fija visual) -->
+      <line id="cutLine" x1="320" y1="190" x2="320" y2="250"
+            stroke="#b00020" stroke-width="2" stroke-dasharray="6,3"/>
+
+      <!-- Punto destacado en el corte -->
+      <circle id="cutPoint" cx="320" cy="220" r="6" fill="#b00020" stroke="#1f2328" stroke-width="1.5"/>
+      <text x="320" y="186" class="lbl-small" text-anchor="middle" fill="#b00020" font-weight="bold">corte (punto de referencia)</text>
+
+      <!-- Flecha V (azul, hacia abajo en la cara derecha del trozo — convención cortante +) -->
+      <g id="gV" class="fade">
+        <line x1="320" y1="220" x2="320" y2="300"
+              stroke="#1c5aa0" stroke-width="3"
+              marker-end="url(#arrow-blue)"/>
+        <text x="340" y="275" class="lbl" fill="#1c5aa0" font-weight="bold" font-style="italic">V</text>
+      </g>
+
+      <!-- ==== PASO 2: flecha curva GRANDE HORARIA alrededor del corte ==== -->
+      <!-- Arco horario de ~230° — muestra que R_A induce giro horario respecto al corte -->
+      <g id="gTurnCW" class="fade">
+        <!-- Arco: empieza arriba-izq, gira horario pasando por arriba, derecha, abajo, abajo-izq -->
+        <path d="M 275,195 A 55,55 0 1,1 290,268"
+              stroke="#b00020" stroke-width="3.5" fill="none"
+              marker-end="url(#arrow-red)" stroke-linecap="round"/>
+        <text x="400" y="160" class="lbl" fill="#b00020" font-weight="bold">giro horario</text>
+        <text x="400" y="180" class="lbl-small" fill="#b00020">inducido por R<tspan baseline-shift="sub" font-size="11">A</tspan></text>
+      </g>
+
+      <!-- ==== PASO 3: momento interno M antihorario ==== -->
+      <g id="gM" class="fade">
+        <!-- Arco antihorario más pequeño, justo sobre el corte -->
+        <path d="M 352,220 A 32,32 0 1,0 298,240"
+              stroke="#c8570d" stroke-width="3" fill="none"
+              marker-end="url(#arrow-orange)" stroke-linecap="round"/>
+        <text x="365" y="215" class="lbl" fill="#c8570d" font-weight="bold" font-style="italic">M</text>
+        <text x="360" y="298" class="lbl-small" fill="#c8570d">antihorario (equilibrio)</text>
+      </g>
+
+    </svg>
+
+    <!-- Leyenda de convención -->
+    <div class="legend">
+      <span><span class="sym ccw">↺</span> Antihorario = positivo (+)</span>
+      <span><span class="sym cw">↻</span> Horario = negativo (−)</span>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       PANEL LATERAL
+       ============================================================ -->
+  <aside class="panel">
+
+    <div class="card">
+      <h3>Controles</h3>
+      <div class="controls">
+        <button id="btnPlay" class="play">▶ Play</button>
+        <button id="btnPause" class="pause">⏸ Pause</button>
+        <button id="btnReset" class="reset">↺ Reset</button>
+      </div>
+      <div class="controls" style="margin-top:8px;">
+        <button class="step-btn" data-step="1">Paso 1 · R<sub>A</sub></button>
+        <button class="step-btn" data-step="2">Paso 2 · Giro horario</button>
+        <button class="step-btn" data-step="3">Paso 3 · M equilibrante</button>
+        <button class="step-btn" data-step="4">Paso 4 · Ecuaciones</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Estado</h3>
+      <p id="status-text">Pulsa <b>Play</b> o un paso concreto para empezar.</p>
+    </div>
+
+    <div class="card">
+      <h3>Ecuaciones (aparecen paso a paso)</h3>
+
+      <p class="eq" data-eq="1">
+        <b>Equilibrio vertical:</b>&nbsp; ∑F<sub>y</sub> = 0
+      </p>
+      <p class="eq" data-eq="2">
+        V − R<sub>A</sub> = 0 &nbsp; ⟹ &nbsp; V = R<sub>A</sub>
+      </p>
+      <p class="eq" data-eq="3">
+        <b>Equilibrio de momentos respecto al corte:</b>&nbsp; ∑M<sub>corte</sub> = 0
+      </p>
+      <p class="eq" data-eq="4">
+        <span class="hl2">(+M)</span> <span class="note">antihorario, +</span>
+        + <span class="hl">(−R<sub>A</sub>·x)</span> <span class="note">horario, −</span>
+        = 0
+      </p>
+      <p class="eq" data-eq="5">
+        M − R<sub>A</sub>·x = 0 &nbsp; ⟹ &nbsp; <b>M = R<sub>A</sub>·x</b>
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Ideas clave</h3>
+      <div class="note-box">
+        <p>• Los momentos <strong>no</strong> se toman respecto a A, sino respecto a la <strong>sección de corte</strong>.</p>
+        <p>• Para decidir el signo no importa si la fuerza va hacia arriba o hacia abajo, sino el <strong>sentido de giro</strong> que produce alrededor del punto de referencia.</p>
+        <p>• Aquí el punto de referencia es el <strong>corte</strong>.</p>
+        <p>• R<sub>A</sub>, aplicada en A (a la izquierda del corte), tiende a girar el trozo izquierdo en sentido <strong>horario</strong> alrededor del corte.</p>
+        <p>• Por eso su contribución entra como <strong>−R<sub>A</sub>·x</strong> si se toma antihorario como positivo.</p>
+      </div>
+    </div>
+
+  </aside>
+</main>
+
+
+<!-- ============================================================
+     ZONA INFERIOR: error típico + conclusión
+     ============================================================ -->
+<section class="bottom">
+
+  <div class="error-box">
+    <h3>⚠ Error típico</h3>
+    <p>Pensar que, como R<sub>A</sub> apunta hacia arriba, <em>automáticamente</em> su momento es positivo.</p>
+    <p><strong>Corrección:</strong> el signo del momento depende del <em>sentido de giro</em> que la fuerza induce alrededor del punto elegido (el corte), no solo de la dirección vertical de la fuerza.</p>
+    <p style="margin-top:8px; font-size:13px; color:#555;">
+      Una fuerza vertical aplicada a la izquierda del pivote produce un momento con <b>signo opuesto</b> al que produciría aplicada a la derecha. La geometría del brazo importa tanto como el sentido de la fuerza.
+    </p>
+  </div>
+
+  <div class="conclusion">
+    <p>
+      <strong>Conclusión:</strong> el momento de una fuerza se decide por el <em>giro que esa fuerza induce alrededor del punto elegido</em>. En este caso, respecto al corte, R<sub>A</sub> produce giro horario, por eso entra como <strong>−R<sub>A</sub>·x</strong>.
+    </p>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SCRIPT: orquestación de pasos y animación de rotación
+     ============================================================ -->
+<script>
+/* ------------------------------------------------------------------
+   ESTADO
+------------------------------------------------------------------ */
+const statusEl = document.getElementById('status-text');
+const leftPiece = document.getElementById('leftPiece');
+
+const gRA      = document.getElementById('gRA');
+const gV       = document.getElementById('gV');
+const gTurnCW  = document.getElementById('gTurnCW');
+const gM       = document.getElementById('gM');
+
+const equations = document.querySelectorAll('.eq');
+const stepButtons = document.querySelectorAll('.step-btn');
+
+let currentStep = 0;      // 0 = nada; 1..4 = pasos
+let playing = false;      // play automático activo
+let playTimers = [];      // IDs de timeouts para poder cancelar
+let rotationAnim = null;  // id de requestAnimationFrame
+
+/* ------------------------------------------------------------------
+   UTILIDADES
+------------------------------------------------------------------ */
+function show(el)    { el.classList.add('shown'); }
+function hide(el)    { el.classList.remove('shown'); }
+function clearTimers(){
+  playTimers.forEach(t => clearTimeout(t));
+  playTimers = [];
+  if (rotationAnim) { cancelAnimationFrame(rotationAnim); rotationAnim = null; }
+}
+
+/* Rotación del trozo izquierdo alrededor del corte (320,220).
+   Gira hacia HORARIO (ángulo positivo en SVG) y vuelve al origen.
+   Duración total ~1.6s, hace 2 oscilaciones pequeñas. */
+function animateClockwiseRotation() {
+  const cx = 320, cy = 220;
+  const maxAngle = 7;           // grados
+  const duration = 1600;        // ms
+  const start = performance.now();
+
+  function frame(t) {
+    const elapsed = t - start;
+    const u = Math.min(elapsed / duration, 1);
+    // 2 oscilaciones suaves: seno al cuadrado de pi*2*u, amortiguado
+    const damp = 1 - u;          // va decreciendo
+    const wave = Math.sin(Math.PI * 2 * u * 1.2);
+    const angle = maxAngle * damp * Math.abs(wave) * Math.sign(wave >= 0 ? 1 : 1); // siempre positivo → horario
+    leftPiece.setAttribute('transform', `rotate(${angle.toFixed(2)} ${cx} ${cy})`);
+    if (u < 1) {
+      rotationAnim = requestAnimationFrame(frame);
+    } else {
+      leftPiece.setAttribute('transform', `rotate(0 ${cx} ${cy})`);
+      rotationAnim = null;
+    }
+  }
+  rotationAnim = requestAnimationFrame(frame);
+}
+
+/* ------------------------------------------------------------------
+   APLICAR ESTADO VISUAL PARA CADA PASO
+   Acumulativo: paso 3 implica pasos 1-2 ya mostrados, etc.
+------------------------------------------------------------------ */
+function applyStep(step) {
+  currentStep = step;
+
+  // marcar botón activo
+  stepButtons.forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.step) === step);
+  });
+
+  // reset visuales que dependen del paso
+  hide(gRA); hide(gV); hide(gTurnCW); hide(gM);
+  equations.forEach(e => hide(e));
+  leftPiece.setAttribute('transform', 'rotate(0 320 220)');
+
+  if (step >= 1) {
+    show(gRA);
+    statusEl.innerHTML = '<b>Paso 1:</b> aparece la reacción R<sub>A</sub> (verde, vertical hacia arriba, aplicada en A).';
+  }
+  if (step >= 2) {
+    show(gTurnCW);
+    // animación de rotación horaria del trozo
+    animateClockwiseRotation();
+    statusEl.innerHTML = '<b>Paso 2:</b> si solo actuase R<sub>A</sub>, el trozo izquierdo tendería a girar <b style="color:#b00020">en sentido horario</b> alrededor del corte. ⇒ contribución con signo <b>negativo</b>.';
+  }
+  if (step >= 3) {
+    show(gV);
+    show(gM);
+    statusEl.innerHTML = '<b>Paso 3:</b> aparece el momento interno M (naranja) en sentido <b style="color:#c8570d">antihorario</b> para equilibrar. También se dibuja V (cortante, azul).';
+  }
+  if (step >= 4) {
+    // mostrar ecuaciones con pequeño stagger
+    equations.forEach((eq, i) => {
+      const t = setTimeout(() => show(eq), 200 * i);
+      playTimers.push(t);
+    });
+    statusEl.innerHTML = '<b>Paso 4:</b> ecuaciones de equilibrio. Antihorario +, horario −. Por eso <b>M − R<sub>A</sub>·x = 0</b>.';
+  }
+}
+
+/* ------------------------------------------------------------------
+   PLAY / PAUSE / RESET
+------------------------------------------------------------------ */
+function play() {
+  clearTimers();
+  playing = true;
+  applyStep(0);
+  const delays = [ 400, 2000, 2600, 3400 ]; // antes de paso 1, 2, 3, 4 respectivamente (relativos)
+  let acc = 0;
+  [1,2,3,4].forEach((s, idx) => {
+    acc += delays[idx];
+    const t = setTimeout(() => { if (playing) applyStep(s); }, acc);
+    playTimers.push(t);
+  });
+  const tEnd = setTimeout(() => { playing = false; }, acc + 800);
+  playTimers.push(tEnd);
+}
+
+function pause() {
+  playing = false;
+  clearTimers();
+}
+
+function reset() {
+  playing = false;
+  clearTimers();
+  applyStep(0);
+  statusEl.innerHTML = 'Reiniciado. Pulsa <b>Play</b> o un paso concreto para empezar.';
+  stepButtons.forEach(b => b.classList.remove('active'));
+}
+
+/* ------------------------------------------------------------------
+   LISTENERS
+------------------------------------------------------------------ */
+document.getElementById('btnPlay').addEventListener('click', play);
+document.getElementById('btnPause').addEventListener('click', pause);
+document.getElementById('btnReset').addEventListener('click', reset);
+
+stepButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    playing = false;
+    clearTimers();
+    applyStep(Number(btn.dataset.step));
+  });
+});
+
+/* Estado inicial */
+reset();
+</script>
+
+</body>
+</html>

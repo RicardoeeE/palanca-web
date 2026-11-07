@@ -1,0 +1,231 @@
+{
+  "apuntes": [
+    {
+      "id": "apunte-inercia-rectangulo",
+      "file": "apuntes/files/inercia-rectangulo.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Momento de inercia de un rectángulo",
+      "titleEn": "Second moment of area of a rectangle",
+      "bodyEs": "Esquema anotado de la sección rectangular: I = b·h³/12 respecto al eje centroidal.",
+      "bodyEn": "Annotated schematic of a rectangular section: I = b·h³/12 about the centroidal axis.",
+      "tags": [
+        "Inercia",
+        "Sección",
+        "Esquema"
+      ],
+      "level": 1
+    },
+    {
+      "id": "apunte-p2-biapoyada-puntual-par-18c3",
+      "file": "apuntes/files/p2-biapoyada-puntual-par.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Viga biapoyada — carga puntual y par (P2)",
+      "titleEn": "Simply supported beam — point load and couple (P2)",
+      "bodyEs": "Problema 2 resuelto: reacciones y diagramas de una viga biapoyada sometida a una carga puntual y un par aplicado.",
+      "bodyEn": "Solved problem 2: reactions and diagrams of a simply supported beam under a point load and an applied couple.",
+      "tags": [
+        "Vigas",
+        "Carga puntual",
+        "Momento",
+        "Resistencia"
+      ],
+      "level": 1
+    },
+    {
+      "id": "apunte-convenio-signos-secciones",
+      "file": "apuntes/files/convenio-signos-secciones.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Convenio de signos N, V, M (método de secciones)",
+      "titleEn": "Sign convention for N, V, M (method of sections)",
+      "bodyEs": "Cómo asignar el signo de axil, cortante y flector al cortar una viga: los esfuerzos positivos en cada cara y las tres reglas para no equivocarse.",
+      "bodyEn": "How to assign the sign of axial, shear and bending when sectioning a beam: positive internal forces on each face and the three rules to get it right.",
+      "tags": [
+        "Vigas",
+        "Cortante",
+        "Flector",
+        "Convenio",
+        "Esquema"
+      ],
+      "level": 1
+    },
+    {
+      "id": "apunte-pandeo-euler-apoyos",
+      "file": "apuntes/files/pandeo-euler-apoyos.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Pandeo de Euler — longitud efectiva según apoyos",
+      "titleEn": "Euler buckling — effective length by end conditions",
+      "bodyEs": "Los cuatro casos de apoyo (K = 0.5, 0.7, 1, 2), su longitud efectiva Le = K·L y la carga crítica Pcr = π²EI/Le². Compara cuál pandea antes.",
+      "bodyEn": "The four end-condition cases (K = 0.5, 0.7, 1, 2), their effective length Le = K·L and critical load Pcr = π²EI/Le². Compares which buckles first.",
+      "tags": [
+        "Pandeo",
+        "Euler",
+        "Columnas",
+        "Esquema"
+      ],
+      "level": 2
+    },
+    {
+      "id": "apunte-circulo-mohr-2d",
+      "file": "apuntes/files/circulo-mohr-2d.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Círculo de Mohr en tensión plana",
+      "titleEn": "Mohr's circle for plane stress",
+      "bodyEs": "De (σx, σy, τxy) a tensiones principales en cuatro pasos: centro, radio, σ₁,₂ y orientación. Con el convenio de dibujo y la relación ángulo·2 del círculo.",
+      "bodyEn": "From (σx, σy, τxy) to principal stresses in four steps: centre, radius, σ₁,₂ and orientation. Includes the drawing convention and the circle's angle-doubling.",
+      "tags": [
+        "Mohr",
+        "Tensiones principales",
+        "Tensión plana",
+        "Esquema"
+      ],
+      "level": 2
+    },
+    {
+      "id": "apunte-deflexiones-integracion",
+      "file": "apuntes/files/deflexiones-integracion.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Deflexión de vigas por integración de la elástica",
+      "titleEn": "Beam deflection by integrating the elastic curve",
+      "bodyEs": "La cadena q→V→M→θ→y, el método en 5 pasos, las condiciones de contorno de cada apoyo y los casos tipo para comprobar el resultado.",
+      "bodyEn": "The q→V→M→θ→y chain, the 5-step method, boundary conditions for each support and standard cases to check your result.",
+      "tags": [
+        "Deflexiones",
+        "Elástica",
+        "Vigas",
+        "Flecha",
+        "Esquema"
+      ],
+      "level": 2
+    },
+    {
+      "id": "apunte-torsion-ejes",
+      "file": "apuntes/files/torsion-ejes.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Torsión de ejes circulares — del par a la potencia",
+      "titleEn": "Torsion of circular shafts — from torque to power",
+      "bodyEs": "τmáx = T·R/Ip, el ángulo girado, la inercia polar de macizo y hueco, y el paso que más puntos cuesta: pasar de potencia y rpm al par.",
+      "bodyEn": "τmax = T·R/Ip, angle of twist, polar moment for solid and hollow shafts, and the step that costs most marks: going from power and rpm to torque.",
+      "tags": [
+        "Torsión",
+        "Ejes",
+        "Potencia",
+        "Esquema"
+      ],
+      "level": 2
+    },
+    {
+      "id": "apunte-axial-termico",
+      "file": "apuntes/files/axial-termico.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Carga axial y efecto térmico — cuándo aparece tensión",
+      "titleEn": "Axial load and thermal effect — when stress appears",
+      "bodyEs": "Dilatar libre no genera tensión; dilatar impedido sí (σ = −E·α·ΔT). Método de compatibilidad, barras por tramos y comprobación del tornillo a cortante.",
+      "bodyEn": "Free expansion produces no stress; restrained expansion does (σ = −E·α·ΔT). Compatibility method, multi-segment bars and checking the bolt in shear.",
+      "tags": [
+        "Carga axial",
+        "Térmico",
+        "Dilatación",
+        "Hiperestático",
+        "Esquema"
+      ],
+      "level": 1
+    },
+    {
+      "id": "apunte-tensiones-vigas-dimensionar",
+      "file": "apuntes/files/tensiones-vigas-dimensionar.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Tensiones en vigas — dimensionar a flexión y comprobar a cortante",
+      "titleEn": "Beam stresses — size for bending, check for shear",
+      "bodyEs": "σ = M·y/I lineal y τ = V·Q/(I·b) parabólica. Por qué la flexión manda el tamaño y el cortante solo verifica, con el método de dimensionado paso a paso.",
+      "bodyEn": "Linear σ = M·y/I and parabolic τ = V·Q/(I·b). Why bending drives the size and shear only checks it, with the step-by-step sizing method.",
+      "tags": [
+        "Tensiones",
+        "Flexión",
+        "Cortante",
+        "Dimensionar",
+        "Vigas",
+        "Esquema"
+      ],
+      "level": 2
+    },
+    {
+      "id": "herr-edo-polos-respuesta",
+      "file": "herramientas/edo-polos-respuesta.html",
+      "formato": "html",
+      "tipo": "herramienta",
+      "subject": "edo",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Polos ⇄ Respuesta (Laplace)",
+      "titleEn": "Poles ⇄ Response (Laplace)",
+      "bodyEs": "Mueve ζ y ωₙ de un sistema de 2.º orden y mira a la vez dónde caen los polos en s y cómo responde y(t) a un impulso o a un escalón.",
+      "bodyEn": "Move ζ and ωₙ of a second-order system and watch both where the poles land in s and how y(t) responds to an impulse or a step.",
+      "tags": [
+        "Laplace",
+        "Polos",
+        "EDO",
+        "Interactivo"
+      ],
+      "level": 2,
+      "origen": "propio",
+      "verificacion": "Polos, impulso y escalón comparados con una integración RK4 independiente de la EDO en 30 pares (ζ, ωₙ) y 24 instantes."
+    },
+    {
+      "id": "apunte-tensiones-tangenciales-cortante",
+      "file": "apuntes/files/tensiones-tangenciales-cortante.svg",
+      "formato": "svg",
+      "tipo": "apunte",
+      "subject": "rm",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Tensiones tangenciales por cortante en vigas",
+      "titleEn": "Shear stress in beams",
+      "bodyEs": "De τ = V·Q/(I·b) al reparto real en rectángulo (τmax = 1,5·V/A), círculo (4/3·V/A) y perfil en I (salto en la unión ala-alma), con un ejemplo numérico resuelto.",
+      "bodyEn": "From τ = V·Q/(I·b) to the actual distribution in a rectangle (τmax = 1.5·V/A), a circle (4/3·V/A) and an I-section (jump at the flange-web joint), with a worked numerical example.",
+      "tags": [
+        "Tensiones",
+        "Cortante",
+        "Vigas",
+        "Jourawski",
+        "Esquema"
+      ],
+      "level": 2
+    }
+  ]
+}

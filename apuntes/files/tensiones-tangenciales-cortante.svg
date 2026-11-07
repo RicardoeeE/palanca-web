@@ -1,0 +1,64 @@
+<svg viewBox="0 0 880 768" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'Cascadia Code',Consolas,monospace">
+  <rect width="880" height="768" fill="#f7f0d9"/>
+  <text x="30" y="42" fill="#0d2440" font-size="22" font-weight="bold">TENSIONES TANGENCIALES POR CORTANTE — cómo se reparte τ</text>
+  <text x="30" y="64" fill="#b64a2a" font-size="13">Fórmula de Jourawski y su resultado en rectángulo, círculo y perfil en I</text>
+  <rect x="30" y="80" width="380" height="200" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="104" fill="#0d2440" font-size="14" font-weight="bold">FÓRMULA  τ = V·Q / (I·b)</text>
+  <text x="48" y="128" fill="#0d2440" font-size="12">V  cortante de la sección (N)</text>
+  <text x="48" y="146" fill="#0d2440" font-size="12">I  inercia de TODA la sección (mm⁴)</text>
+  <text x="48" y="164" fill="#0d2440" font-size="12">b  ancho de la sección en el corte (mm)</text>
+  <text x="48" y="182" fill="#0d2440" font-size="12">Q  momento estático del área por encima</text>
+  <text x="48" y="198" fill="#0d2440" font-size="12">   (o por debajo) del corte:</text>
+  <text x="48" y="222" fill="#b64a2a" font-size="14" font-weight="bold">Q = A* · ȳ*</text>
+  <text x="48" y="240" fill="#0d2440" font-size="11">A* = área que queda a un lado del corte</text>
+  <text x="48" y="256" fill="#0d2440" font-size="11">ȳ* = distancia de su centroide a la fibra neutra</text>
+  <text x="48" y="272" fill="#0d2440" font-size="11">Q es máximo en la fibra neutra y 0 en el borde.</text>
+  <rect x="430" y="80" width="420" height="200" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="448" y="104" fill="#0d2440" font-size="14" font-weight="bold">RECTÁNGULO b×h — parábola</text>
+  <rect x="470" y="130" width="60" height="120" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+  <line x1="462" y1="190" x2="660" y2="190" stroke="#0d2440" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="550" y1="130" x2="550" y2="250" stroke="#0d2440" stroke-width="1"/>
+  <polygon points="550.0,130.0 550.0,130.0 564.4,135.0 577.5,140.0 589.4,145.0 600.0,150.0 609.4,155.0 617.5,160.0 624.4,165.0 630.0,170.0 634.4,175.0 637.5,180.0 639.4,185.0 640.0,190.0 639.4,195.0 637.5,200.0 634.4,205.0 630.0,210.0 624.4,215.0 617.5,220.0 609.4,225.0 600.0,230.0 589.4,235.0 577.5,240.0 564.4,245.0 550.0,250.0 550.0,250.0" fill="#b64a2a" fill-opacity="0.22" stroke="#b64a2a" stroke-width="2"/>
+  <text x="646.0" y="186" fill="#b64a2a" font-size="11" font-weight="bold">τmax</text>
+  <text x="646.0" y="200" fill="#b64a2a" font-size="11">3,75 MPa</text>
+  <text text-anchor="middle" x="500" y="172" fill="#0d2440" font-size="11">60×120</text>
+  <text x="448" y="264" fill="#b64a2a" font-size="12">τ(y) = 6V/(b·h³)·(h²/4 − y²)</text>
+  <text x="448" y="278" fill="#b64a2a" font-size="12" font-weight="bold">τ=0 en bordes · τmax = 1,5·V/A</text>
+  <rect x="30" y="300" width="380" height="258" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="324" fill="#0d2440" font-size="14" font-weight="bold">CÍRCULO MACIZO — también parabólica</text>
+  <circle cx="105" cy="420" r="40" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+  <line x1="57" y1="420" x2="275" y2="420" stroke="#0d2440" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="165" y1="380" x2="165" y2="460" stroke="#0d2440" stroke-width="1"/>
+  <polygon points="165.0,380.0 165.0,380.0 183.1,384.0 199.4,388.0 213.7,392.0 226.1,396.0 236.6,400.0 245.2,404.0 251.9,408.0 256.7,412.0 259.5,416.0 260.5,420.0 259.5,424.0 256.7,428.0 251.9,432.0 245.2,436.0 236.6,440.0 226.1,444.0 213.7,448.0 199.4,452.0 183.1,456.0 165.0,460.0 165.0,460.0" fill="#b64a2a" fill-opacity="0.22" stroke="#b64a2a" stroke-width="2"/>
+  <text x="266.5" y="416" fill="#b64a2a" font-size="11" font-weight="bold">τmax</text>
+  <text x="266.5" y="430" fill="#b64a2a" font-size="11">4,77 MPa</text>
+  <text text-anchor="middle" x="105" y="412" fill="#0d2440" font-size="11">d = 80 mm</text>
+  <text x="48" y="504" fill="#b64a2a" font-size="11">τ = 4V/(3πR²)·(1 − y²/R²)  (τ uniforme/cuerda)</text>
+  <text x="48" y="522" fill="#b64a2a" font-size="12" font-weight="bold">τmax = (4/3)·V/A</text>
+  <rect x="430" y="300" width="420" height="258" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="448" y="324" fill="#0d2440" font-size="14" font-weight="bold">PERFIL EN I — el alma carga</text>
+  <rect x="462" y="340.0" width="80.0" height="8.0" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.5"/>
+  <rect x="462" y="492.0" width="80.0" height="8.0" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.5"/>
+  <rect x="498.8" y="348.0" width="6.4" height="144.0" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.5"/>
+  <line x1="454" y1="420" x2="722.0" y2="420" stroke="#0d2440" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="562.0" y1="340.0" x2="562.0" y2="500.0" stroke="#0d2440" stroke-width="1"/>
+  <polygon points="562.0,340.0 562.0,340.0 566.4,344.0 570.6,348.0 669.1,348.0 676.8,356.0 683.5,364.0 689.4,372.0 694.3,380.0 698.4,388.0 701.6,396.0 703.8,404.0 705.2,412.0 705.6,420.0 705.6,420.0 705.2,428.0 703.8,436.0 701.6,444.0 698.4,452.0 694.3,460.0 689.4,468.0 683.5,476.0 676.8,484.0 669.1,492.0 570.6,492.0 566.4,496.0 562.0,500.0 562.0,500.0" fill="#b64a2a" fill-opacity="0.22" stroke="#b64a2a" stroke-width="2"/>
+  <line x1="699.5" y1="348.0" x2="699.5" y2="492.0" stroke="#0d2440" stroke-width="1" stroke-dasharray="2 3"/>
+  <text x="713.66" y="414" fill="#b64a2a" font-size="11" font-weight="bold">τmax</text>
+  <text x="713.66" y="428" fill="#b64a2a" font-size="11">13,06 MPa</text>
+  <text x="576.0" y="336.0" fill="#b64a2a" font-size="11">ala: 0,78</text>
+  <text x="712.0" y="362.0" fill="#b64a2a" font-size="11">alma: 9,74</text>
+  <text x="712.0" y="374.0" fill="#b64a2a" font-size="11">(salto ×12,5)</text>
+  <text x="454" y="516" fill="#0d2440" font-size="11">ala 100×10 · alma 8×180 mm</text>
+  <text x="448" y="532" fill="#b64a2a" font-size="11">Salto: b pasa de 100 a 8 mm → τ ×(100/8).</text>
+  <text x="448" y="548" fill="#b64a2a" font-size="12" font-weight="bold">El alma lleva ≈ 96 % de V → τ ≈ V/A_alma.</text>
+  <rect x="30" y="578" width="820" height="170" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="602" fill="#0d2440" font-size="14" font-weight="bold">EJEMPLO RESUELTO — V = 18 kN en ambos casos</text>
+  <text x="48" y="626" fill="#0d2440" font-size="12">Rectángulo 60×120:  A = 7200 mm²   I = 60·120³/12 = 8,64·10⁶ mm⁴</text>
+  <text x="48" y="644" fill="#0d2440" font-size="12">En la fibra neutra  Q = 60·60·30 = 108000 mm³</text>
+  <text x="48" y="662" fill="#b64a2a" font-size="12">τ = 18000·108000/(8,64·10⁶·60) = 3,75 MPa  =  1,5·V/A  (V/A = 2,5)</text>
+  <text x="48" y="680" fill="#0d2440" font-size="12">A 30 mm de la neutra  Q = 60·30·45 = 81000 mm³  →  τ = 2,81 MPa</text>
+  <text x="48" y="704" fill="#0d2440" font-size="12">Perfil I (inventado, ala 100×10, alma 8×180):  I = 2,195·10⁷ mm⁴  A_alma = 1440 mm²</text>
+  <text x="48" y="722" fill="#b64a2a" font-size="12">Neutra: Q = 95000 + 32400 = 127400 mm³ → τmax = 13,06 MPa  ·  V/A_alma = 12,5 MPa</text>
+  <text x="48" y="740" fill="#0d2440" font-size="12">Unión ala-alma: Q = 95000 → 9,74 MPa (alma), 0,78 MPa (ala). τmax/(V/A_alma) = 1,04</text>
+</svg>

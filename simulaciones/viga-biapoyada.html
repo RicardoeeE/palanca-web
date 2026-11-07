@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Viga biapoyada con carga uniforme y puntual — Palanca</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Georgia, Cambria, serif;
+    background: #f7f6f2;
+    color: #1f2328;
+    line-height: 1.55;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  header { border-bottom: 2px solid #1f2328; padding-bottom: 10px; margin-bottom: 14px; }
+  h1 { font-size: 22px; font-weight: normal; }
+  .subtitle { color: #555; font-size: 14px; margin-top: 4px; font-style: italic; }
+  .meta { font-size: 12.5px; color: #777; margin-top: 2px; }
+
+  .convenio {
+    background: #fff8e6;
+    border: 1px solid #e0c97a;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 10px 0 14px;
+    font-size: 13px;
+  }
+  .convenio b { color: #7a5a00; }
+
+  .card {
+    background: #ffffff;
+    border: 1px solid #d0d0c8;
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e0e0d8;
+    padding-bottom: 5px;
+  }
+  .card h3 {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 12px 0 6px;
+    color: #333;
+  }
+  .card h4 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 10px 0 4px;
+    color: #555;
+    font-style: italic;
+  }
+  .card p { font-size: 14px; margin: 4px 0; }
+  .card ul { margin: 4px 0 4px 22px; font-size: 14px; }
+  .card ul li { margin: 2px 0; }
+
+  .eq {
+    background: #f1f0ea;
+    border-left: 3px solid #5a5a50;
+    padding: 6px 12px;
+    margin: 6px 0;
+    font-family: 'Cambria Math', Cambria, serif;
+    font-size: 15px;
+  }
+  .eq .lab {
+    display: inline-block;
+    min-width: 140px;
+    color: #5a5a50;
+    font-size: 12.5px;
+    font-style: italic;
+    font-family: Georgia, serif;
+  }
+  .eq.result {
+    background: #e8efe6;
+    border-left: 3px solid #2a5a28;
+    font-weight: bold;
+  }
+  .eq.result.neg {
+    background: #f8ebe6;
+    border-left: 3px solid #b04000;
+  }
+
+  .note {
+    font-size: 13px;
+    color: #666;
+    font-style: italic;
+    margin: 4px 0;
+  }
+
+  .caja-especial {
+    background: #ffe4c4;
+    border: 1px solid #cc7a33;
+    border-radius: 3px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-size: 13.5px;
+    color: #5a3000;
+  }
+  .caja-especial b { color: #8a2400; }
+
+  .error-box {
+    background: #fff9c4;
+    border: 1px solid #c8b83a;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-top: 10px;
+  }
+  .error-box h4 {
+    font-size: 14px;
+    color: #7a6800;
+    margin-bottom: 4px;
+  }
+
+  .conclusion {
+    background: #e7f1e4;
+    border: 1px solid #7aa876;
+    border-radius: 4px;
+    padding: 12px 16px;
+  }
+  .conclusion h3 {
+    font-size: 15px;
+    color: #2a5a28;
+    margin-bottom: 8px;
+  }
+  .conclusion table {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+  }
+  .conclusion td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #cfe0cb;
+  }
+  .conclusion td:nth-child(1) { color: #555; width: 30%; }
+  .conclusion td:nth-child(2) {
+    font-family: 'Cambria Math', serif;
+    font-weight: bold;
+    width: 25%;
+    color: #1a4a18;
+  }
+  .conclusion td:nth-child(3) { color: #555; font-size: 13px; font-style: italic; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  .nav-links {
+    margin-top: 20px;
+    padding: 10px 14px;
+    background: #eae7db;
+    border: 1px solid #c5c0b0;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .nav-links a {
+    color: #1f2328;
+    text-decoration: none;
+    padding: 4px 10px;
+    display: inline-block;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    background: #fff;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  .nav-links a:hover { background: #f0eee4; }
+  .nav-links a.cur { background: #1f2328; color: #fff; }
+
+  .controls {
+    background: #eae7db;
+    border: 1px solid #c5c0b0;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+  .controls .row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .controls label { font-size: 13.5px; min-width: 110px; }
+  .controls input[type=range] { flex: 1; min-width: 250px; }
+  .controls .val { font-family: 'Cambria Math', Cambria, serif; min-width: 90px; font-weight: bold; }
+  .controls button {
+    font-family: inherit; font-size: 13px; padding: 5px 12px;
+    border: 1px solid #999; background: #fff; cursor: pointer; border-radius: 3px;
+  }
+  .controls button:hover { background: #eee; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Viga biapoyada</h1>
+  <div class="subtitle">Biapoyada · q uniforme en [0, L] · P = qL en s = x</div>
+  <div class="meta">Resistencia de Materiales · caso resuelto · x = L/2</div>
+</header>
+
+
+<div class="convenio">
+  <b>Convenio.</b> s: coordenada desde el extremo izquierdo. q y P positivas hacia <b>abajo</b>.
+  <b>V(s) positivo</b>: parte izq. empuja a la der. hacia arriba (giro horario del trozo aislado).
+  <b>M(s) positivo</b>: tracciona la fibra <b>inferior</b>. Relación: <i>dM/ds = V</i>.
+</div>
+
+<div class="card">
+  <h2>El caso</h2>
+  <p>Viga simplemente apoyada de luz L. Carga uniforme q actúa
+      en toda la viga. Carga puntual P = qL aplicada a distancia x del apoyo
+      A (izquierdo).</p>
+</div>
+
+<div class="card">
+  <h2>Diagrama físico (DCL + reacciones + posiciones clave)</h2>
+  <div id="beam-svg"></div>
+</div>
+
+<div class="controls">
+  <div class="row">
+    <label for="slider-cut">Corte móvil (s)</label>
+    <input type="range" id="slider-cut" min="0" max="1.0" step="0.005" value="0.5">
+    <span class="val" id="val-cut">s = L/2</span>
+    <button id="btn-play">▶ Animar</button>
+    <button id="btn-reset">⟲ Reset</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Planteamiento y cálculo</h2>
+  
+      <h3>1. Reacciones (con x = L/2)</h3>
+      <div class="eq"><span class="lab">ΣM<sub>A</sub> = 0</span> (antihorario +)</div>
+      <div class="eq">R<sub>B</sub>·L − q·L·(L/2) − P·x = 0</div>
+      <div class="eq">R<sub>B</sub>·L = qL²/2 + qL·(L/2) = qL²</div>
+      <div class="eq result">R<sub>B</sub> = qL</div>
+      <div class="eq"><span class="lab">ΣF<sub>y</sub> = 0</span>: R<sub>A</sub> + R<sub>B</sub> = qL + P = 2qL</div>
+      <div class="eq result">R<sub>A</sub> = qL</div>
+      <p class="note">Por simetría con x = L/2 ambas reacciones coinciden.</p>
+
+      <h3>2. Leyes por tramos</h3>
+      <h4>Tramo 1: 0 ≤ s ≤ L/2</h4>
+      <p>Fuerzas a la izquierda del corte: R<sub>A</sub> (↑) y la q acumulada q·s (↓).</p>
+      <div class="eq">V(s) = R<sub>A</sub> − q·s = <b>qL − qs</b></div>
+      <div class="eq">M(s) = R<sub>A</sub>·s − q·s²/2 = <b>qL·s − qs²/2</b></div>
+      <p class="note">V(0) = qL &nbsp;·&nbsp; V(L/2⁻) = qL/2 &nbsp;·&nbsp;
+         M(0) = 0 &nbsp;·&nbsp; M(L/2) = qL²/2 − qL²/8 = <b>3qL²/8</b></p>
+
+      <h4>Tramo 2: L/2 ≤ s ≤ L</h4>
+      <p>Se añade la P (hacia abajo) a la izquierda del corte.</p>
+      <div class="eq">V(s) = qL − qs − P = qL − qs − qL = <b>−qs</b></div>
+      <div class="eq">M(s) = qL·s − qs²/2 − qL·(s − L/2) = <b>−qs²/2 + qL²/2</b></div>
+      <p class="note">V(L/2⁺) = −qL/2 &nbsp;·&nbsp; V(L) = −qL &nbsp;·&nbsp;
+         M(L/2) = −qL²/8 + qL²/2 = <b>3qL²/8</b> ✓ &nbsp;·&nbsp; M(L) = 0 ✓</p>
+
+      <h3>3. Verificación</h3>
+      <ul>
+        <li>Salto de V en s = L/2: V(L/2⁺) − V(L/2⁻) = −qL/2 − qL/2 = <b>−qL = −P</b> ✓</li>
+        <li>Continuidad de M en s = L/2: ambas ramas dan 3qL²/8 ✓</li>
+        <li>M(0) = M(L) = 0 (apoyos extremos sin voladizo) ✓</li>
+      </ul>
+    
+</div>
+
+<div class="card">
+  <h2>Diagrama de cortantes V(s)</h2>
+  <div id="V-svg"></div>
+</div>
+
+<div class="card">
+  <h2>Diagrama de flectores M(s)</h2>
+  <div id="M-svg"></div>
+</div>
+
+<div class="card conclusion">
+  <h3>Valores críticos</h3>
+  <table>
+    <tr><td>|V|<sub>máx</sub></td><td>qL</td><td>en los apoyos (s = 0 y s = L)</td></tr>
+    <tr><td>|M|<sub>máx</sub></td><td>3qL²/8</td><td>en s = L/2 (bajo la P)</td></tr>
+    <tr><td>Puntos V = 0</td><td>s = L (apoyo B)</td><td>y ausencia de cero interior</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="error-box">
+    <h4>⚠ Error típico / Observación</h4>
+    
+      Error típico: olvidar el <b>salto −P</b> en V en s = L/2. V pasa de +qL/2
+      a −qL/2, NO es continuo. M sí es continuo en ese punto (una carga puntual
+      produce punto anguloso en M, no discontinuidad).
+    
+  </div>
+</div>
+
+
+<script>
+/* ---- utilidades ---- */
+function gcd(a, b) { return b ? gcd(b, a%b) : a; }
+function frac(num, label) {
+  if (Math.abs(num) < 1e-10) return '0';
+  const sgn = num < 0 ? '-' : '';
+  const a = Math.abs(num);
+  const dens = [1,2,3,4,5,6,7,8,10,12,16,24,32,48,64,96,128,256];
+  for (const d of dens) {
+    const p = a*d;
+    if (Math.abs(p - Math.round(p)) < 1e-7) {
+      const pi = Math.round(p);
+      const g = gcd(pi, d);
+      const ps = pi/g, ds = d/g;
+      if (ds === 1) return sgn + (ps === 1 ? label : ps + label);
+      if (ps === 1) return sgn + label + '/' + ds;
+      return sgn + ps + label + '/' + ds;
+    }
+  }
+  return sgn + a.toFixed(3) + label;
+}
+const fQL  = n => frac(n, 'qL');
+const fQL2 = n => frac(n, 'qL²');
+const esc = v => Math.round(v*100)/100;
+
+/* ---- datos de la viga ---- */
+function computeViga() {
+  
+      const totalL = 1;
+      const P = 1;          // qL
+      const x = 0.5;
+      const RA = 1, RB = 1; // qL
+      return {
+        totalL,
+        supports: [{s:0, type:'fijo'}, {s:totalL, type:'movil'}],
+        loads: [
+          {type:'q', val:1, s1:0, s2:totalL},
+          {type:'P', val:P, s:x, dir:'down'},
+        ],
+        reactions: {RA, RB},
+        segments: [
+          {s1:0, s2:x, V: s => RA - s, M: s => RA*s - s*s/2, label:'0 ≤ s ≤ L/2'},
+          {s1:x, s2:totalL, V: s => -s, M: s => -s*s/2 + 0.5, label:'L/2 ≤ s ≤ L'},
+        ],
+      };
+    
+}
+
+function evaluateAt(r, s) {
+  for (const seg of r.segments) {
+    if (s >= seg.s1 - 1e-9 && s <= seg.s2 + 1e-9) {
+      return {V: seg.V(s), M: seg.M(s)};
+    }
+  }
+  return null;
+}
+
+/* ---- render SVG de la viga ---- */
+const BEAM_VIEW = {w: 920, h: 250, padL: 60, padR: 60, beamY: 150, beamH: 12};
+
+function sToPx(s, totalL, view) {
+  return view.padL + (s/totalL) * (view.w - view.padL - view.padR);
+}
+
+function renderBeam(r, sCut) {
+  const view = BEAM_VIEW;
+  const {totalL, supports, loads, reactions} = r;
+  const xL = s => sToPx(s, totalL, view);
+  const by = view.beamY;
+  const p = [];
+
+  p.push(`<svg viewBox="0 0 ${view.w} ${view.h}" xmlns="http://www.w3.org/2000/svg">`);
+  p.push(`<style>
+    .beam { fill: #808080; stroke: #3a3a3a; stroke-width: 0.8; }
+    .sup  { fill: #4a7cc4; stroke: #2c4c7a; stroke-width: 0.6; }
+    .load { stroke: #267026; stroke-width: 1.8; fill: #8cc88c; }
+    .load-txt { font-family: 'Cambria Math', serif; font-size: 14px; fill: #1a4a1a; font-weight: bold; }
+    .q-bar { fill: #7cb4f0; stroke: #3060a0; stroke-width: 0.6; }
+    .reac { stroke: #b04000; stroke-width: 1.8; fill: #ffb080; }
+    .reac-txt { font-family: 'Cambria Math', serif; font-size: 13px; fill: #7a2a00; font-weight: bold; }
+    .cot  { stroke: #555; stroke-width: 0.8; fill: none; }
+    .cot-txt { font-family: 'Cambria Math', serif; font-size: 12px; fill: #333; }
+    .cut { stroke: #c00; stroke-width: 1.5; stroke-dasharray: 4,3; }
+    .cut-txt { font-family: 'Cambria Math', serif; font-size: 12px; fill: #c00; font-weight: bold; }
+  </style>`);
+
+  // Viga
+  p.push(`<rect class="beam" x="${xL(0)}" y="${by}" width="${xL(totalL)-xL(0)}" height="${view.beamH}"/>`);
+
+  // Cargas distribuidas
+  loads.filter(l => l.type === 'q').forEach(l => {
+    const x1 = xL(l.s1), x2 = xL(l.s2);
+    const y0 = by - 34, yt = by - 10;
+    p.push(`<rect class="q-bar" x="${x1}" y="${y0}" width="${x2-x1}" height="${yt-y0}"/>`);
+    const n = Math.max(6, Math.round((x2-x1)/11));
+    for (let i = 0; i <= n; i++) {
+      const xi = x1 + (x2-x1)*i/n;
+      p.push(`<line class="load" x1="${xi}" y1="${y0}" x2="${xi}" y2="${by-3}"/>`);
+      p.push(`<polygon class="load" points="${xi-3},${by-6} ${xi+3},${by-6} ${xi},${by-1}"/>`);
+    }
+    p.push(`<text class="load-txt" x="${(x1+x2)/2 - 5}" y="${y0 - 5}">q</text>`);
+  });
+
+  // Cargas puntuales
+  loads.filter(l => l.type === 'P').forEach(l => {
+    const xi = xL(l.s);
+    const up = l.dir === 'up';
+    if (up) {
+      // flecha hacia arriba: cola abajo, punta arriba
+      const y_tail = by + 48, y_head = by - 2;
+      p.push(`<line class="load" x1="${xi}" y1="${y_tail}" x2="${xi}" y2="${y_head + 8}"/>`);
+      p.push(`<polygon class="load" points="${xi-5},${y_head + 8} ${xi+5},${y_head + 8} ${xi},${y_head}"/>`);
+      p.push(`<text class="load-txt" x="${xi + 8}" y="${y_tail - 5}">P = qL ↑</text>`);
+    } else {
+      const y_tail = by - 50, y_head = by - 2;
+      p.push(`<line class="load" x1="${xi}" y1="${y_tail}" x2="${xi}" y2="${y_head - 6}"/>`);
+      p.push(`<polygon class="load" points="${xi-5},${y_head - 6} ${xi+5},${y_head - 6} ${xi},${y_head}"/>`);
+      p.push(`<text class="load-txt" x="${xi + 7}" y="${y_tail - 4}">P = qL</text>`);
+    }
+  });
+
+  // Apoyos
+  supports.forEach(sp => {
+    const xi = xL(sp.s);
+    if (sp.type === 'fijo') {
+      p.push(`<polygon class="sup" points="${xi-12},${by + view.beamH + 22} ${xi+12},${by + view.beamH + 22} ${xi},${by + view.beamH}"/>`);
+      p.push(`<line x1="${xi-16}" y1="${by + view.beamH + 22}" x2="${xi+16}" y2="${by + view.beamH + 22}" stroke="#2c4c7a" stroke-width="1"/>`);
+      for (let k=0; k<5; k++) {
+        const xk = xi-14 + k*7;
+        p.push(`<line x1="${xk}" y1="${by + view.beamH + 22}" x2="${xk-4}" y2="${by + view.beamH + 30}" stroke="#2c4c7a" stroke-width="0.8"/>`);
+      }
+    } else if (sp.type === 'movil') {
+      p.push(`<polygon class="sup" points="${xi-12},${by + view.beamH + 18} ${xi+12},${by + view.beamH + 18} ${xi},${by + view.beamH}"/>`);
+      p.push(`<circle class="sup" cx="${xi-5}" cy="${by + view.beamH + 23}" r="3"/>`);
+      p.push(`<circle class="sup" cx="${xi+5}" cy="${by + view.beamH + 23}" r="3"/>`);
+      p.push(`<line x1="${xi-16}" y1="${by + view.beamH + 28}" x2="${xi+16}" y2="${by + view.beamH + 28}" stroke="#2c4c7a" stroke-width="1"/>`);
+    } else if (sp.type === 'empotr') {
+      for (let k=0; k<10; k++) {
+        const yk = by - 22 + k*7;
+        p.push(`<line x1="${xi-4}" y1="${yk}" x2="${xi-14}" y2="${yk + 5}" stroke="#2c4c7a" stroke-width="1"/>`);
+      }
+      p.push(`<line x1="${xi}" y1="${by - 22}" x2="${xi}" y2="${by + view.beamH + 25}" stroke="#2c4c7a" stroke-width="1.5"/>`);
+    }
+  });
+
+  // Reacciones
+  const RA = reactions.RA, RB = reactions.RB;
+  if (supports[0] && supports[0].type !== 'empotr') {
+    const xi = xL(supports[0].s);
+    const raUp = RA >= 0;
+    const yTop = by + view.beamH + 50;
+    const yEnd = by + view.beamH + 30;
+    if (raUp) {
+      p.push(`<line class="reac" x1="${xi}" y1="${yTop}" x2="${xi}" y2="${yEnd + 6}"/>`);
+      p.push(`<polygon class="reac" points="${xi-4},${yEnd + 6} ${xi+4},${yEnd + 6} ${xi},${yEnd}"/>`);
+    } else {
+      // flecha hacia abajo (reacción negativa)
+      p.push(`<line class="reac" x1="${xi}" y1="${yEnd}" x2="${xi}" y2="${yTop - 6}"/>`);
+      p.push(`<polygon class="reac" points="${xi-4},${yTop - 6} ${xi+4},${yTop - 6} ${xi},${yTop}"/>`);
+    }
+    p.push(`<text class="reac-txt" x="${xi-14}" y="${yTop + 15}">R_A = ${fQL(RA)}</text>`);
+  }
+  if (supports[1]) {
+    const xi = xL(supports[1].s);
+    const yTop = by + view.beamH + 50;
+    const yEnd = by + view.beamH + 34;
+    p.push(`<line class="reac" x1="${xi}" y1="${yTop}" x2="${xi}" y2="${yEnd + 6}"/>`);
+    p.push(`<polygon class="reac" points="${xi-4},${yEnd + 6} ${xi+4},${yEnd + 6} ${xi},${yEnd}"/>`);
+    p.push(`<text class="reac-txt" x="${xi-14}" y="${yTop + 15}">R_B = ${fQL(RB)}</text>`);
+  }
+  if (reactions.isMensula) {
+    const xi = xL(0);
+    p.push(`<text class="reac-txt" x="${xi + 8}" y="${by + view.beamH + 55}">R = ${fQL(reactions.RA)}</text>`);
+    p.push(`<text class="reac-txt" x="${xi + 8}" y="${by + view.beamH + 72}">M_E = ${fQL2(reactions.ME)}</text>`);
+  }
+
+  // Cotas en posiciones clave
+  const cotY = by + view.beamH + 88;
+  const posSet = new Set();
+  supports.forEach(sp => posSet.add(sp.s));
+  loads.forEach(l => {
+    if (l.type === 'P') posSet.add(l.s);
+    if (l.type === 'q') { posSet.add(l.s1); posSet.add(l.s2); }
+  });
+  posSet.add(0); posSet.add(totalL);
+  const posArr = [...posSet].sort((a,b)=>a-b);
+  for (let i = 0; i < posArr.length - 1; i++) {
+    const s1 = posArr[i], s2 = posArr[i+1];
+    const x1 = xL(s1), x2 = xL(s2);
+    p.push(`<line class="cot" x1="${x1}" y1="${cotY}" x2="${x2}" y2="${cotY}"/>`);
+    p.push(`<line class="cot" x1="${x1}" y1="${cotY - 4}" x2="${x1}" y2="${cotY + 4}"/>`);
+    p.push(`<line class="cot" x1="${x2}" y1="${cotY - 4}" x2="${x2}" y2="${cotY + 4}"/>`);
+    p.push(`<text class="cot-txt" x="${(x1+x2)/2 - 8}" y="${cotY - 3}">${frac(s2-s1,'L')}</text>`);
+  }
+
+  // Corte móvil
+  if (sCut > 0 && sCut < totalL) {
+    const xc = xL(sCut);
+    p.push(`<line class="cut" x1="${xc}" y1="${by - 60}" x2="${xc}" y2="${by + view.beamH + 25}"/>`);
+    const ev = evaluateAt(r, sCut);
+    if (ev) {
+      p.push(`<text class="cut-txt" x="${xc + 4}" y="${by - 62}">s = ${frac(sCut,'L')}</text>`);
+      p.push(`<text class="cut-txt" x="${xc + 4}" y="${by - 46}">V = ${fQL(ev.V)}</text>`);
+      p.push(`<text class="cut-txt" x="${xc + 4}" y="${by - 30}">M = ${fQL2(ev.M)}</text>`);
+    }
+  }
+
+  p.push(`</svg>`);
+  return p.join('');
+}
+
+/* ---- render diagrama V o M ---- */
+const DIAG_VIEW = {w: 920, h: 210, padL: 60, padR: 60, axisY: 100, axH: 80};
+
+function findCritical(r, which) {
+  const marks = [];
+  r.segments.forEach(seg => {
+    const f = which === 'V' ? seg.V : seg.M;
+    marks.push({s: seg.s1, v: f(seg.s1)});
+    marks.push({s: seg.s2, v: f(seg.s2)});
+    // interior: buscar máximo del valor absoluto
+    const n = 40;
+    let bestS = seg.s1, bestAbs = Math.abs(f(seg.s1));
+    for (let i = 1; i < n; i++) {
+      const s = seg.s1 + (seg.s2 - seg.s1)*i/n;
+      const fv = Math.abs(f(s));
+      if (fv > bestAbs) { bestAbs = fv; bestS = s; }
+    }
+    if (bestS > seg.s1 + 1e-6 && bestS < seg.s2 - 1e-6) {
+      marks.push({s: bestS, v: f(bestS)});
+    }
+  });
+  const filtered = [];
+  marks.sort((a,b) => a.s - b.s);
+  marks.forEach(m => {
+    const dup = filtered.some(f => Math.abs(f.s - m.s) < 0.02 && Math.abs(f.v - m.v) < 0.01);
+    if (!dup && Math.abs(m.v) > 1e-5) filtered.push(m);
+  });
+  return filtered;
+}
+
+function renderDiagram(r, which, sCut) {
+  const view = DIAG_VIEW;
+  const xL = s => sToPx(s, r.totalL, view);
+
+  let maxAbs = 0.05;
+  r.segments.forEach(seg => {
+    const f = which === 'V' ? seg.V : seg.M;
+    const N = 60;
+    for (let i = 0; i <= N; i++) {
+      const s = seg.s1 + (seg.s2 - seg.s1)*i/N;
+      const v = Math.abs(f(s));
+      if (v > maxAbs) maxAbs = v;
+    }
+  });
+  const scale = (view.axH * 0.92) / maxAbs;
+  const axisY = view.axisY;
+  const p = [];
+
+  p.push(`<svg viewBox="0 0 ${view.w} ${view.h}" xmlns="http://www.w3.org/2000/svg">`);
+  p.push(`<style>
+    .ax { stroke: #1f2328; stroke-width: 1; }
+    .grd { stroke: #cfcec7; stroke-width: 0.5; stroke-dasharray: 2,2; fill: none; }
+    .lbl { font-family: 'Cambria Math', serif; font-size: 12px; fill: #555; }
+    .cut { stroke: #c00; stroke-width: 1.2; stroke-dasharray: 4,3; }
+    .marker { fill: #1f2328; }
+    .mrk-txt { font-family: 'Cambria Math', serif; font-size: 12px; fill: #1f2328; font-weight: bold; }
+    .sup-lbl { font-family: Georgia, serif; font-size: 11px; fill: #2c4c7a; }
+  </style>`);
+
+  // Eje horizontal
+  p.push(`<line class="ax" x1="${xL(0)}" y1="${axisY}" x2="${xL(r.totalL)}" y2="${axisY}"/>`);
+  // Marcas de posición importantes
+  const marks = new Set([0, r.totalL]);
+  r.supports.forEach(sp => marks.add(sp.s));
+  r.loads.forEach(l => { if (l.type === 'P') marks.add(l.s); if (l.type === 'q') { marks.add(l.s1); marks.add(l.s2); } });
+  [...marks].sort((a,b)=>a-b).forEach(s => {
+    p.push(`<line class="grd" x1="${xL(s)}" y1="10" x2="${xL(s)}" y2="${view.h - 15}"/>`);
+    p.push(`<text class="lbl" x="${xL(s)-8}" y="${view.h - 4}">${frac(s,'L')}</text>`);
+  });
+
+  // Curva por tramos
+  const color = which === 'V' ? '#b04000' : '#2a5a28';
+  const fillColor = which === 'V' ? 'rgba(176,64,0,0.13)' : 'rgba(42,90,40,0.13)';
+  r.segments.forEach(seg => {
+    const f = which === 'V' ? seg.V : seg.M;
+    const N = 80;
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const s = seg.s1 + (seg.s2 - seg.s1)*i/N;
+      pts.push({x: xL(s), y: axisY - f(s)*scale});
+    }
+    // Area
+    let areaD = `M ${esc(pts[0].x)},${esc(axisY)} `;
+    pts.forEach(pt => areaD += `L ${esc(pt.x)},${esc(pt.y)} `);
+    areaD += `L ${esc(pts[pts.length-1].x)},${esc(axisY)} Z`;
+    p.push(`<path d="${areaD}" fill="${fillColor}" stroke="none"/>`);
+    // Linea
+    let lineD = `M ${esc(pts[0].x)},${esc(pts[0].y)}`;
+    for (let i = 1; i < pts.length; i++) lineD += ` L ${esc(pts[i].x)},${esc(pts[i].y)}`;
+    p.push(`<path d="${lineD}" stroke="${color}" stroke-width="2" fill="none"/>`);
+  });
+
+  // Marcas de puntos clave
+  const critMarks = findCritical(r, which);
+  critMarks.forEach(m => {
+    const x = xL(m.s), y = axisY - m.v*scale;
+    p.push(`<circle class="marker" cx="${x}" cy="${y}" r="3"/>`);
+    const label = (which === 'V' ? fQL(m.v) : fQL2(m.v));
+    const dy = m.v >= 0 ? -8 : 14;
+    p.push(`<text class="mrk-txt" x="${x+5}" y="${y+dy}">${label}</text>`);
+  });
+
+  // Corte móvil
+  if (sCut > 0 && sCut < r.totalL) {
+    const xc = xL(sCut);
+    p.push(`<line class="cut" x1="${xc}" y1="15" x2="${xc}" y2="${view.h - 15}"/>`);
+  }
+
+  p.push(`</svg>`);
+  return p.join('');
+}
+
+/* ---- estado ---- */
+let currentCut = 0.5;
+let animTimer = null;
+const r = computeViga();
+
+function renderAll() {
+  document.getElementById('beam-svg').innerHTML = renderBeam(r, currentCut);
+  document.getElementById('V-svg').innerHTML = renderDiagram(r, 'V', currentCut);
+  document.getElementById('M-svg').innerHTML = renderDiagram(r, 'M', currentCut);
+  document.getElementById('val-cut').textContent = 's = ' + frac(currentCut, 'L');
+}
+
+document.getElementById('slider-cut').addEventListener('input', e => {
+  currentCut = parseFloat(e.target.value);
+  renderAll();
+});
+document.getElementById('btn-play').addEventListener('click', () => {
+  if (animTimer) {
+    clearInterval(animTimer);
+    animTimer = null;
+    document.getElementById('btn-play').textContent = '▶ Animar';
+    return;
+  }
+  document.getElementById('btn-play').textContent = '⏸ Pausa';
+  animTimer = setInterval(() => {
+    currentCut += r.totalL * 0.008;
+    if (currentCut > r.totalL) currentCut = 0;
+    document.getElementById('slider-cut').value = currentCut;
+    renderAll();
+  }, 40);
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (animTimer) { clearInterval(animTimer); animTimer = null; document.getElementById('btn-play').textContent = '▶ Animar'; }
+  currentCut = 0.5;
+  document.getElementById('slider-cut').value = currentCut;
+  renderAll();
+});
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<svg viewBox="0 0 860 600" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'Cascadia Code',Consolas,monospace">
+  <rect width="860" height="600" fill="#f7f0d9"/>
+  <text x="30" y="42" fill="#0d2440" font-size="22" font-weight="bold">CÍRCULO DE MOHR — estado plano de tensiones</text>
+  <text x="30" y="64" fill="#b64a2a" font-size="13">De (σx, σy, τxy) a tensiones principales en 4 pasos</text>
+
+  <!-- ejes -->
+  <line x1="80" y1="330" x2="560" y2="330" stroke="#0d2440" stroke-width="1.5"/>
+  <line x1="300" y1="120" x2="300" y2="540" stroke="#0d2440" stroke-width="1.5"/>
+  <text x="545" y="320" fill="#0d2440" font-size="14">σ</text>
+  <text x="308" y="134" fill="#0d2440" font-size="14">τ</text>
+
+  <!-- círculo: centro C=(330,330) R=130 -->
+  <circle cx="330" cy="330" r="130" fill="none" stroke="#b64a2a" stroke-width="2.5"/>
+  <!-- centro -->
+  <circle cx="330" cy="330" r="4" fill="#0d2440"/>
+  <text x="322" y="352" fill="#0d2440" font-size="13">C</text>
+  <!-- diámetro estado X-Y (girado) -->
+  <line x1="420" y1="236" x2="240" y2="424" stroke="#0d2440" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <circle cx="420" cy="236" r="5" fill="#0d2440"/>
+  <text x="430" y="230" fill="#0d2440" font-size="13">X (σx, −τxy)</text>
+  <circle cx="240" cy="424" r="5" fill="#0d2440"/>
+  <text x="120" y="446" fill="#0d2440" font-size="13">Y (σy, +τxy)</text>
+  <!-- puntos principales -->
+  <circle cx="460" cy="330" r="5" fill="#b64a2a"/>
+  <text x="448" y="312" fill="#b64a2a" font-size="13">σ₁</text>
+  <circle cx="200" cy="330" r="5" fill="#b64a2a"/>
+  <text x="188" y="312" fill="#b64a2a" font-size="13">σ₂</text>
+  <!-- tau max -->
+  <circle cx="330" cy="200" r="5" fill="#b64a2a"/>
+  <text x="340" y="196" fill="#b64a2a" font-size="13">τmáx = R</text>
+  <line x1="330" y1="330" x2="330" y2="200" stroke="#b64a2a" stroke-width="1" stroke-dasharray="3 3"/>
+  <!-- radio y ángulo -->
+  <line x1="330" y1="330" x2="420" y2="236" stroke="#b64a2a" stroke-width="1.5"/>
+  <path d="M 370 330 A 40 40 0 0 0 358 300" fill="none" stroke="#0d2440" stroke-width="1.2"/>
+  <text x="376" y="318" fill="#0d2440" font-size="12">2θp</text>
+
+  <!-- caja de pasos -->
+  <rect x="590" y="100" width="245" height="330" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="605" y="128" fill="#0d2440" font-size="14" font-weight="bold">MÉTODO</text>
+  <text x="605" y="156" fill="#0d2440" font-size="12">1· Centro:</text>
+  <text x="620" y="176" fill="#b64a2a" font-size="13">C = (σx+σy)/2</text>
+  <text x="605" y="204" fill="#0d2440" font-size="12">2· Radio:</text>
+  <text x="620" y="224" fill="#b64a2a" font-size="13">R = √[((σx−σy)/2)² + τxy²]</text>
+  <text x="605" y="252" fill="#0d2440" font-size="12">3· Principales:</text>
+  <text x="620" y="272" fill="#b64a2a" font-size="13">σ₁,₂ = C ± R</text>
+  <text x="605" y="300" fill="#0d2440" font-size="12">4· Orientación:</text>
+  <text x="620" y="320" fill="#b64a2a" font-size="13">tan 2θp = 2τxy/(σx−σy)</text>
+  <text x="605" y="352" fill="#0d2440" font-size="12">τmáx (plano) = R, en planos</text>
+  <text x="605" y="368" fill="#0d2440" font-size="12">a 45° de los principales,</text>
+  <text x="605" y="384" fill="#0d2440" font-size="12">donde σ = C.</text>
+  <text x="605" y="412" fill="#0d2440" font-size="12">En el círculo: ángulos ×2.</text>
+
+  <!-- avisos -->
+  <text x="80" y="572" fill="#0d2440" font-size="12">⚠ Convenio: τ que hace girar el elemento en sentido horario se dibuja ARRIBA del eje σ.</text>
+  <text x="80" y="590" fill="#0d2440" font-size="12">Un giro θ en la pieza = giro 2θ en el círculo, mismo sentido.</text>
+</svg>

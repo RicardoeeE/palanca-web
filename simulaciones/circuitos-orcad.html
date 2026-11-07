@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080d12;color:#a0b4c4;font-family:'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.top{display:flex;align-items:center;gap:8px;padding:7px 14px;background:#0a0f18;border-bottom:1px solid #1e2d3d;flex-shrink:0;min-height:38px}
+.top h1{font-size:.82rem;color:#90cdf4;font-weight:600;white-space:nowrap}
+.badge{background:#1a3a5c;color:#63b3ed;font-size:.58rem;padding:1px 7px;border-radius:8px;border:1px solid #2b6cb0;white-space:nowrap}
+#eq-strip{display:flex;gap:10px;font-size:.66rem;font-family:monospace;flex-wrap:wrap;margin-left:auto}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:196px;background:#0a0f18;border-right:1px solid #1e2d3d;padding:10px;overflow-y:auto;flex-shrink:0}
+.center{flex:1;display:flex;align-items:center;justify-content:center;background:#060b10;overflow:hidden;position:relative}
+.sec{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:#1e3a4a;margin:11px 0 6px;padding-bottom:3px;border-bottom:1px solid #1a2535}
+.sec:first-child{margin-top:0}
+.param{margin-bottom:9px}
+.ph{display:flex;justify-content:space-between;margin-bottom:3px}
+.pn{font-size:.7rem;color:#5a7a8a}
+.pv{font-size:.7rem;color:#90cdf4;font-family:monospace}
+input[type=range]{width:100%;height:3px;-webkit-appearance:none;background:#1e2d3d;border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:#63b3ed;cursor:pointer}
+.preset-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px}
+.pbtn{background:#0a0f18;border:1px solid #1e2d3d;color:#3a5a6a;font-size:.6rem;padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .1s}
+.pbtn:hover{color:#7a9ab0;background:#141b27}
+.pbtn.on{background:#0e2038;border-color:#2b6cb0;color:#63b3ed}
+.eq{background:#060b10;border:1px solid #1a2535;border-radius:4px;padding:6px 8px;font-size:.68rem;font-family:monospace;line-height:1.85}
+.dl-row{display:flex;gap:4px;margin-top:8px}
+.dbtn{flex:1;background:#0a0f18;border:1px solid #1e2d3d;color:#3a5a6a;font-size:.62rem;padding:4px 5px;border-radius:3px;cursor:pointer;transition:all .1s;text-align:center}
+.dbtn:hover{color:#90cdf4;border-color:#2b6cb0;background:#0e1c2a}
+/* Animation controls */
+.anim-row{display:flex;gap:4px;margin-top:6px}
+.abtn{flex:1;background:#0a0f18;border:1px solid #1e2d3d;color:#3a5a6a;font-size:.68rem;padding:5px 4px;border-radius:3px;cursor:pointer;transition:all .1s;text-align:center}
+.abtn:hover{color:#90cdf4;border-color:#2b6cb0}
+.abtn.playing{background:#0e2038;border-color:#2b6cb0;color:#63b3ed}
+/* Warning overlay */
+#warn-overlay{display:none;position:absolute;inset:0;background:rgba(8,13,18,.85);
+  align-items:center;justify-content:center;flex-direction:column;gap:10px;z-index:10}
+#warn-overlay.show{display:flex}
+.warn-box{background:#1a0a0a;border:1px solid #7c2020;border-radius:8px;padding:18px 22px;
+  max-width:340px;text-align:center}
+.warn-title{color:#e74c3c;font-size:.88rem;font-weight:700;margin-bottom:8px}
+.warn-msg{color:#8a6060;font-size:.76rem;line-height:1.6}
+/* SVG fills its container */
+#svg-wrap svg{display:block;max-width:100%;max-height:100%}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1 id="diag-title">⚙ Diagrama</h1>
+  <span class="badge" id="diag-badge">—</span>
+  <button id="btn-play" onclick="toggleAnim()"
+    style="background:#0a0f18;border:1px solid #1e2d3d;color:#4a6075;font-size:.72rem;
+           padding:3px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;
+           transition:all .15s;margin-left:8px">▶ Animar</button>
+  <div id="eq-strip"></div>
+</div>
+<div class="main">
+<div class="sidebar">
+  <div class="sec">Preset</div>
+  <div class="preset-row" id="preset-row"></div>
+  <div class="sec">Parámetros</div>
+  <div id="sliders"></div>
+  <div class="dl-row">
+    <button class="dbtn" onclick="dlSVG()">⬇ SVG</button>
+    <button class="dbtn" onclick="dlPNG()">⬇ PNG</button>
+  </div>
+  <div class="sec" style="margin-top:8px">Animación</div>
+  <div class="anim-row">
+    <button class="abtn" onclick="resetAnim()">↺ Reset</button>
+  </div>
+  <div class="param" style="margin-top:6px">
+    <div class="ph"><span class="pn">Velocidad</span><span class="pv" id="anim-speed-v">1×</span></div>
+    <input type="range" id="anim-speed" min="0.2" max="4" step="0.2" value="1"
+      oninput="animSpeed=parseFloat(this.value);document.getElementById('anim-speed-v').textContent=animSpeed.toFixed(1)+'×'">
+  </div>
+  <div class="sec" style="margin-top:8px">Resultados</div>
+  <div class="eq" id="eq-panel">—</div>
+</div>
+<div class="center" id="center-area">
+  <div id="svg-wrap"></div>
+  <div id="warn-overlay">
+    <div class="warn-box">
+      <div class="warn-title">⚠ Configuración imposible</div>
+      <div class="warn-msg" id="warn-msg">—</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// §1 PARAMS — Claude modifica SOLO este bloque
+// ═══════════════════════════════════════════════════════════════════
+const MECHANISM   = 'barra_articulada';
+const INIT_PARAMS = { theta_deg:30, omega:2, alpha:3, L:1, m:1 };
+const INIT_PRESET = 'geometria';
+// ═══════════════════════════════════════════════════════════════════
+
+// ── Constantes ────────────────────────────────────────────────────
+const G = 9.81;
+const CAN_ANIMATE = ['manivela','cuatro_barras','pendulo'];
+
+// ── Estado global ─────────────────────────────────────────────────
+let params    = {...INIT_PARAMS};
+let preset    = INIT_PRESET;
+let animating = false;
+let animTheta = params.theta_deg ?? params.theta2_deg ?? 0;
+let animSpeed = 1;
+let lastT     = null;
+let rafId     = null;
+let currentSVG= '';
+let warning   = null;   // null | string
+
+// ═══════════════════════════════════════════════════════════════════
+// §2 PHYSICS
+// ═══════════════════════════════════════════════════════════════════
+const Physics = {
+
+  barra_articulada({theta_deg, omega, alpha, L, m}) {
+    const th = theta_deg * Math.PI / 180;
+    const s = Math.sin(th), c = Math.cos(th);
+    // Layout centrado automáticamente — pivote en (0,0), escalaremos luego
+    const PX = 150; // px por metro en espacio normalizado
+    const B  = {x: L*PX*c, y: -L*PX*s};
+    const Gp = {x: (L/2)*PX*c, y: -(L/2)*PX*s};
+    const aN = (L/2)*omega*omega, aT = (L/2)*Math.abs(alpha), W = m*G;
+    const VS = 70 / Math.max(aN, aT, W, 1);
+    const sg = alpha >= 0 ? 1 : -1;
+    const Fv = s > 1e-6 ? (m*G*c)/(2*s) + (m*L*alpha)/(3*s) : 0;
+    const Fl = Fv !== 0 ? Math.max(10, Math.min(Math.abs(Fv)*VS*.55, 110)) : 0;
+    return {
+      O:{x:0,y:0}, B, Gp, theta:th, theta_deg, omega, alpha, L, m,
+      canAnimate: true,
+      animKey: 'theta_deg',
+      points:[
+        {id:'O', x:0,    y:0,    label:'O', color:'#90cdf4', pivot:true},
+        {id:'B', x:B.x,  y:B.y,  label:'B', color:'#f6e05e'},
+        {id:'G', x:Gp.x, y:Gp.y, label:'G', color:'#68d391', cm:true},
+      ],
+      bars:[{x1:0,y1:0, x2:B.x,y2:B.y}],
+      vectors:{
+        aN: {x1:Gp.x,y1:Gp.y, x2:Gp.x-c*aN*VS, y2:Gp.y+s*aN*VS,
+             label:`aₙ=${aN.toFixed(2)}m/s²`, layer:'accel',  color:'#e74c3c',m:'arr-red'},
+        aT: {x1:Gp.x,y1:Gp.y, x2:Gp.x-s*sg*aT*VS, y2:Gp.y-c*sg*aT*VS,
+             label:`aₜ=${aT.toFixed(2)}m/s²`, layer:'accel',  color:'#3498db',m:'arr-blue'},
+        W:  {x1:Gp.x,y1:Gp.y, x2:Gp.x, y2:Gp.y+Math.min(W*VS,90),
+             label:`mg=${W.toFixed(2)}N`,       layer:'forces', color:'#2ecc71',m:'arr-green'},
+        F:  {x1:B.x, y1:B.y,  x2:B.x+(Fv>=0?1:-1)*Fl, y2:B.y,
+             label:`F=${Fv.toFixed(2)}N`,        layer:'forces', color:'#f39c12',m:'arr-orange'},
+        FiN:{x1:Gp.x,y1:Gp.y, x2:Gp.x+c*aN*VS*.8, y2:Gp.y-s*aN*VS*.8,
+             label:`-maₙ`, layer:'dalembert', color:'#e056a0',m:'arr-pink',dashed:true},
+        FiT:{x1:Gp.x,y1:Gp.y, x2:Gp.x+s*sg*aT*VS*.8, y2:Gp.y+c*sg*aT*VS*.8,
+             label:`-maₜ`, layer:'dalembert', color:'#e056a0',m:'arr-pink',dashed:true},
+      },
+      equations:{aN, aT, vB:L*Math.abs(omega), F:Fv, IG:m*L*L/12, Io:m*L*L/3},
+      sliderDefs:[
+        {k:'theta_deg',label:'θ (°)',   min:5,  max:85, step:1,  fmt:v=>`${v}°`},
+        {k:'omega',    label:'ω (rad/s)',min:0,  max:8,  step:.1, fmt:v=>v.toFixed(1)},
+        {k:'alpha',    label:'α (rad/s²)',min:-10,max:10,step:.5, fmt:v=>v.toFixed(1)},
+        {k:'L',        label:'L (m)',   min:.5, max:2.5,step:.1, fmt:v=>v.toFixed(1)},
+        {k:'m',        label:'m (kg)', min:.5, max:5,  step:.5, fmt:v=>v.toFixed(1)},
+      ]
+    };
+  },
+
+  manivela({theta_deg, omega, R, L}) {
+    const th = theta_deg * Math.PI / 180;
+    const PX = 130;
+    const Ax = R*PX*Math.cos(th), Ay = -R*PX*Math.sin(th);
+    const sinPhi = Math.max(-1, Math.min(1, R*Math.sin(th)/L));
+    const cosPhi = Math.sqrt(Math.max(0, 1 - sinPhi*sinPhi));
+    const phi    = Math.asin(sinPhi);
+    const Bx = R*PX*Math.cos(th) + L*PX*cosPhi;
+    const By = 0;
+    const vA   = R * Math.abs(omega);
+    const vBx  = -(R*omega*(Math.sin(th) + R*Math.sin(2*th)/(2*L)));
+    // acceleration of B
+    const aBx  = -(R*omega*omega*(Math.cos(th) + R*Math.cos(2*th)/L));
+    return {
+      O:{x:0,y:0}, A:{x:Ax,y:Ay}, B:{x:Bx,y:By},
+      theta:th, theta_deg, omega, R, L,
+      canAnimate: true,
+      animKey: 'theta_deg',
+      points:[
+        {id:'O',x:0,  y:0,  label:'O',color:'#90cdf4',pivot:true},
+        {id:'A',x:Ax, y:Ay, label:'A',color:'#f6e05e'},
+        {id:'B',x:Bx, y:By, label:'B',color:'#68d391',slider:true},
+      ],
+      bars:[
+        {x1:0, y1:0,  x2:Ax,y2:Ay, label:'R', color:'#8899aa'},
+        {x1:Ax,y1:Ay, x2:Bx,y2:By, label:'L', color:'#7a8f9a'},
+      ],
+      guide:{x1:-30,y1:0, x2:Bx+50,y2:0},
+      vectors:{
+        vA:{x1:Ax,y1:Ay, x2:Ax-Math.sin(th)*vA*28, y2:Ay-Math.cos(th)*vA*28,
+            label:`vₐ=${vA.toFixed(2)}m/s`, layer:'accel',color:'#3498db',m:'arr-blue'},
+        vB:{x1:Bx,y1:By, x2:Bx+vBx*28, y2:By,
+            label:`vᴮ=${Math.abs(vBx).toFixed(2)}m/s`, layer:'accel',color:'#e74c3c',m:'arr-red'},
+        aB:{x1:Bx,y1:By+20, x2:Bx+aBx*8, y2:By+20,
+            label:`aᴮ=${Math.abs(aBx).toFixed(2)}m/s²`, layer:'forces',color:'#f39c12',m:'arr-orange'},
+      },
+      equations:{vA, vBx, phi_deg: phi*180/Math.PI, aBx},
+      sliderDefs:[
+        {k:'theta_deg',label:'θ (°)',   min:0,  max:359,step:1,  fmt:v=>`${v}°`},
+        {k:'omega',    label:'ω (rad/s)',min:-6, max:6,  step:.2, fmt:v=>v.toFixed(1)},
+        {k:'R',        label:'R manivela',min:.1,max:1.2,step:.05,fmt:v=>v.toFixed(2)},
+        {k:'L',        label:'L biela', min:.5, max:2.5,step:.1, fmt:v=>v.toFixed(1)},
+      ]
+    };
+  },
+
+  cuatro_barras({theta2_deg, omega2, L1, L2, L3, L4}) {
+    // ── Grashof check ────────────────────────────────────────────
+    const links = [L1,L2,L3,L4].sort((a,b)=>a-b);
+    const grashof = links[0] + links[3] <= links[1] + links[2];
+    // ── Posición ─────────────────────────────────────────────────
+    const PX = 90;
+    const th2 = theta2_deg * Math.PI / 180;
+    const O2 = {x:0,   y:0};
+    const O4 = {x:L1*PX, y:0};
+    const Ax = L2*PX*Math.cos(th2), Ay = -L2*PX*Math.sin(th2);
+    const dx = O4.x-Ax, dy = O4.y-Ay, d = Math.hypot(dx,dy);
+    // Verificar alcanzabilidad
+    if (d > (L3+L4)*PX || d < Math.abs(L3-L4)*PX) {
+      return {
+        O2,O4, A:{x:Ax,y:Ay}, B:{x:O4.x,y:O4.y-L4*PX},
+        theta2:th2, theta2_deg, omega2, L1,L2,L3,L4,
+        canAnimate:true, animKey:'theta2_deg',
+        warning: `Configuración imposible: la biela no alcanza.\n` +
+          `d = ${(d/PX).toFixed(3)} m,  L3+L4 = ${(L3+L4).toFixed(2)} m,  |L3−L4| = ${Math.abs(L3-L4).toFixed(2)} m.\n` +
+          `Ajusta L1, L2, L3 o L4 para que: |L3−L4| ≤ d ≤ L3+L4.`,
+        points:[], bars:[], vectors:{}, equations:{grashof:'NO APLICA'},
+        sliderDefs:[
+          {k:'theta2_deg',label:'θ₂ (°)', min:0,max:359,step:1, fmt:v=>`${v}°`},
+          {k:'omega2',    label:'ω₂',     min:-5,max:5,step:.2, fmt:v=>v.toFixed(1)},
+          {k:'L1',label:'L₁ fija',min:.5,max:3,step:.1,fmt:v=>v.toFixed(1)},
+          {k:'L2',label:'L₂ maniv',min:.2,max:1.5,step:.05,fmt:v=>v.toFixed(2)},
+          {k:'L3',label:'L₃ biela',min:.5,max:2,step:.1,fmt:v=>v.toFixed(1)},
+          {k:'L4',label:'L₄ seguidor',min:.2,max:1.5,step:.05,fmt:v=>v.toFixed(2)},
+        ]
+      };
+    }
+    const a = (L3*L3*PX*PX - L4*L4*PX*PX + d*d) / (2*d);
+    const h = Math.sqrt(Math.max(0, L3*L3*PX*PX - a*a));
+    const Bx = Ax + a*dx/d + h*dy/d;
+    const By = Ay + a*dy/d - h*dx/d;
+    // Velocidades (análisis vectorial matricial)
+    const vAx = -L2*PX*omega2*Math.sin(th2);
+    const vAy =  L2*PX*omega2*Math.cos(th2);
+    const th3 = Math.atan2(Ay-By, Ax-Bx);
+    const th4 = Math.atan2(O4.y-By, O4.x-Bx);
+    // ω₃ y ω₄ por ecuaciones de cierre
+    const denom = L3*PX*Math.sin(th3-th4);
+    const omega3 = Math.abs(denom) > 1 ?
+      (omega2*L2*PX*Math.sin(th2-th4)) / denom : 0;
+    const omega4 = Math.abs(denom) > 1 ?
+      (omega2*L2*PX*Math.sin(th2-th3)) / (L4*PX*Math.sin(th4-th3)) : 0;
+    return {
+      O2,O4, A:{x:Ax,y:Ay}, B:{x:Bx,y:By},
+      theta2:th2, theta2_deg, omega2, L1,L2,L3,L4,
+      canAnimate:true, animKey:'theta2_deg',
+      points:[
+        {id:'O2',x:O2.x,y:O2.y, label:'O₂',color:'#90cdf4',pivot:true},
+        {id:'O4',x:O4.x,y:O4.y, label:'O₄',color:'#90cdf4',pivot:true},
+        {id:'A', x:Ax,  y:Ay,   label:'A', color:'#f6e05e'},
+        {id:'B', x:Bx,  y:By,   label:'B', color:'#68d391'},
+      ],
+      bars:[
+        {x1:O2.x,y1:O2.y, x2:Ax,  y2:Ay,   label:'L₂',color:'#8899aa'},
+        {x1:Ax,  y1:Ay,   x2:Bx,  y2:By,   label:'L₃',color:'#7a8f9a'},
+        {x1:O4.x,y1:O4.y, x2:Bx,  y2:By,   label:'L₄',color:'#8899aa'},
+        {x1:O2.x,y1:O2.y, x2:O4.x,y2:O4.y, fixed:true},
+      ],
+      vectors:{
+        vA:{x1:Ax,y1:Ay, x2:Ax+vAx*.3,y2:Ay+vAy*.3,
+            label:`vₐ`, layer:'accel',color:'#3498db',m:'arr-blue'},
+      },
+      equations:{
+        th3_deg: th3*180/Math.PI,
+        th4_deg: th4*180/Math.PI,
+        omega3: omega3.toFixed(3),
+        omega4: omega4.toFixed(3),
+        grashof: grashof ? 'SÍ':'NO'
+      },
+      sliderDefs:[
+        {k:'theta2_deg',label:'θ₂ (°)', min:0,max:359,step:1, fmt:v=>`${v}°`},
+        {k:'omega2',    label:'ω₂',     min:-5,max:5,step:.2, fmt:v=>v.toFixed(1)},
+        {k:'L1',label:'L₁ fija',min:.5,max:3,step:.1,fmt:v=>v.toFixed(1)},
+        {k:'L2',label:'L₂ maniv',min:.2,max:1.5,step:.05,fmt:v=>v.toFixed(2)},
+        {k:'L3',label:'L₃ biela',min:.5,max:2,step:.1,fmt:v=>v.toFixed(1)},
+        {k:'L4',label:'L₄ seguidor',min:.2,max:1.5,step:.05,fmt:v=>v.toFixed(2)},
+      ]
+    };
+  },
+
+  pendulo({theta_deg, omega, alpha, L, m}) {
+    const th = theta_deg * Math.PI / 180;
+    const PX = 140;
+    const Bx = L*PX*Math.sin(th), By = L*PX*Math.cos(th);
+    const aN = L*omega*omega, aT = L*Math.abs(alpha), W = m*G;
+    const VS = 70 / Math.max(aN, aT, W, 1);
+    const sg = alpha >= 0 ? 1 : -1;
+    // Tensión en la cuerda
+    const T = m*(G*Math.cos(th) + L*omega*omega);
+    return {
+      O:{x:0,y:0}, B:{x:Bx,y:By},
+      theta:th, theta_deg, omega, alpha, L, m,
+      canAnimate: true,
+      animKey: 'theta_deg',
+      points:[
+        {id:'O',x:0, y:0, label:'O',color:'#90cdf4',pivot:true},
+        {id:'B',x:Bx,y:By,label:'m',color:'#f6e05e',mass:true},
+      ],
+      bars:[{x1:0,y1:0, x2:Bx,y2:By, rope:true}],
+      vectors:{
+        W:  {x1:Bx,y1:By, x2:Bx, y2:By+Math.min(W*VS,85),
+             label:`mg=${W.toFixed(2)}N`, layer:'forces',color:'#2ecc71',m:'arr-green'},
+        aN: {x1:Bx,y1:By, x2:Bx-Math.sin(th)*aN*VS, y2:By-Math.cos(th)*aN*VS,
+             label:`aₙ=${aN.toFixed(2)}m/s²`, layer:'accel',color:'#e74c3c',m:'arr-red'},
+        aT: {x1:Bx,y1:By, x2:Bx+Math.cos(th)*sg*aT*VS, y2:By-Math.sin(th)*sg*aT*VS,
+             label:`aₜ=${aT.toFixed(2)}m/s²`, layer:'accel',color:'#3498db',m:'arr-blue'},
+      },
+      equations:{aN, aT, vB:L*Math.abs(omega), T},
+      sliderDefs:[
+        {k:'theta_deg',label:'θ (°)',    min:-80,max:80, step:1,  fmt:v=>`${v}°`},
+        {k:'omega',    label:'ω (rad/s)',min:-6, max:6,  step:.1, fmt:v=>v.toFixed(1)},
+        {k:'alpha',    label:'α (rad/s²)',min:-10,max:10,step:.5, fmt:v=>v.toFixed(1)},
+        {k:'L',        label:'L (m)',    min:.3, max:2.5,step:.1, fmt:v=>v.toFixed(1)},
+        {k:'m',        label:'m (kg)',   min:.5, max:5,  step:.5, fmt:v=>v.toFixed(1)},
+      ]
+    };
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// §3 COLLISION DETECTOR
+// ═══════════════════════════════════════════════════════════════════
+const CANDS=[[16,-18],[-62,-18],[16,20],[-62,20],[26,0],[-72,0],[0,-26],[0,26],
+             [36,-30],[-76,-30],[36,30],[-76,30],[52,-10],[-86,-10]];
+function colBB(x,y,t){const w=t.length*6.3+6,h=15;return{x,y:y-12.5,w,h};}
+function colOvlp(a,b,p=5){return!(a.x+a.w+p<b.x||b.x+b.w+p<a.x||a.y+a.h+p<b.y||b.y+b.h+p<a.y);}
+function colPlace(anchor,text,placed){
+  for(const[dx,dy]of CANDS){const cx=anchor.x+dx,cy=anchor.y+dy,bb=colBB(cx,cy,text);
+    if(!placed.some(p=>colOvlp(bb,p))){placed.push(bb);return{x:cx,y:cy};}}
+  for(let r=28;r<=110;r+=22)for(let a=0;a<360;a+=45){
+    const cx=anchor.x+r*Math.cos(a*Math.PI/180),cy=anchor.y+r*Math.sin(a*Math.PI/180);
+    const bb=colBB(cx,cy,text);
+    if(!placed.some(p=>colOvlp(bb,p))){placed.push(bb);return{x:cx,y:cy};}}
+  return{x:anchor.x+CANDS[0][0],y:anchor.y+CANDS[0][1]};}
+
+// ═══════════════════════════════════════════════════════════════════
+// §4 AUTO-SCALING — calcula viewBox desde los puntos reales del diagrama
+// ═══════════════════════════════════════════════════════════════════
+function computeViewBox(data, margin=70) {
+  const pts=[];
+  // Recoger todos los puntos y extremos de vectores
+  for(const pt of(data.points||[])) pts.push({x:pt.x,y:pt.y});
+  for(const v of Object.values(data.vectors||{})){
+    pts.push({x:v.x1,y:v.y1},{x:v.x2,y:v.y2});
+  }
+  if(data.guide) pts.push({x:data.guide.x1,y:data.guide.y1},{x:data.guide.x2,y:data.guide.y2});
+  if(pts.length===0) return {minX:-200,minY:-200,w:400,h:400};
+  const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
+  const minX=Math.min(...xs)-margin, maxX=Math.max(...xs)+margin;
+  const minY=Math.min(...ys)-margin, maxY=Math.max(...ys)+margin;
+  return {minX, minY, w:Math.max(maxX-minX,200), h:Math.max(maxY-minY,180)};
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// §5 RENDERER
+// ═══════════════════════════════════════════════════════════════════
+const PRESETS={
+  geometria: ['geometry','labels_pts'],
+  cinematica:['geometry','kinematics','labels_pts','labels_vec'],
+  pdf:       ['geometry','forces','accel','labels_pts','labels_vec'],
+  dcl:       ['geometry','forces','dalembert','labels_pts','labels_vec'],
+  full:      ['geometry','kinematics','forces','accel','dalembert','labels_pts','labels_vec'],
+};
+const MKS=['arr-red:#e74c3c','arr-blue:#3498db','arr-green:#2ecc71',
+           'arr-orange:#f39c12','arr-pink:#e056a0','arr-purple:#9b59b6']
+  .map(s=>{const[id,c]=s.split(':'),sz=6,h=3;
+    return`<marker id="${id}" markerWidth="${sz}" markerHeight="${sz}" refX="${sz-1}" refY="${h}" orient="auto" markerUnits="strokeWidth"><polygon points="0,0 ${sz},${h} 0,${sz}" fill="${c}"/></marker>`;})
+  .join('');
+
+function renderSVG(data, preset) {
+  const active = Array.isArray(preset)?preset:(PRESETS[preset]??PRESETS.geometria);
+  const {minX,minY,w,h} = computeViewBox(data);
+  let b = '';
+
+  if(active.includes('geometry')){
+    for(const bar of(data.bars||[])){
+      if(bar.fixed){
+        b+=`<line x1="${bar.x1}" y1="${bar.y1}" x2="${bar.x2}" y2="${bar.y2}" stroke="#1e2535" stroke-width="5" stroke-linecap="round"/>`;
+        const n=Math.ceil(Math.hypot(bar.x2-bar.x1,bar.y2-bar.y1)/14);
+        for(let i=0;i<=n;i++){const t=i/n,x=bar.x1+(bar.x2-bar.x1)*t,y=bar.y1+(bar.y2-bar.y1)*t;b+=`<line x1="${x-5}" y1="${y}" x2="${x+3}" y2="${y+9}" stroke="#1e2d3d" stroke-width="1.2"/>`;}
+        continue;
+      }
+      const ir=bar.rope;
+      if(!ir) b+=`<line x1="${bar.x1}" y1="${bar.y1}" x2="${bar.x2}" y2="${bar.y2}" stroke="#1a2535" stroke-width="9" stroke-linecap="round"/>`;
+      b+=`<line x1="${bar.x1}" y1="${bar.y1}" x2="${bar.x2}" y2="${bar.y2}" stroke="${bar.color??'#8899aa'}" stroke-width="${ir?1.5:3}" stroke-linecap="round" ${ir?'stroke-dasharray="5,3"':''}/>`;
+      if(bar.label){const mx=(bar.x1+bar.x2)/2,my=(bar.y1+bar.y2)/2;b+=`<text x="${mx+6}" y="${my-5}" fill="#3d5a6e" font-size="11" font-family="sans-serif">${bar.label}</text>`;}
+    }
+    if(data.guide){const g=data.guide;b+=`<line x1="${g.x1}" y1="${g.y1}" x2="${g.x2}" y2="${g.y2}" stroke="#1a2535" stroke-width="7"/>`;b+=`<line x1="${g.x1}" y1="${g.y1}" x2="${g.x2}" y2="${g.y2}" stroke="#2d3748" stroke-width="2"/>`;}
+    for(const pt of(data.points||[])){
+      if(pt.pivot){
+        b+=`<line x1="${pt.x-22}" y1="${pt.y+10}" x2="${pt.x+22}" y2="${pt.y+10}" stroke="#4a5568" stroke-width="2"/>`;
+        for(let i=-2;i<=2;i++) b+=`<line x1="${pt.x+i*9-5}" y1="${pt.y+10}" x2="${pt.x+i*9+3}" y2="${pt.y+19}" stroke="#2d3748" stroke-width="1.5"/>`;
+        b+=`<circle cx="${pt.x}" cy="${pt.y}" r="9" fill="#141b27" stroke="#4a6fa0" stroke-width="1.5"/>`;
+        b+=`<circle cx="${pt.x}" cy="${pt.y}" r="3.5" fill="#90cdf4"/>`;
+      } else if(pt.mass){
+        b+=`<rect x="${pt.x-14}" y="${pt.y-14}" width="28" height="28" rx="3" fill="#141b27" stroke="#f6e05e" stroke-width="1.5"/>`;
+        b+=`<text x="${pt.x}" y="${pt.y+4}" fill="#f6e05e" font-size="10" font-family="sans-serif" text-anchor="middle">m</text>`;
+      } else if(pt.slider){
+        b+=`<rect x="${pt.x-10}" y="${pt.y-10}" width="20" height="20" rx="2" fill="#141b27" stroke="#68d391" stroke-width="1.5"/>`;
+        b+=`<circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#68d391"/>`;
+      } else if(pt.cm){
+        b+=`<circle cx="${pt.x}" cy="${pt.y}" r="5.5" fill="#0d1117" stroke="#68d391" stroke-width="1.5"/>`;
+        b+=`<line x1="${pt.x-6}" y1="${pt.y}" x2="${pt.x+6}" y2="${pt.y}" stroke="#68d391" stroke-width="1"/>`;
+        b+=`<line x1="${pt.x}" y1="${pt.y-6}" x2="${pt.x}" y2="${pt.y+6}" stroke="#68d391" stroke-width="1"/>`;
+      } else {
+        b+=`<circle cx="${pt.x}" cy="${pt.y}" r="6" fill="#0d1117" stroke="${pt.color??'#718096'}" stroke-width="1.5"/>`;
+      }
+    }
+    // Arco ángulo θ
+    if(data.theta !== undefined && data.O){
+      const r=38, isP=(MECHANISM==='pendulo');
+      const a0=isP?Math.PI/2:0, a1=isP?Math.PI/2-data.theta:data.theta;
+      if(Math.abs(a1-a0)>0.05){
+        const x1=data.O.x+r*Math.cos(a0),y1=data.O.y-r*Math.sin(a0);
+        const x2=data.O.x+r*Math.cos(a1),y2=data.O.y-r*Math.sin(a1);
+        const lg=Math.abs(a1-a0)>Math.PI?1:0;
+        b+=`<path d="M ${x1} ${y1} A ${r} ${r} 0 ${lg} 0 ${x2} ${y2}" fill="none" stroke="#2d4a62" stroke-width="1.2" stroke-dasharray="3,3"/>`;
+        const am=isP?(Math.PI/2-data.theta/2):data.theta/2;
+        b+=`<text x="${data.O.x+50*Math.cos(am)}" y="${data.O.y-50*Math.sin(am)+4}" fill="#2d4a62" font-family="serif" font-style="italic" font-size="12">θ</text>`;
+      }
+    }
+    // ω arc para manivela y pendulo
+    if((MECHANISM==='manivela'||MECHANISM==='pendulo')&&data.theta!==undefined&&Math.abs(data.omega||0)>.05){
+      const O=data.O,th=data.theta,om=data.omega,r2=28;
+      const a0=th+.15,a1=th+.65,sw=om>=0?0:1;
+      const x1=O.x+r2*Math.cos(a0),y1=O.y-r2*Math.sin(a0);
+      const x2=O.x+r2*Math.cos(a1),y2=O.y-r2*Math.sin(a1);
+      b+=`<path d="M ${x1} ${y1} A ${r2} ${r2} 0 0 ${sw} ${x2} ${y2}" fill="none" stroke="#9b59b6" stroke-width="1.6" marker-end="url(#arr-purple)"/>`;
+    }
+    // θ₂ arc para cuatro barras
+    if(MECHANISM==='cuatro_barras'&&data.theta2!==undefined&&Math.abs(data.theta2)>.05){
+      const O=data.O2,th=data.theta2,r2=32;
+      const x1=O.x+r2,y1=O.y,x2=O.x+r2*Math.cos(th),y2=O.y-r2*Math.sin(th);
+      b+=`<path d="M ${x1} ${y1} A ${r2} ${r2} 0 0 0 ${x2} ${y2}" fill="none" stroke="#2d4a62" stroke-width="1.1" stroke-dasharray="3,2"/>`;
+    }
+  }
+
+  // Vectores por capa
+  const vecLayers={forces:['W','F','aB'],accel:['aN','aT','vA','vB'],dalembert:['FiN','FiT'],kinematics:['vA','vB']};
+  for(const[ln,keys]of Object.entries(vecLayers)){
+    const layActive=active.includes(ln)||(ln==='kinematics'&&active.includes('cinematica'));
+    if(!layActive) continue;
+    for(const k of keys){
+      const v=(data.vectors||{})[k]; if(!v) continue;
+      const len=Math.hypot(v.x2-v.x1,v.y2-v.y1); if(len<4) continue;
+      const t=Math.max(0,(len-9)/len),xe=v.x1+(v.x2-v.x1)*t,ye=v.y1+(v.y2-v.y1)*t;
+      const sw=k==='F'?2.8:2.2,dash=v.dashed?'stroke-dasharray="6,3"':'';
+      b+=`<line x1="${v.x1}" y1="${v.y1}" x2="${xe}" y2="${ye}" stroke="${v.color}" stroke-width="${sw}" marker-end="url(#${v.m})" opacity=".92" ${dash}/>`;
+    }
+  }
+
+  // Labels puntos
+  if(active.includes('labels_pts')){
+    const tb=`font-family="serif" font-style="italic" font-size="13"`;
+    for(const pt of(data.points||[])){
+      if(pt.mass) continue; // ya tiene label interno
+      const ox=pt.pivot?-17:10, oy=pt.pivot?-13:-9;
+      b+=`<text x="${pt.x+ox}" y="${pt.y+oy}" fill="${pt.color??'#5a7a8a'}" ${tb}>${pt.label}</text>`;
+    }
+  }
+
+  // Labels vectores (collision-aware)
+  if(active.includes('labels_vec')){
+    const placed=[];
+    (data.points||[]).forEach(pt=>placed.push({x:pt.x-12,y:pt.y-12,w:24,h:24}));
+    const layNames=['forces','accel','dalembert','kinematics','cinematica'];
+    for(const v of Object.values(data.vectors||{})){
+      if(!v.label) continue;
+      const layOk=layNames.some(l=>active.includes(l)&&v.layer===l);
+      if(!layOk) continue;
+      const len=Math.hypot(v.x2-v.x1,v.y2-v.y1); if(len<4) continue;
+      const{x,y}=colPlace({x:v.x2,y:v.y2},v.label,placed);
+      const w=v.label.length*6.3+8,h=15;
+      if(Math.hypot(x-v.x2,y-v.y2)>30)
+        b+=`<line x1="${v.x2}" y1="${v.y2}" x2="${x+w*.15}" y2="${y}" stroke="${v.color}" stroke-width=".5" opacity=".3"/>`;
+      b+=`<rect x="${x-2}" y="${y-12.5}" width="${w}" height="${h}" rx="2" fill="#060b10" opacity=".82"/>`;
+      b+=`<text x="${x}" y="${y}" fill="${v.color}" font-size="11" font-family="monospace" dominant-baseline="auto">${v.label}</text>`;
+    }
+  }
+
+  return `<svg viewBox="${minX} ${minY} ${w} ${h}" xmlns="http://www.w3.org/2000/svg" `+
+    `style="width:100%;height:100%;max-width:${Math.min(w*1.5,900)}px;max-height:${Math.min(h*1.5,700)}px">`+
+    `<defs>${MKS}</defs>${b}</svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// §6 ANIMATION ENGINE
+// ═══════════════════════════════════════════════════════════════════
+function toggleAnim(){
+  animating = !animating;
+  const btn = document.getElementById('btn-play');
+  btn.textContent = animating ? '⏸ Pausa' : '▶ Animar';
+  btn.style.background    = animating ? '#0e2038' : '#0a0f18';
+  btn.style.borderColor   = animating ? '#2b6cb0' : '#1e2d3d';
+  btn.style.color         = animating ? '#63b3ed' : '#4a6075';
+  if(animating){ lastT=null; rafId=requestAnimationFrame(animLoop); }
+  else if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+}
+
+function resetAnim(){
+  animating=false;
+  const btn=document.getElementById('btn-play');
+  btn.textContent='▶ Animar';
+  btn.style.background='#0a0f18'; btn.style.borderColor='#1e2d3d'; btn.style.color='#4a6075';
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  const data=Physics[MECHANISM]({...params});
+  animTheta = data.animKey==='theta2_deg'
+    ? (params.theta2_deg??0) : (params.theta_deg??0);
+  update();
+}
+
+function animLoop(t){
+  if(!animating){return;}
+  if(lastT===null){lastT=t;}
+  const dt=(t-lastT)/1000;
+  lastT=t;
+  // Avanzar θ según ω (o ω₂ para 4 barras)
+  const omega = MECHANISM==='cuatro_barras'
+    ? (params.omega2??2) : (params.omega??2);
+  // Para péndulo: integrar con ecuación diferencial (θ'' = -g/L·sinθ)
+  if(MECHANISM==='pendulo'){
+    const L=params.L??1;
+    const alpha_pendulo = -(G/L)*Math.sin(animTheta*Math.PI/180);
+    // velocidad actual se actualiza
+    params.omega = (params.omega||0) + alpha_pendulo*dt*animSpeed;
+    // amortiguamiento leve para estabilidad numérica
+    params.omega *= 0.9995;
+    animTheta += params.omega * (180/Math.PI) * dt * animSpeed;
+    params.theta_deg = animTheta;
+  } else {
+    animTheta += omega * (180/Math.PI) * dt * animSpeed;
+    animTheta = ((animTheta % 360) + 360) % 360;
+    const key = MECHANISM==='cuatro_barras'?'theta2_deg':'theta_deg';
+    params[key] = animTheta;
+  }
+  // Sync slider
+  syncSliders();
+  update(false); // false = no rebuild sliders durante anim
+  rafId=requestAnimationFrame(animLoop);
+}
+
+function syncSliders(){
+  const key=MECHANISM==='cuatro_barras'?'theta2_deg':'theta_deg';
+  const v=params[key]??animTheta;
+  const inp=document.getElementById('sl-'+key);
+  const lbl=document.getElementById('vl-'+key);
+  if(inp) inp.value=v;
+  if(lbl){
+    const cfg=currentSliderDefs().find(c=>c.k===key);
+    if(cfg) lbl.textContent=cfg.fmt(v);
+  }
+  // Para péndulo también sync omega
+  if(MECHANISM==='pendulo'){
+    const oi=document.getElementById('sl-omega'),ol=document.getElementById('vl-omega');
+    if(oi) oi.value=params.omega??0;
+    if(ol) ol.textContent=(params.omega??0).toFixed(1);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// §7 CONTROLLER
+// ═══════════════════════════════════════════════════════════════════
+let _sliderDefs=[];
+function currentSliderDefs(){return _sliderDefs;}
+
+function update(rebuildSliders=false){
+  const data = Physics[MECHANISM]({...params});
+  warning = data.warning ?? null;
+
+  // Warning overlay
+  const ov=document.getElementById('warn-overlay');
+  const wm=document.getElementById('warn-msg');
+  if(warning){
+    ov.classList.add('show');
+    wm.textContent=warning;
+  } else {
+    ov.classList.remove('show');
+  }
+
+  // SVG
+  currentSVG = warning ? '' : renderSVG(data, preset);
+  document.getElementById('svg-wrap').innerHTML = warning ? '' : currentSVG;
+
+  // Eq strip (top bar)
+  const eq=data.equations||{};
+  const strip=Object.entries(eq).slice(0,5).map(([k,v])=>
+    `<span><span style="color:#1e3a4a">${k}=</span>`+
+    `<span style="color:#68d391;font-weight:700">${typeof v==='number'?v.toFixed(3):v}</span></span>`
+  );
+  document.getElementById('eq-strip').innerHTML=strip.join('');
+
+  // Eq panel (sidebar)
+  document.getElementById('eq-panel').innerHTML=
+    Object.entries(eq).map(([k,v])=>
+      `<div><span style="color:#2d4a62">${k} = </span>`+
+      `<span style="color:${k==='grashof'?(v==='SÍ'?'#2ecc71':'#e74c3c'):'#68d391'}">`+
+      `${typeof v==='number'?v.toFixed(4):v}</span></div>`
+    ).join('');
+
+  if(rebuildSliders) _sliderDefs=data.sliderDefs||[];
+}
+
+function buildUI(){
+  // Nombres
+  const names={barra_articulada:'Barra Articulada',manivela:'Manivela-Biela',
+    cuatro_barras:'Cuatro Barras',pendulo:'Péndulo'};
+  document.getElementById('diag-title').textContent=`⚙ ${names[MECHANISM]??MECHANISM}`;
+  document.getElementById('diag-badge').textContent=MECHANISM.replace(/_/g,' ').toUpperCase();
+
+  // Preset buttons
+  const pr=document.getElementById('preset-row'); pr.innerHTML='';
+  for(const p of Object.keys(PRESETS)){
+    const btn=document.createElement('button');
+    btn.className='pbtn'+(p===preset?' on':'');
+    btn.textContent=p;
+    btn.onclick=()=>{
+      preset=p;
+      pr.querySelectorAll('.pbtn').forEach(b=>b.classList.toggle('on',b.textContent===p));
+      update();
+    };
+    pr.appendChild(btn);
+  }
+
+  // Animation init
+  const data0=Physics[MECHANISM]({...params});
+  _sliderDefs=data0.sliderDefs||[];
+  animTheta=MECHANISM==='cuatro_barras'?(params.theta2_deg??60):(params.theta_deg??30);
+
+  // Sliders
+  const sl=document.getElementById('sliders'); sl.innerHTML='';
+  for(const cfg of _sliderDefs){
+    const v=params[cfg.k]??cfg.min;
+    const div=document.createElement('div'); div.className='param';
+    const head=document.createElement('div'); head.className='ph';
+    const nm=document.createElement('span'); nm.className='pn'; nm.textContent=cfg.label;
+    const vl=document.createElement('span'); vl.className='pv'; vl.id='vl-'+cfg.k;
+    vl.textContent=cfg.fmt(v);
+    head.appendChild(nm); head.appendChild(vl);
+    const inp=document.createElement('input');
+    inp.type='range'; inp.min=cfg.min; inp.max=cfg.max;
+    inp.step=cfg.step; inp.value=v; inp.id='sl-'+cfg.k;
+    inp.oninput=()=>{
+      params[cfg.k]=parseFloat(inp.value);
+      vl.textContent=cfg.fmt(params[cfg.k]);
+      if(!animating) update();
+    };
+    div.appendChild(head); div.appendChild(inp); sl.appendChild(div);
+  }
+  update();
+}
+
+// Download helpers
+function dlSVG(){
+  if(!currentSVG) return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([currentSVG],{type:'image/svg+xml'}));
+  a.download=`${MECHANISM}_${preset}.svg`; a.click();
+}
+async function dlPNG(){
+  if(!currentSVG) return;
+  const blob=new Blob([currentSVG],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.onload=()=>{
+    const cv=document.createElement('canvas');
+    const area=document.getElementById('center-area');
+    cv.width=area.clientWidth*2; cv.height=area.clientHeight*2;
+    const ctx=cv.getContext('2d'); ctx.scale(2,2);
+    ctx.fillStyle='#060b10'; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.drawImage(img,0,0,area.clientWidth,area.clientHeight);
+    URL.revokeObjectURL(url);
+    const a=document.createElement('a'); a.href=cv.toDataURL('image/png');
+    a.download=`${MECHANISM}_${preset}.png`; a.click();
+  };
+  img.src=url;
+}
+
+buildUI();
+</script>
+</body>
+</html>

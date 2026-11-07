@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" font-family="'JetBrains Mono', ui-monospace, monospace">
+  <rect width="520" height="420" fill="#f7f0d9"/>
+  <!-- ejes -->
+  <line x1="60" y1="360" x2="480" y2="360" stroke="#8a9aae" stroke-width="1"/>
+  <line x1="260" y1="40"  x2="260" y2="380" stroke="#8a9aae" stroke-width="1" stroke-dasharray="4 6"/>
+  <text x="470" y="378" fill="#5a6f89" font-size="13">z</text>
+  <text x="268" y="52"  fill="#5a6f89" font-size="13">y</text>
+  <!-- sección rectangular -->
+  <rect x="180" y="150" width="160" height="180" fill="rgba(182,74,42,.12)" stroke="#b64a2a" stroke-width="2"/>
+  <!-- eje centroidal -->
+  <line x1="150" y1="240" x2="370" y2="240" stroke="#0d2440" stroke-width="1.5"/>
+  <text x="378" y="244" fill="#0d2440" font-size="13">eje centroidal</text>
+  <!-- cotas b -->
+  <line x1="180" y1="120" x2="340" y2="120" stroke="#5a6f89" stroke-width="1"/>
+  <line x1="180" y1="114" x2="180" y2="126" stroke="#5a6f89" stroke-width="1"/>
+  <line x1="340" y1="114" x2="340" y2="126" stroke="#5a6f89" stroke-width="1"/>
+  <text x="252" y="112" fill="#0d2440" font-size="15" text-anchor="middle">b</text>
+  <!-- cotas h -->
+  <line x1="150" y1="150" x2="150" y2="330" stroke="#5a6f89" stroke-width="1"/>
+  <line x1="144" y1="150" x2="156" y2="150" stroke="#5a6f89" stroke-width="1"/>
+  <line x1="144" y1="330" x2="156" y2="330" stroke="#5a6f89" stroke-width="1"/>
+  <text x="138" y="245" fill="#0d2440" font-size="15" text-anchor="end">h</text>
+  <!-- fórmula -->
+  <text x="260" y="400" fill="#b64a2a" font-size="20" text-anchor="middle" font-style="italic">I = b·h³ / 12</text>
+  <text x="260" y="30"  fill="#0d2440" font-size="15" text-anchor="middle">Momento de inercia de una sección rectangular</text>
+</svg>

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Diagrama 2D Interactivo — Barra Articulada</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0d1117;
+  color: #e0e0e0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+header {
+  background: #141b27;
+  padding: 10px 20px;
+  border-bottom: 1px solid #1e2d3d;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 44px;
+}
+header h1 { font-size: 0.95rem; color: #90cdf4; font-weight: 600; }
+header p  { font-size: 0.72rem; color: #4a6075; margin-left: auto; }
+
+.badge {
+  background: #1a3a5c; color: #63b3ed; font-size: 0.62rem;
+  padding: 2px 7px; border-radius: 10px; border: 1px solid #2b6cb0;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 230px 1fr 220px;
+  height: calc(100vh - 44px);
+}
+
+/* ── Panels ── */
+.panel {
+  padding: 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2d3748 transparent;
+}
+.panel-left  { background: #0f151f; border-right: 1px solid #1e2d3d; }
+.panel-center { background: #080d12; display: flex; align-items: center;
+                justify-content: center; }
+.panel-right { background: #0f151f; border-left: 1px solid #1e2d3d; }
+
+/* ── Section title ── */
+.sec {
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: #2d4a62; margin: 14px 0 8px;
+  padding-bottom: 4px; border-bottom: 1px solid #1e2d3d;
+}
+.sec:first-child { margin-top: 0; }
+
+/* ── Sliders ── */
+.param { margin-bottom: 12px; }
+.param-head { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.param-name { font-size: 0.78rem; color: #8ba3b8; }
+.param-val  { font-size: 0.78rem; color: #90cdf4; font-family: monospace; }
+input[type=range] {
+  width: 100%; height: 3px; -webkit-appearance: none;
+  background: #1e2d3d; border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: #63b3ed; cursor: pointer;
+  transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+/* ── Toggle buttons ── */
+.btn {
+  width: 100%; background: #141b27; border: 1px solid #1e2d3d;
+  color: #6b7d8f; font-size: 0.72rem; padding: 5px 8px;
+  border-radius: 4px; cursor: pointer; text-align: left;
+  transition: all .15s; margin-bottom: 6px;
+}
+.btn:hover { background: #1a2436; color: #a0b4c4; }
+.btn.on { background: #0e2038; border-color: #2b6cb0; color: #63b3ed; }
+
+/* ── Legend ── */
+.leg-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.leg-line  { width: 18px; height: 2px; border-radius: 1px; flex-shrink: 0; }
+.leg-label { font-size: 0.75rem; color: #7a8fa0; }
+
+/* ── Equation blocks ── */
+.eq-block {
+  background: #080d12; border: 1px solid #1e2d3d; border-radius: 5px;
+  padding: 9px 10px; margin-bottom: 9px;
+}
+.eq-title { font-size: 0.65rem; color: #2d4a62; text-transform: uppercase;
+            letter-spacing: .05em; margin-bottom: 5px; }
+.eq-formula { font-family: monospace; font-size: 0.78rem; color: #48697a; line-height: 1.7; }
+.eq-result  { font-family: monospace; font-size: 0.88rem; font-weight: 700; margin-top: 5px; }
+
+/* ── Roadmap list ── */
+.roadmap-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+.roadmap-num  { background: #1a3a5c; color: #63b3ed; font-size: 0.65rem;
+                padding: 1px 5px; border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+.roadmap-text { font-size: 0.74rem; color: #6b7d8f; line-height: 1.5; }
+.roadmap-text strong { color: #8ba3b8; }
+
+/* ── SVG ── */
+#svg-diagram { max-width: 100%; max-height: calc(100vh - 64px); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚙ Generador Diagramas 2D <span class="badge">MVC · Vanilla JS</span></h1>
+  <p>Collision-free labels · Sliders reactivos · Aceleraciones en tiempo real</p>
+</header>
+
+<div class="layout">
+
+<!-- ═══════════════ LEFT: CONTROLS ═══════════════ -->
+<div class="panel panel-left">
+  <div class="sec">Parámetros físicos</div>
+
+  <div class="param">
+    <div class="param-head">
+      <span class="param-name">θ — Ángulo (°)</span>
+      <span class="param-val" id="v-theta">30°</span>
+    </div>
+    <input type="range" id="s-theta" min="8" max="82" value="30" step="1">
+  </div>
+
+  <div class="param">
+    <div class="param-head">
+      <span class="param-name">ω — Vel. angular (rad/s)</span>
+      <span class="param-val" id="v-omega">2.0</span>
+    </div>
+    <input type="range" id="s-omega" min="0" max="8" value="2" step="0.1">
+  </div>
+
+  <div class="param">
+    <div class="param-head">
+      <span class="param-name">α — Acel. angular (rad/s²)</span>
+      <span class="param-val" id="v-alpha">3.0</span>
+    </div>
+    <input type="range" id="s-alpha" min="-10" max="10" value="3" step="0.5">
+  </div>
+
+  <div class="param">
+    <div class="param-head">
+      <span class="param-name">L — Longitud (m)</span>
+      <span class="param-val" id="v-L">1.0 m</span>
+    </div>
+    <input type="range" id="s-L" min="0.5" max="2.5" value="1" step="0.1">
+  </div>
+
+  <div class="param">
+    <div class="param-head">
+      <span class="param-name">m — Masa (kg)</span>
+      <span class="param-val" id="v-m">1.0 kg</span>
+    </div>
+    <input type="range" id="s-m" min="0.5" max="5" value="1" step="0.5">
+  </div>
+
+  <div class="sec">Debug</div>
+  <button class="btn" id="btn-bbox" onclick="toggle('bbox')">⬜ BBox colisiones</button>
+  <button class="btn" id="btn-grid" onclick="toggle('grid')">⊞ Cuadrícula</button>
+  <button class="btn" id="btn-dalembert" onclick="toggle('dalembert')">⊕ D'Alembert</button>
+
+  <div class="sec">Leyenda</div>
+  <div class="leg-item"><div class="leg-line" style="background:#e74c3c"></div>
+    <span class="leg-label">aₙᴳ — Aceleración normal</span></div>
+  <div class="leg-item"><div class="leg-line" style="background:#3498db"></div>
+    <span class="leg-label">aₜᴳ — Aceleración tangencial</span></div>
+  <div class="leg-item"><div class="leg-line" style="background:#2ecc71"></div>
+    <span class="leg-label">mg — Peso (en G)</span></div>
+  <div class="leg-item"><div class="leg-line" style="background:#f39c12"></div>
+    <span class="leg-label">F — Fuerza en B</span></div>
+  <div class="leg-item"><div class="leg-line" style="background:#e056a0; height:1px; border-top: 1px dashed #e056a0;"></div>
+    <span class="leg-label">Inercias D'Alembert</span></div>
+  <div class="leg-item"><div class="leg-line" style="background:#9b59b6"></div>
+    <span class="leg-label">ω / α — Cinemática</span></div>
+</div>
+
+<!-- ═══════════════ CENTER: SVG ═══════════════ -->
+<div class="panel panel-center">
+  <svg id="svg-diagram" viewBox="0 0 580 520" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Arrow markers for each color -->
+      <marker id="m-red"    markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#e74c3c"/></marker>
+      <marker id="m-blue"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#3498db"/></marker>
+      <marker id="m-green"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#2ecc71"/></marker>
+      <marker id="m-orange" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#f39c12"/></marker>
+      <marker id="m-pink"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#e056a0"/></marker>
+      <marker id="m-purple" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#9b59b6"/></marker>
+      <!-- Grid -->
+      <pattern id="grid-p" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M40,0 L0,0 0,40" fill="none" stroke="#111820" stroke-width="0.8"/>
+      </pattern>
+    </defs>
+    <!-- Render layers (z-order: bottom → top) -->
+    <g id="l-grid"></g>
+    <g id="l-ground"></g>
+    <g id="l-geometry"></g>
+    <g id="l-dalembert"></g>
+    <g id="l-forces"></g>
+    <g id="l-omega"></g>
+    <g id="l-labels"></g>
+    <g id="l-debug"></g>
+  </svg>
+</div>
+
+<!-- ═══════════════ RIGHT: EQUATIONS + ROADMAP ═══════════════ -->
+<div class="panel panel-right">
+  <div class="sec">Resultados</div>
+
+  <div class="eq-block">
+    <div class="eq-title">Acel. Normal en G</div>
+    <div class="eq-formula">aₙᴳ = (L/2)·ω²</div>
+    <div class="eq-result" id="r-aN" style="color:#e74c3c">= — m/s²</div>
+  </div>
+
+  <div class="eq-block">
+    <div class="eq-title">Acel. Tangencial en G</div>
+    <div class="eq-formula">aₜᴳ = (L/2)·|α|</div>
+    <div class="eq-result" id="r-aT" style="color:#3498db">= — m/s²</div>
+  </div>
+
+  <div class="eq-block">
+    <div class="eq-title">Velocidad en B</div>
+    <div class="eq-formula">|v⃗ᴮ| = L·ω</div>
+    <div class="eq-result" id="r-vB" style="color:#68d391">= — m/s</div>
+  </div>
+
+  <div class="eq-block">
+    <div class="eq-title">Potencias Virtuales (ω*=1)</div>
+    <div class="eq-formula">F·(∂Bx/∂θ) + mg·(∂Gy/∂θ) = Iₒ·α</div>
+    <div class="eq-formula" style="margin-top:3px">Iₒ = mL²/3</div>
+    <div class="eq-result" id="r-F" style="color:#f39c12">F = — N</div>
+  </div>
+
+  <div class="eq-block">
+    <div class="eq-title">Fórmula general</div>
+    <div class="eq-formula">F = mg·cosθ/(2sinθ)</div>
+    <div class="eq-formula">  + mLα/(3sinθ)</div>
+    <div class="eq-result" id="r-F2" style="color:#fcd34d">= — N</div>
+  </div>
+
+  <div class="sec">Arquitectura recomendada</div>
+  <div class="eq-block">
+    <div class="eq-formula" style="color:#3d5a6e; line-height:1.9">
+      MODEL (puras)<br>
+      └─ compute(params) → data<br>
+      VIEW (DOM/SVG)<br>
+      └─ render(data) → SVG<br>
+      └─ placeLabel() [collision]<br>
+      CONTROLLER<br>
+      └─ slider → params<br>
+      └─ requestAnimationFrame<br>
+    </div>
+  </div>
+
+  <div class="sec">Roadmap OCR</div>
+
+  <div class="roadmap-item">
+    <span class="roadmap-num">F1</span>
+    <div class="roadmap-text"><strong>Claude Vision API</strong> — Foto → base64 → extractParams(). Más preciso para croquis.</div>
+  </div>
+  <div class="roadmap-item">
+    <span class="roadmap-num">F2</span>
+    <div class="roadmap-text"><strong>Canvas + Hough transform</strong> — Detectar líneas y ángulos en imágenes técnicas.</div>
+  </div>
+  <div class="roadmap-item">
+    <span class="roadmap-num">F3</span>
+    <div class="roadmap-text"><strong>Template matching</strong> — Biblioteca de símbolos mecánicos (articulaciones, muelles, apoyos).</div>
+  </div>
+  <div class="roadmap-item">
+    <span class="roadmap-num">F4</span>
+    <div class="roadmap-text"><strong>Web Components</strong> — &lt;barra-articulada params="..."&gt; para escalar a otros mecanismos.</div>
+  </div>
+
+</div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════════
+// MODEL — Cálculos puros. Sin ninguna referencia al DOM.
+// Entrada: parámetros físicos. Salida: objeto con toda la geometría.
+// ═══════════════════════════════════════════════════════════════════════
+const Model = {
+  compute({ theta, omega, alpha, L, m }) {
+    const g   = 9.81;
+    const th  = theta * Math.PI / 180;
+    const PX  = 100;            // pixels por metro (escala geométrica)
+    const VS  = 60 / Math.max((L / 2) * Math.max(omega * omega, Math.abs(alpha), 1), 0.5);
+    // VS = escala visual para vectores (px / unidad física) — se auto-normaliza
+    const FS  = 40;             // px por Newton para fuerza F
+
+    // ── Puntos clave (coordenadas SVG: x→derecha, y→abajo) ──────────
+    const Ox = 200, Oy = 290;
+    const Bx = Ox + L * PX * Math.cos(th);
+    const By = Oy - L * PX * Math.sin(th);
+    const Gx = Ox + (L / 2) * PX * Math.cos(th);
+    const Gy = Oy - (L / 2) * PX * Math.sin(th);
+
+    // ── Vectores unitarios ────────────────────────────────────────────
+    // A lo largo de la barra (SVG):
+    const ex =  Math.cos(th);
+    const ey = -Math.sin(th);   // negativo porque SVG y↓ vs math y↑
+    // Perpendicular CCW (en coords matemáticas (-sinθ, cosθ) → SVG: (-sinθ, -cosθ))
+    const px = -Math.sin(th);
+    const py = -Math.cos(th);
+
+    // ── Aceleraciones en G ───────────────────────────────────────────
+    const aN = (L / 2) * omega * omega;           // centripeta (→ O)
+    const aT = (L / 2) * Math.abs(alpha);         // tangencial
+
+    const aN_dx = -ex * aN * VS;   // apunta de G hacia O = -dir barra
+    const aN_dy = -ey * aN * VS;
+
+    const sg    = alpha >= 0 ? 1 : -1;
+    const aT_dx = px * sg * aT * VS;
+    const aT_dy = py * sg * aT * VS;
+
+    // ── Peso en G ─────────────────────────────────────────────────────
+    const W_mag = m * g;
+    const W_px  = Math.min(W_mag * VS * 0.45, 90);
+
+    // ── Fuerza F en B (horizontal) — Potencias Virtuales ─────────────
+    // Ec: F·(−L sinθ) + (−mg)·(−(L/2) sinθ) ... espera, usamos torques sobre O:
+    // τ_F  = F * L sinθ  (brazo perpendicular de F horizontal sobre O)
+    // τ_mg = −mg * (L/2) cosθ  (brazo de peso sobre O)
+    // Iₒ·α = τ_F + τ_mg
+    // mL²/3·α = F·L sinθ − mg·(L/2)cosθ
+    // F = [mg·cosθ/2 + mL²α/3] / (L sinθ)
+    //   = mg·cosθ/(2sinθ) + mLα/(3sinθ)
+    const sinTh = Math.sin(th);
+    const cosTh = Math.cos(th);
+    const F_val = sinTh > 1e-6
+      ? (m * g * cosTh) / (2 * sinTh) + (m * L * alpha) / (3 * sinTh)
+      : 0;
+    const F_len = Math.min(Math.abs(F_val) * FS * 0.5, 110);
+    const F_dir = F_val >= 0 ? 1 : -1;
+
+    // ── Inercias D'Alembert ───────────────────────────────────────────
+    // Fuerza de inercia: −m·aG (opuesta a la aceleración)
+    // Par de inercia: −IG·α (opuesto al α)
+    const IG = m * L * L / 12;
+    const FiN_dx = aN_dx;   // mismo módulo, mismo sentido que aₙ pq ya apunta hacia O
+    const FiN_dy = aN_dy;
+    const FiT_dx = -aT_dx;  // opuesta a aₜ
+    const FiT_dy = -aT_dy;
+
+    return {
+      O: { x: Ox, y: Oy }, B: { x: Bx, y: By }, G: { x: Gx, y: Gy },
+      theta: th, omega, alpha, L, m, g,
+
+      vectors: {
+        aN:     { x1:Gx, y1:Gy, x2:Gx+aN_dx, y2:Gy+aN_dy,
+                  label:`aₙᴳ = ${aN.toFixed(2)} m/s²`, color:'#e74c3c', marker:'m-red' },
+        aT:     { x1:Gx, y1:Gy, x2:Gx+aT_dx, y2:Gy+aT_dy,
+                  label:`aₜᴳ = ${aT.toFixed(2)} m/s²`, color:'#3498db', marker:'m-blue' },
+        weight: { x1:Gx, y1:Gy, x2:Gx, y2:Gy+W_px,
+                  label:`mg = ${W_mag.toFixed(2)} N`, color:'#2ecc71', marker:'m-green' },
+        F:      { x1:Bx, y1:By, x2:Bx+F_dir*F_len, y2:By,
+                  label:`F = ${F_val.toFixed(2)} N`, color:'#f39c12', marker:'m-orange' },
+      },
+
+      dalembert: {
+        FiN: { x1:Gx, y1:Gy, x2:Gx-aN_dx*0.8, y2:Gy-aN_dy*0.8,
+               label:`-maₙ`, color:'#e056a0', marker:'m-pink' },
+        FiT: { x1:Gx, y1:Gy, x2:Gx+FiT_dx*0.8, y2:Gy+FiT_dy*0.8,
+               label:`-maₜ`, color:'#e056a0', marker:'m-pink' },
+      },
+
+      equations: {
+        aN: aN, aT: aT, vB: L * Math.abs(omega), F: F_val
+      }
+    };
+  }
+};
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// COLLISION DETECTOR — AABB con candidatos radiales
+// Detecta y reubica etiquetas automáticamente si hay overlap.
+// ═══════════════════════════════════════════════════════════════════════
+const Collision = {
+  // Candidatos de offset en pixels (priorizados top-right → radiales)
+  CANDIDATES: [
+    [ 14,-16], [-58,-16], [ 14, 18], [-58, 18],
+    [ 24,  0], [-68,  0], [  0,-24], [  0, 24],
+    [ 32,-28], [-70,-28], [ 32, 28], [-70, 28],
+    [ 45,-10], [-80,-10], [ 45, 10], [-80, 10],
+  ],
+
+  bbox(x, y, text, fs = 11) {
+    const w = text.length * fs * 0.58 + 6;
+    const h = fs * 1.4;
+    return { x, y: y - h * 0.8, w, h };
+  },
+
+  overlaps(a, b, pad = 4) {
+    return !(a.x + a.w + pad < b.x || b.x + b.w + pad < a.x ||
+             a.y + a.h + pad < b.y || b.y + b.h + pad < a.y);
+  },
+
+  /**
+   * placeLabel(anchor, text, placed) → {x, y, bbox}
+   * Devuelve la primera posición candidata sin colisión.
+   * Muta `placed` añadiendo el bbox elegido.
+   */
+  place(anchor, text, placed) {
+    for (const [dx, dy] of this.CANDIDATES) {
+      const cx = anchor.x + dx, cy = anchor.y + dy;
+      const bb = this.bbox(cx, cy, text);
+      if (!placed.some(p => this.overlaps(bb, p))) {
+        placed.push(bb);
+        return { x: cx, y: cy, bbox: bb };
+      }
+    }
+    // Fallback espiral: r=20..100 en pasos de 45°
+    for (let r = 20; r <= 100; r += 20) {
+      for (let a = 0; a < 360; a += 45) {
+        const cx = anchor.x + r * Math.cos(a * Math.PI / 180);
+        const cy = anchor.y + r * Math.sin(a * Math.PI / 180);
+        const bb = this.bbox(cx, cy, text);
+        if (!placed.some(p => this.overlaps(bb, p))) {
+          placed.push(bb);
+          return { x: cx, y: cy, bbox: bb };
+        }
+      }
+    }
+    // Último recurso: primer candidato sin validar
+    const [dx, dy] = this.CANDIDATES[0];
+    return { x: anchor.x + dx, y: anchor.y + dy,
+             bbox: this.bbox(anchor.x + dx, anchor.y + dy, text) };
+  }
+};
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// VIEW — Manipulación del DOM / SVG. Solo recibe datos, no calcula.
+// ═══════════════════════════════════════════════════════════════════════
+const NS  = 'http://www.w3.org/2000/svg';
+const el  = (tag, attrs) => { const e = document.createElementNS(NS, tag);
+  for (const [k,v] of Object.entries(attrs)) e.setAttribute(k,v); return e; };
+const clr = id => { const g = document.getElementById(id);
+  while (g.firstChild) g.removeChild(g.firstChild); return g; };
+
+const View = {
+  flags: { grid: false, bbox: false, dalembert: false },
+
+  render(d) {
+    this._grid();
+    this._ground(d);
+    this._geometry(d);
+    this._dalembert(d);
+    this._forces(d);
+    this._omega(d);
+    this._labels(d);
+    this._equations(d.equations);
+  },
+
+  _grid() {
+    const g = clr('l-grid');
+    if (!this.flags.grid) return;
+    g.appendChild(el('rect', { x:0,y:0,width:580,height:520, fill:'url(#grid-p)' }));
+  },
+
+  _ground(d) {
+    const g = clr('l-ground');
+    const { x: ox, y: oy } = d.O;
+    // Línea base y hatching
+    g.appendChild(el('line', { x1:ox-28,y1:oy+12, x2:ox+28,y2:oy+12,
+      stroke:'#4a5568','stroke-width':2 }));
+    for (let i = -3; i <= 3; i++)
+      g.appendChild(el('line', { x1:ox+i*9-8,y1:oy+12, x2:ox+i*9+4,y2:oy+22,
+        stroke:'#2d3748','stroke-width':1.5 }));
+    // Pivote
+    g.appendChild(el('circle', { cx:ox,cy:oy,r:9,
+      fill:'#141b27',stroke:'#4a6fa0','stroke-width':1.5 }));
+    g.appendChild(el('circle', { cx:ox,cy:oy,r:3.5, fill:'#90cdf4' }));
+  },
+
+  _geometry(d) {
+    const g = clr('l-geometry');
+    const { O, B, G, theta } = d;
+
+    // Sombra de barra
+    g.appendChild(el('line', { x1:O.x,y1:O.y, x2:B.x,y2:B.y,
+      stroke:'#1a2a3a','stroke-width':10,'stroke-linecap':'round' }));
+    // Barra principal
+    g.appendChild(el('line', { x1:O.x,y1:O.y, x2:B.x,y2:B.y,
+      stroke:'#8899aa','stroke-width':3,'stroke-linecap':'round' }));
+
+    // Punto B (extremo libre)
+    g.appendChild(el('circle', { cx:B.x,cy:B.y,r:6,
+      fill:'#0d1117',stroke:'#f6e05e','stroke-width':1.5 }));
+
+    // Punto G (centro de masa) — círculo con cruz
+    g.appendChild(el('circle', { cx:G.x,cy:G.y,r:5.5,
+      fill:'#0d1117',stroke:'#68d391','stroke-width':1.5 }));
+    g.appendChild(el('line', { x1:G.x-6,y1:G.y, x2:G.x+6,y2:G.y,
+      stroke:'#68d391','stroke-width':1 }));
+    g.appendChild(el('line', { x1:G.x,y1:G.y-6, x2:G.x,y2:G.y+6,
+      stroke:'#68d391','stroke-width':1 }));
+
+    // Arco del ángulo θ
+    const ra = 42;
+    const arcX = O.x + ra * Math.cos(theta);
+    const arcY = O.y - ra * Math.sin(theta);
+    const largeArc = theta > Math.PI ? 1 : 0;
+    g.appendChild(el('path', {
+      d:`M ${O.x+ra} ${O.y} A ${ra} ${ra} 0 ${largeArc} 0 ${arcX} ${arcY}`,
+      fill:'none', stroke:'#2d4a62','stroke-width':1.2,'stroke-dasharray':'3,3'
+    }));
+    // Línea de referencia horizontal
+    g.appendChild(el('line', { x1:O.x,y1:O.y, x2:O.x+55,y2:O.y,
+      stroke:'#1e2d3d','stroke-width':1,'stroke-dasharray':'4,3' }));
+
+    // Labels fijos (O, B, G, θ)
+    const tattr = s => ({ fill:s,'font-family':'serif','font-size':'13','font-style':'italic' });
+    this._txt(g, O.x-16, O.y-10, 'O', tattr('#5a7a8a'));
+    this._txt(g, B.x+10, B.y-8,  'B', tattr('#f6e05e'));
+    this._txt(g, G.x-18, G.y,    'G', tattr('#68d391'));
+    const thMid = theta / 2;
+    this._txt(g, O.x + 52*Math.cos(thMid), O.y - 52*Math.sin(thMid)+4,
+      'θ', { ...tattr('#2d4a62'), 'font-size':'12', 'font-style':'italic' });
+  },
+
+  _forces(d) {
+    const gf = clr('l-forces');
+    for (const [k, v] of Object.entries(d.vectors)) {
+      const len = Math.hypot(v.x2-v.x1, v.y2-v.y1);
+      if (len < 4) continue;
+      // Acortar la línea para que la punta de flecha quede exactamente en x2,y2
+      const t   = Math.max(0, (len - 9) / len);
+      const xe  = v.x1 + (v.x2 - v.x1) * t;
+      const ye  = v.y1 + (v.y2 - v.y1) * t;
+      const sw  = k === 'F' ? 2.8 : 2.2;
+      gf.appendChild(el('line', {
+        x1:v.x1,y1:v.y1, x2:xe,y2:ye,
+        stroke:v.color, 'stroke-width':sw,
+        'marker-end':`url(#${v.marker})`, opacity:0.92
+      }));
+    }
+  },
+
+  _dalembert(d) {
+    const g = clr('l-dalembert');
+    if (!this.flags.dalembert) return;
+    for (const v of Object.values(d.dalembert)) {
+      const len = Math.hypot(v.x2-v.x1, v.y2-v.y1);
+      if (len < 4) continue;
+      const t = Math.max(0, (len - 8) / len);
+      g.appendChild(el('line', {
+        x1:v.x1,y1:v.y1,
+        x2:v.x1+(v.x2-v.x1)*t, y2:v.y1+(v.y2-v.y1)*t,
+        stroke:v.color,'stroke-width':1.8,
+        'stroke-dasharray':'5,3',
+        'marker-end':`url(#${v.marker})`, opacity:0.7
+      }));
+    }
+  },
+
+  _omega(d) {
+    const g = clr('l-omega');
+    const { O, theta, omega, alpha } = d;
+    const r = 32;
+
+    // Arco de ω
+    if (Math.abs(omega) > 0.05) {
+      const a0 = theta + 0.15, a1 = theta + 0.75;
+      const x1 = O.x + r*Math.cos(a0), y1 = O.y - r*Math.sin(a0);
+      const x2 = O.x + r*Math.cos(a1), y2 = O.y - r*Math.sin(a1);
+      const sw = omega >= 0 ? 0 : 1;
+      g.appendChild(el('path', {
+        d:`M ${x1} ${y1} A ${r} ${r} 0 0 ${sw} ${x2} ${y2}`,
+        fill:'none',stroke:'#9b59b6','stroke-width':1.8,
+        'marker-end':'url(#m-purple)'
+      }));
+    }
+    // Labels ω, α
+    if (Math.abs(omega)  > 0.05) this._txt(g, O.x-22, O.y-46, `ω=${omega.toFixed(1)}`,
+      { fill:'#9b59b6','font-size':'10','font-family':'sans-serif' });
+    if (Math.abs(alpha)  > 0.05) this._txt(g, O.x+12, O.y-46, `α=${alpha.toFixed(1)}`,
+      { fill:'#cd8439','font-size':'10','font-family':'sans-serif' });
+  },
+
+  _labels(d) {
+    const g    = clr('l-labels');
+    const gdbg = clr('l-debug');
+    const placed = [];
+
+    // Añadir puntos O, B, G como zonas bloqueadas para etiquetas
+    [d.O, d.B, d.G].forEach(pt =>
+      placed.push({ x:pt.x-10, y:pt.y-10, w:20, h:20 }));
+
+    const allVecs = { ...d.vectors };
+    if (this.flags.dalembert) Object.assign(allVecs, d.dalembert);
+
+    for (const v of Object.values(allVecs)) {
+      const len = Math.hypot(v.x2-v.x1, v.y2-v.y1);
+      if (len < 4) continue;
+
+      const anchor = { x:v.x2, y:v.y2 };
+      const { x, y, bbox } = Collision.place(anchor, v.label, placed);
+
+      // Etiqueta con fondo semitransparente
+      const wrap = document.createElementNS(NS, 'g');
+      const bg = el('rect', {
+        x:bbox.x-1, y:bbox.y-1, width:bbox.w+2, height:bbox.h+2,
+        rx:3, ry:3, fill:'#080d12', opacity:'0.75'
+      });
+      const txt = el('text', {
+        x:x, y:y, fill:v.color,
+        'font-size':'11', 'font-family':'monospace',
+        'dominant-baseline':'auto'
+      });
+      txt.textContent = v.label;
+      wrap.appendChild(bg);
+      wrap.appendChild(txt);
+      g.appendChild(wrap);
+
+      // Línea guía (si el label está lejos del tip)
+      const dist = Math.hypot(x - v.x2, y - v.y2);
+      if (dist > 25) {
+        g.appendChild(el('line', {
+          x1:v.x2,y1:v.y2, x2:x+bbox.w*0.2,y2:y,
+          stroke:v.color,'stroke-width':0.5,opacity:'0.3'
+        }));
+      }
+
+      // Debug BBox
+      if (this.flags.bbox) {
+        gdbg.appendChild(el('rect', {
+          x:bbox.x,y:bbox.y, width:bbox.w,height:bbox.h,
+          fill:'none',stroke:v.color,'stroke-width':0.6,
+          opacity:'0.5','stroke-dasharray':'2,2'
+        }));
+        gdbg.appendChild(el('circle', { cx:v.x2,cy:v.y2,r:2.5,
+          fill:v.color,opacity:'0.5' }));
+      }
+    }
+  },
+
+  _equations(eq) {
+    document.getElementById('r-aN').textContent = `= ${eq.aN.toFixed(3)} m/s²`;
+    document.getElementById('r-aT').textContent = `= ${eq.aT.toFixed(3)} m/s²`;
+    document.getElementById('r-vB').textContent = `= ${eq.vB.toFixed(3)} m/s`;
+    document.getElementById('r-F' ).textContent = `F = ${eq.F.toFixed(3)} N`;
+    document.getElementById('r-F2').textContent = `= ${eq.F.toFixed(3)} N`;
+  },
+
+  _txt(parent, x, y, text, attrs) {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    for (const [k,v] of Object.entries(attrs)) t.setAttribute(k,v);
+    t.textContent = text;
+    parent.appendChild(t);
+    return t;
+  }
+};
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// CONTROLLER — Conecta sliders ↔ Model ↔ View.
+// Usa requestAnimationFrame para limitar renders a 60fps.
+// ═══════════════════════════════════════════════════════════════════════
+const Ctrl = {
+  params: { theta:30, omega:2, alpha:3, L:1, m:1 },
+  _raf: false,
+
+  init() {
+    const bindings = [
+      { id:'s-theta', key:'theta', vid:'v-theta', fmt: v=>`${v}°` },
+      { id:'s-omega', key:'omega', vid:'v-omega', fmt: v=>v.toFixed(1) },
+      { id:'s-alpha', key:'alpha', vid:'v-alpha', fmt: v=>v.toFixed(1) },
+      { id:'s-L',     key:'L',     vid:'v-L',     fmt: v=>`${v.toFixed(1)} m` },
+      { id:'s-m',     key:'m',     vid:'v-m',     fmt: v=>`${v.toFixed(1)} kg` },
+    ];
+    for (const b of bindings) {
+      const inp = document.getElementById(b.id);
+      const lbl = document.getElementById(b.vid);
+      inp.addEventListener('input', () => {
+        this.params[b.key] = parseFloat(inp.value);
+        lbl.textContent = b.fmt(this.params[b.key]);
+        this.schedule();
+      });
+    }
+    this.schedule();
+  },
+
+  schedule() {
+    if (this._raf) return;
+    this._raf = true;
+    requestAnimationFrame(() => {
+      this._raf = false;
+      View.render(Model.compute(this.params));
+    });
+  }
+};
+
+// Función pública para los botones de toggle
+function toggle(flag) {
+  View.flags[flag] = !View.flags[flag];
+  const btn = document.getElementById('btn-' + flag);
+  btn.classList.toggle('on', View.flags[flag]);
+  Ctrl.schedule();
+}
+
+// Boot
+Ctrl.init();
+</script>
+</body>
+</html>

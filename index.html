@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="blueprint" data-density="comfortable">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Palanca — tu punto de apoyo en Ingeniería Mecánica</title>
+<meta name="description" content="Apuntes propios, esquemas y simulaciones interactivas de Ingeniería Mecánica: Resistencia de Materiales, mecanismos, EDO y más. Verificados y gratis.">
+<link href="assets/vendor/fonts/sitio.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/overlay.css">
+
+<style>
+/* ═══════════ VARIABLES DE TEMA ═══════════ */
+:root {
+  --font-serif: 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans:  'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
+}
+
+[data-theme="blueprint"] {
+  --paper:       #f1e9d2; --paper-2: #ebe2c6; --paper-3: #e3d9b7;
+  --ink:         #0d2440; --ink-2: #1a3558; --ink-mute: #5a6f89; --ink-faint: #8a9aae;
+  --rule:        #c7bd9f; --rule-2: #b0a684;
+  --accent:      #b64a2a; --accent-2: #d68c3c; --accent-soft: rgba(182,74,42,.12);
+  --grid-minor:  rgba(13,36,64,.06); --grid-major: rgba(13,36,64,.12);
+  --card-bg:     #f7f0d9; --card-border: #c7bd9f;
+  --shadow:      0 1px 0 rgba(13,36,64,.08);
+  color-scheme: light;
+}
+[data-theme="lab"] {
+  --paper:       #0b0e17; --paper-2: #11162a; --paper-3: #161c35;
+  --ink:         #e8ebf4; --ink-2: #c4cad8; --ink-mute: #8a92a8; --ink-faint: #5c6480;
+  --rule:        #242b48; --rule-2: #2f3758;
+  --accent:      #e8a060; --accent-2: #5eead4; --accent-soft: rgba(232,160,96,.14);
+  --grid-minor:  rgba(232,235,244,.035); --grid-major: rgba(232,235,244,.07);
+  --card-bg:     #12172a; --card-border: #242b48;
+  --shadow:      0 1px 0 rgba(255,255,255,.02);
+  color-scheme: dark;
+}
+[data-theme="paper"] {
+  --paper:       #faf8f3; --paper-2: #f3efe6; --paper-3: #eae5d7;
+  --ink:         #1a1915; --ink-2: #2f2d26; --ink-mute: #6a6759; --ink-faint: #94907f;
+  --rule:        #d8d2c1; --rule-2: #c0b9a3;
+  --accent:      #9a3b1f; --accent-2: #4a6a3a; --accent-soft: rgba(154,59,31,.10);
+  --grid-minor:  rgba(26,25,21,.04); --grid-major: rgba(26,25,21,.09);
+  --card-bg:     #ffffff; --card-border: #e4dfcf;
+  --shadow:      0 1px 0 rgba(0,0,0,.04);
+  color-scheme: light;
+}
+
+/* ═══════════ DENSIDAD ═══════════ */
+[data-density="comfortable"] {
+  --pad-block: 96px; --pad-inline: 48px;
+  --gap-section: 40px; --gap-item: 24px;
+  --card-pad: 22px; --fs-body: 16px;
+}
+[data-density="compact"] {
+  --pad-block: 56px; --pad-inline: 36px;
+  --gap-section: 24px; --gap-item: 14px;
+  --card-pad: 14px; --fs-body: 14.5px;
+}
+
+/* ═══════════ RESET + BASE ═══════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: var(--fs-body); scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  transition: background .25s, color .25s;
+  /* blueprint grid */
+  background-image:
+    linear-gradient(var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px);
+  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+}
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+/* ═══════════ LAYOUT ═══════════ */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--pad-inline); }
+section { padding: var(--pad-block) 0; position: relative; }
+section + section { border-top: 1px solid var(--rule); }
+
+/* ═══════════ SECCIÓN CABECERA ═══════════ */
+.section-head {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: var(--gap-section);
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--ink-faint);
+  letter-spacing: .08em;
+  padding-top: .35em;
+}
+.section-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.section-kicker {
+  font-style: italic;
+  color: var(--accent);
+  margin-right: .3em;
+}
+.section-lede {
+  font-size: .9rem;
+  color: var(--ink-mute);
+  line-height: 1.6;
+  max-width: 520px;
+  margin-top: 8px;
+}
+
+/* ═══════════ NAV ═══════════ */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  gap: 24px;
+}
+.nav-logo {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.01em;
+  flex-shrink: 0;
+}
+.nav-logo span { color: var(--accent); }
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: .78rem;
+  font-family: var(--font-mono);
+  color: var(--ink-mute);
+  letter-spacing: .04em;
+  transition: color .15s;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.ctrl-btn {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-mute);
+  font-size: .65rem;
+  font-family: var(--font-mono);
+  letter-spacing: .06em;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.ctrl-btn:hover, .ctrl-btn.active {
+  background: var(--paper-2);
+  color: var(--ink);
+  border-color: var(--rule-2);
+}
+.ctrl-sep { width: 1px; height: 18px; background: var(--rule); margin: 0 2px; }
+
+/* ═══════════ HERO ═══════════ */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 48px;
+  align-items: center;
+  min-height: 520px;
+  padding: var(--pad-block) 0;
+}
+.hero-left { display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+.hero h1 .under {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-2);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+.hero-lede {
+  font-size: 1rem;
+  color: var(--ink-mute);
+  line-height: 1.7;
+  max-width: 460px;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  padding: 10px 22px;
+  border-radius: 7px;
+  border: none;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: .8rem;
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+  transition: opacity .15s;
+}
+.btn-primary:hover { opacity: .85; }
+.btn-ghost {
+  padding: 10px 22px;
+  border-radius: 7px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-mute);
+  font-size: .8rem;
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+  transition: all .15s;
+}
+.btn-ghost:hover { border-color: var(--ink-mute); color: var(--ink); }
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+}
+.hero-stat-val {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+.hero-stat-label {
+  font-size: .65rem;
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.hero-right {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.hero-right .mech-label {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font-size: .6rem;
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+#hero-canvas { width: 100%; height: 100%; flex: 1; }
+
+/* ═══════════ FORMATOS (§01) ═══════════ */
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--gap-item);
+}
+.format-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.format-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.format-title {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--ink);
+}
+.format-body {
+  font-size: .78rem;
+  color: var(--ink-mute);
+  line-height: 1.55;
+}
+
+/* ═══════════ ASIGNATURAS (§02) ═══════════ */
+.subject-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.subject-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  font-size: .7rem;
+  font-family: var(--font-mono);
+  color: var(--ink-mute);
+  letter-spacing: .05em;
+  transition: all .15s;
+}
+.subject-pill:hover { border-color: var(--accent); color: var(--accent); }
+.subject-pill.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+/* ═══════════ FILTROS MULTIFACETA (§02) ═══════════ */
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.filter-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-search {
+  flex: 1;
+  min-width: 200px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+  background: var(--card-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: .85rem;
+  transition: border-color .15s;
+}
+.filter-search::placeholder { color: var(--ink-faint); }
+.filter-search:focus { outline: none; border-color: var(--accent); }
+.filter-count {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.facet-group {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+.facet-label {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  color: var(--ink-faint);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding-top: 5px;
+}
+.facet-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.facet-chip {
+  padding: 5px 11px;
+  border-radius: 20px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  font-size: .68rem;
+  font-family: var(--font-mono);
+  color: var(--ink-mute);
+  letter-spacing: .03em;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.facet-chip:hover { border-color: var(--accent); color: var(--accent); }
+.facet-chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.facet-chip .facet-chip-count {
+  font-size: .58rem;
+  opacity: .65;
+}
+/* cascada jerárquica: Universidad ▸ Carrera ▸ Curso ▸ Asignatura */
+.cascade-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  row-gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--rule);
+}
+.cascade-crumb {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: var(--ink-mute);
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+.cascade-sep { color: var(--ink-faint); font-size: .75rem; }
+.cascade-select {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid var(--rule);
+  background: var(--card-bg);
+  color: var(--ink-mute);
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .03em;
+  cursor: pointer;
+  max-width: 260px;
+}
+.cascade-select:focus { outline: none; border-color: var(--accent); }
+.cascade-select.has-value {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.filter-active-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+.filter-clear {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-mute);
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .05em;
+  transition: all .15s;
+}
+.filter-clear:hover { border-color: var(--accent); color: var(--accent); }
+.filter-empty {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--ink-mute);
+  font-size: .85rem;
+}
+@media (max-width: 620px) {
+  .facet-group { grid-template-columns: 1fr; gap: 4px; }
+  .facet-label { padding-top: 0; }
+}
+
+/* ═══════════ GESTIÓN DE APUNTES (modo gestor) ═══════════ */
+.sim-admin { display: flex; gap: 6px; flex-shrink: 0; }
+.sim-admin button {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink-mute);
+  font-size: .78rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  cursor: pointer;
+  padding: 0;
+}
+.sim-admin button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ═══════════ AÑADIR APUNTE ═══════════ */
+.section-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.btn-add {
+  padding: 8px 16px;
+  border-radius: 7px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-add:hover { background: var(--accent); color: var(--paper); }
+
+.add-backdrop {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(3px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 20px; overflow-y: auto;
+}
+.add-panel {
+  background: var(--paper);
+  border: 1px solid var(--rule-2);
+  border-radius: 14px;
+  width: 100%; max-width: 720px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  overflow: hidden;
+}
+.add-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px; border-bottom: 1px solid var(--rule);
+}
+.add-header h3 {
+  font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; color: var(--ink);
+}
+.add-header .add-sub {
+  font-family: var(--font-mono); font-size: .62rem; color: var(--ink-faint);
+  letter-spacing: .06em; text-transform: uppercase; margin-top: 2px;
+}
+.add-close {
+  width: 32px; height: 32px; border-radius: 7px;
+  border: 1px solid var(--rule); background: transparent; color: var(--ink-mute);
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.add-close:hover { border-color: var(--accent); color: var(--accent); }
+.add-body { padding: 22px 24px; display: grid; grid-template-columns: 1fr 240px; gap: 22px; }
+.add-fields { display: flex; flex-direction: column; gap: 14px; }
+.add-field { display: flex; flex-direction: column; gap: 5px; }
+.add-field label {
+  font-family: var(--font-mono); font-size: .62rem; color: var(--ink-mute);
+  letter-spacing: .08em; text-transform: uppercase;
+}
+.add-field label .req { color: var(--accent); }
+.add-field input[type="text"],
+.add-field textarea,
+.add-field select {
+  border: 1px solid var(--rule); border-radius: 7px; background: var(--card-bg);
+  color: var(--ink); font-family: var(--font-sans); font-size: .85rem; padding: 8px 10px;
+}
+.add-field textarea { resize: vertical; min-height: 52px; }
+.add-field input:focus, .add-field textarea:focus, .add-field select:focus {
+  outline: none; border-color: var(--accent);
+}
+.add-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.add-dropzone {
+  border: 1.5px dashed var(--rule-2); border-radius: 9px; padding: 18px;
+  text-align: center; color: var(--ink-mute); font-size: .8rem; cursor: pointer;
+  transition: all .15s; background: var(--card-bg);
+}
+.add-dropzone:hover, .add-dropzone.drag { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.add-dropzone .dz-file { color: var(--ink); font-family: var(--font-mono); font-size: .75rem; margin-top: 4px; }
+.add-preview {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.add-preview-label {
+  font-family: var(--font-mono); font-size: .6rem; color: var(--ink-faint);
+  letter-spacing: .08em; text-transform: uppercase;
+}
+.add-preview-box {
+  border: 1px solid var(--rule); border-radius: 9px; overflow: hidden;
+  background: var(--card-bg); height: 200px; display: flex; align-items: center; justify-content: center;
+}
+.add-preview-box iframe { width: 100%; height: 100%; border: 0; }
+.add-preview-box .dz-empty { color: var(--ink-faint); font-size: .72rem; padding: 12px; text-align: center; }
+.add-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 24px; border-top: 1px solid var(--rule); flex-wrap: wrap;
+}
+.add-hint { font-size: .68rem; color: var(--ink-mute); font-family: var(--font-mono); }
+.add-actions { display: flex; gap: 10px; }
+.add-publish {
+  padding: 9px 20px; border-radius: 7px; border: none;
+  background: var(--ink); color: var(--paper);
+  font-family: var(--font-mono); font-size: .78rem; letter-spacing: .04em;
+}
+.add-publish:disabled { opacity: .4; cursor: not-allowed; }
+.add-publish:not(:disabled):hover { opacity: .85; }
+.add-result {
+  padding: 14px 16px; border-radius: 9px; margin: 0 24px 18px;
+  font-size: .8rem; line-height: 1.5;
+}
+.add-result.ok   { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--ink); }
+.add-result.warn { background: rgba(214,140,60,.12); border: 1px solid var(--accent-2); color: var(--ink); }
+.add-result code { font-family: var(--font-mono); font-size: .74rem; background: var(--paper-2); padding: 1px 5px; border-radius: 4px; }
+.add-result .add-dl {
+  margin-top: 8px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent);
+  background: transparent; color: var(--accent); font-family: var(--font-mono); font-size: .7rem;
+}
+.add-chips-input { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+@media (max-width: 620px) {
+  .add-body { grid-template-columns: 1fr; }
+  .add-row2 { grid-template-columns: 1fr; }
+}
+
+/* ═══════════ APUNTES (§04) ═══════════ */
+.notes-list { display: flex; flex-direction: column; gap: 1px; }
+.note-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: background .1s;
+}
+.note-row:hover .note-title { color: var(--accent); }
+.note-meta {
+  font-size: .6rem;
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.note-title {
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--ink);
+  transition: color .15s;
+}
+.note-badge {
+  font-size: .6rem;
+  font-family: var(--font-mono);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--rule);
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.note-badge.new { border-color: var(--accent); color: var(--accent); }
+
+/* ═══════════ GLOSARIO (§05) ═══════════ */
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--gap-item);
+}
+.gloss-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: var(--card-pad);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.gloss-sym {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--accent);
+  flex-shrink: 0;
+  width: 30px;
+  padding-top: 2px;
+}
+.gloss-sub {
+  font-family: var(--font-mono);
+  font-size: .55rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 3px;
+}
+.gloss-term { font-weight: 600; font-size: .85rem; color: var(--ink); margin-bottom: 4px; }
+.gloss-def { font-size: .75rem; color: var(--ink-mute); line-height: 1.55; }
+
+/* ═══════════ PROYECTOS (§06) ═══════════ */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--gap-item);
+}
+.project-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.project-tag {
+  font-size: .6rem;
+  font-family: var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+.project-title { font-weight: 600; font-size: .9rem; color: var(--ink); }
+.project-body { font-size: .78rem; color: var(--ink-mute); line-height: 1.55; flex: 1; }
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+.project-chip {
+  font-size: .6rem;
+  font-family: var(--font-mono);
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: var(--ink-mute);
+}
+
+/* ═══════════ FOOTER ═══════════ */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 40px 0;
+}
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-logo {
+  font-family: var(--font-serif);
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--ink-mute);
+}
+.footer-logo span { color: var(--accent); }
+.footer-copy {
+  font-size: .7rem;
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+}
+.footer-links { display: flex; gap: 16px; list-style: none; }
+.footer-links a {
+  font-size: .7rem;
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+  transition: color .15s;
+}
+.footer-links a:hover { color: var(--ink-mute); }
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 860px) {
+  [data-density="comfortable"] { --pad-inline: 24px; --pad-block: 64px; }
+  [data-density="compact"]     { --pad-inline: 16px; --pad-block: 40px; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { min-height: 280px; }
+  .nav-links { display: none; }
+  .section-head { grid-template-columns: 1fr; gap: 12px; }
+}
+@media (max-width: 480px) {
+  .hero h1 { font-size: 2.4rem; }
+  .hero-stats { gap: 20px; }
+  .ctrl-btn.hide-sm { display: none; }
+}
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script src="assets/vendor/react.production.min.js"
+        integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
+        crossorigin="anonymous"></script>
+<script src="assets/vendor/react-dom.production.min.js"
+        integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
+        crossorigin="anonymous"></script>
+<script src="assets/vendor/babel.min.js"
+        integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+        crossorigin="anonymous"></script>
+<script src="assets/simcatalog.js"></script>
+<script src="assets/taxonomy.js"></script>
+<script src="assets/apuntes.js"></script>
+<script src="assets/overlay.js" defer></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ════════════ TRADUCCIONES ════════════ */
+const T = {
+  es: {
+    navSubjects: "Asignaturas", navMech: "Mecanismos",
+    navNotes: "Apuntes", navProjects: "Proyectos", navGlossary: "Glosario",
+    langToggle: "EN",
+    themeBp: "Blueprint", themeLab: "Lab", themePaper: "Paper",
+    densComf: "Cómodo", densComp: "Compacto",
+    heroSup: "Ingeniería Mecánica · apuntes abiertos",
+    heroTitle: ["Tu punto de ", "apoyo", " en ingeniería"],
+    heroLede: "Palanca es el sitio que me habría gustado encontrar siendo estudiante. Apuntes claros, esquemas vivos y mecanismos que se tocan — porque un diagrama interactivo explica en cinco segundos lo que la teoría tarda tres páginas.",
+    heroCta1: "Ver simulaciones", heroCta2: "Ver apuntes",
+    heroStatSims: "simulaciones", heroStatSubj: "asignaturas", heroStatPrice: "coste",
+    mechLabel: "MECANISMO ACTIVO",
+    s0num: "§ 01", s0kicker: "El método.", s0title: "Qué encontrarás aquí",
+    s0lede: "Cuatro formatos que se refuerzan entre sí — de la intuición al ejercicio, pasando por el simulador.",
+    s1num: "§ 02", s1kicker: "Índice.", s1title: "Por asignatura × por tipo",
+    s1lede: "La forma más rápida de llegar al apunte que buscas.",
+    s2num: "§ 03", s2kicker: "La joya.", s2title: "Mecanismos que se tocan",
+    s2lede: "Diagramas interactivos: mueves un parámetro, el sistema entero se recalcula. Física real, no GIFs.",
+    s2open: "Abrir simulación →",
+    s2openNote: "Abrir apunte →",
+    s2openTool: "Abrir herramienta →",
+    s3num: "§ 04", s3kicker: "Biblioteca.", s3title: "Últimos apuntes",
+    s3lede: "Lo recién publicado y lo que más se consulta.",
+    s4num: "§ 05", s4kicker: "Vocabulario.", s4title: "Glosario",
+    s4lede: "Los términos que vuelven una y otra vez — definidos en una frase, con su símbolo.",
+    s5num: "§ 06", s5kicker: "Aplicado.", s5title: "Proyectos y casos reales",
+    s5lede: "Donde la teoría toca una pieza que existe. Documentados de principio a fin.",
+    filterAll: "Todo",
+    filterSearchPh: "Buscar por título, descripción o etiqueta…",
+    filterClear: "Limpiar filtros",
+    filterResults: "resultado(s)",
+    filterNone: "Ningún recurso coincide con los filtros.",
+    notesEmpty: "Aún no hay apuntes publicados que coincidan.",
+    addBtn: "＋ Añadir apunte",
+    addTitle: "Añadir apunte",
+    addSub: "Subida local · carpeta apuntes/",
+    addDz: "Arrastra un .svg o .html, o haz clic para elegir",
+    addDzEmpty: "Adjunta un archivo para ver la vista previa",
+    addPreview: "Vista previa",
+    addFldTitleEs: "Título",
+    addFldTitleEn: "Título (EN, opcional)",
+    addFldDescEs: "Descripción (opcional)",
+    addFldSubject: "Asignatura",
+    addFldCurso: "Curso",
+    addFldProf: "Profesor (opcional)",
+    addFldProfPh: "Nombre del profesor",
+    addFldTags: "Etiquetas (sugeridas automáticamente; edítalas si quieres)",
+    addCursoNone: "— Sin curso —",
+    addProfNone: "— Sin asignar —",
+    addProfNew: "＋ Nuevo profesor…",
+    addPublish: "Publicar",
+    addCancel: "Cancelar",
+    addPublishing: "Publicando…",
+    addHintServer: "Se guardará directamente en apuntes/ del proyecto (servidor local, sin selector).",
+    addHintFS: "Se guardará en la carpeta apuntes/ del proyecto (tu navegador pedirá elegirla).",
+    addHintNoFS: "Tu navegador no puede escribir en la carpeta; se guardará en el navegador y podrás descargar el archivo.",
+    addOkFolder: "✓ Guardado en la carpeta del proyecto. Archivo escrito en",
+    addOkFolder2: "y añadido a apuntes.json. Aparece ya en § 02 y seguirá ahí mientras el archivo esté en la carpeta.",
+    addLocalNoFS: "Guardado en este navegador y visible ya en § 02. Para que quede en el proyecto de forma permanente, descarga el archivo y colócalo en",
+    addLocalNoFS2: ", y añade su entrada a apuntes.json (ver apuntes/LEEME.md).",
+    addLocalCancel: "No se eligió carpeta, así que se guardó en este navegador (visible ya en § 02). Puedes volver a intentarlo o descargar el archivo para colocarlo a mano en",
+    addDownload: "Descargar archivo",
+    editTitle: "Editar apunte",
+    editSub: "Modo gestor · carpeta apuntes/",
+    addSave: "Guardar cambios",
+    editOk: "✓ Cambios guardados en la carpeta del proyecto.",
+    editBtn: "Editar apunte",
+    delBtn: "Borrar apunte",
+    delConfirm: "se moverá a la papelera (apuntes/_papelera). ¿Continuar?",
+    footerCopy: "Hecho por Ricardo · web personal, no oficial",
+    footerLegal: "Aviso legal y licencia",
+  },
+  en: {
+    navSubjects: "Subjects", navMech: "Mechanisms",
+    navNotes: "Notes", navProjects: "Projects", navGlossary: "Glossary",
+    langToggle: "ES",
+    themeBp: "Blueprint", themeLab: "Lab", themePaper: "Paper",
+    densComf: "Comfortable", densComp: "Compact",
+    heroSup: "Mechanical Engineering · open notes",
+    heroTitle: ["Your ", "lever", " in engineering"],
+    heroLede: "Palanca is the place I wish I'd found as a student. Clear notes, living diagrams, mechanisms you can touch — because an interactive diagram explains in five seconds what theory takes three pages to say.",
+    heroCta1: "See simulations", heroCta2: "See notes",
+    heroStatSims: "simulations", heroStatSubj: "subjects", heroStatPrice: "cost",
+    mechLabel: "ACTIVE MECHANISM",
+    s0num: "§ 01", s0kicker: "The method.", s0title: "What you'll find here",
+    s0lede: "Four formats that reinforce each other — from intuition to exercise, via simulator.",
+    s1num: "§ 02", s1kicker: "Index.", s1title: "By subject × by type",
+    s1lede: "The fastest path to the note you're after.",
+    s2num: "§ 03", s2kicker: "The gem.", s2title: "Mechanisms you can touch",
+    s2lede: "Interactive diagrams: move one parameter, the whole system recomputes. Real physics, not GIFs.",
+    s2open: "Open simulation →",
+    s2openNote: "Open note →",
+    s2openTool: "Open tool →",
+    s3num: "§ 04", s3kicker: "Library.", s3title: "Latest notes",
+    s3lede: "Recently published and most consulted.",
+    s4num: "§ 05", s4kicker: "Vocabulary.", s4title: "Glossary",
+    s4lede: "Terms that keep coming back — defined in one sentence, with their symbol.",
+    s5num: "§ 06", s5kicker: "Applied.", s5title: "Projects & real cases",
+    s5lede: "Where theory touches a real part. Documented start to finish.",
+    filterAll: "All",
+    filterSearchPh: "Search by title, description or tag…",
+    filterClear: "Clear filters",
+    filterResults: "result(s)",
+    filterNone: "No resource matches the filters.",
+    notesEmpty: "No published notes match yet.",
+    addBtn: "＋ Add note",
+    addTitle: "Add note",
+    addSub: "Local upload · apuntes/ folder",
+    addDz: "Drag a .svg or .html here, or click to choose",
+    addDzEmpty: "Attach a file to see the preview",
+    addPreview: "Preview",
+    addFldTitleEs: "Title",
+    addFldTitleEn: "Title (EN, optional)",
+    addFldDescEs: "Description (optional)",
+    addFldSubject: "Subject",
+    addFldCurso: "Year",
+    addFldProf: "Professor (optional)",
+    addFldProfPh: "Professor name",
+    addFldTags: "Tags (auto-suggested; edit as you like)",
+    addCursoNone: "— No year —",
+    addProfNone: "— Unassigned —",
+    addProfNew: "＋ New professor…",
+    addPublish: "Publish",
+    addCancel: "Cancel",
+    addPublishing: "Publishing…",
+    addHintServer: "It will be saved straight to the project's apuntes/ folder (local server, no picker).",
+    addHintFS: "It will be saved to the project's apuntes/ folder (your browser will ask you to choose it).",
+    addHintNoFS: "Your browser can't write to the folder; it will be saved in the browser and you can download the file.",
+    addOkFolder: "✓ Saved to the project folder. File written to",
+    addOkFolder2: "and added to apuntes.json. It now shows in § 02 and stays as long as the file is in the folder.",
+    addLocalNoFS: "Saved in this browser and already visible in § 02. To keep it in the project permanently, download the file and place it in",
+    addLocalNoFS2: ", then add its entry to apuntes.json (see apuntes/LEEME.md).",
+    addLocalCancel: "No folder was chosen, so it was saved in this browser (already visible in § 02). You can try again or download the file to place it manually in",
+    addDownload: "Download file",
+    editTitle: "Edit note",
+    editSub: "Manager mode · apuntes/ folder",
+    addSave: "Save changes",
+    editOk: "✓ Changes saved to the project folder.",
+    editBtn: "Edit note",
+    delBtn: "Delete note",
+    delConfirm: "will be moved to the recycle folder (apuntes/_papelera). Continue?",
+    footerCopy: "Made by Ricardo · personal, unofficial site",
+    footerLegal: "Legal notice and licence",
+  }
+};
+
+/* ════════════ DATOS DE CONTENIDO ════════════ */
+const FORMATS = [
+  { icon: "📐", titleEs: "Apuntes", titleEn: "Notes",
+    bodyEs: "Conceptos clave explicados desde la intuición. Sin rodeos, con los esquemas que hacen falta.",
+    bodyEn: "Key concepts explained from intuition. No fluff, just the diagrams you actually need." },
+  { icon: "⚙️", titleEs: "Simuladores", titleEn: "Simulators",
+    bodyEs: "Diagramas interactivos: cambia un parámetro y el sistema se recalcula en tiempo real.",
+    bodyEn: "Interactive diagrams: change a parameter and the system recomputes in real time." },
+  { icon: "✏️", titleEs: "Ejercicios", titleEn: "Exercises",
+    bodyEs: "Problemas resueltos paso a paso, con la lógica explicada antes que los números.",
+    bodyEn: "Problems solved step by step, with the logic explained before the numbers." },
+  { icon: "🔩", titleEs: "Proyectos", titleEn: "Projects",
+    bodyEs: "Casos reales documentados de principio a fin. Teoría que toca una pieza que existe.",
+    bodyEn: "Real cases documented end to end. Theory that touches a part that exists." },
+];
+
+// §04 se alimenta de los apuntes REALES (SIMS con tipo "apunte", que vienen
+// del manifiesto apuntes/apuntes.json). Nada de contenido de relleno.
+
+// Glosario clasificado por asignatura (subjectId = id de SUBJECTS).
+// Cobertura: al menos 2 términos por asignatura del catálogo.
+const GLOSSARY = [
+  // Resistencia de Materiales
+  { subjectId: "rm", sym: "σ", termEs: "Tensión normal",     termEn: "Normal stress",       defEs: "Fuerza por unidad de área perpendicular a la sección. σ = F/A.", defEn: "Force per unit area perpendicular to the cross section. σ = F/A." },
+  { subjectId: "rm", sym: "τ", termEs: "Tensión tangencial", termEn: "Shear stress",        defEs: "Componente de la tensión paralela a la sección. τ = V·Q/(I·b).", defEn: "Stress component parallel to the section. τ = V·Q/(I·b)." },
+  { subjectId: "rm", sym: "I", termEs: "Momento de inercia", termEn: "Moment of inertia",   defEs: "Resistencia de una sección al giro. Para rectángulo: bh³/12.", defEn: "A section's resistance to bending. For rectangle: bh³/12." },
+  { subjectId: "rm", sym: "E", termEs: "Módulo de Young",    termEn: "Young's modulus",     defEs: "Relación tensión-deformación en zona elástica. E = σ/ε.", defEn: "Stress-strain ratio in the elastic range. E = σ/ε." },
+  // Cinemática
+  { subjectId: "maquinas", sym: "ω", termEs: "Velocidad angular",  termEn: "Angular velocity",     defEs: "Derivada del ángulo respecto al tiempo. rad/s.", defEn: "Rate of change of angle with time. rad/s." },
+  { subjectId: "maquinas", sym: "α", termEs: "Aceleración angular",termEn: "Angular acceleration", defEs: "Derivada de ω respecto al tiempo. rad/s².", defEn: "Rate of change of ω with time. rad/s²." },
+  // Ciencia de Materiales
+  { subjectId: "materiales", sym: "a",     termEs: "Parámetro de red",  termEn: "Lattice parameter", defEs: "Longitud de la arista de la celda unidad de un cristal. Se mide en Å o nm.", defEn: "Edge length of a crystal's unit cell. Measured in Å or nm." },
+  { subjectId: "materiales", sym: "(hkl)", termEs: "Índices de Miller", termEn: "Miller indices",    defEs: "Notación que identifica un plano cristalino dentro de la celda unidad.", defEn: "Notation identifying a crystallographic plane within the unit cell." },
+  // Electrónica
+  { subjectId: "electronica", sym: "V", termEs: "Tensión eléctrica",  termEn: "Voltage", defEs: "Diferencia de potencial entre dos puntos. Se mide en voltios.", defEn: "Potential difference between two points. Measured in volts." },
+  { subjectId: "electronica", sym: "i", termEs: "Corriente eléctrica", termEn: "Electric current", defEs: "Flujo de carga por unidad de tiempo. i = dq/dt, en amperios.", defEn: "Charge flow per unit time. i = dq/dt, in amperes." },
+  // Cálculo
+  { subjectId: "mates1", sym: "∫",  termEs: "Integral definida", termEn: "Definite integral", defEs: "Área con signo bajo la curva de f entre a y b. Límite de sumas de Riemann.", defEn: "Signed area under f between a and b. Limit of Riemann sums." },
+  { subjectId: "mates1", sym: "f′", termEs: "Derivada",          termEn: "Derivative",        defEs: "Ritmo de cambio instantáneo de f. Pendiente de la recta tangente.", defEn: "Instantaneous rate of change of f. Slope of the tangent line." },
+];
+
+const PROJECTS = [
+  { tag: "ELECTRÓNICA", titleEs: "Acondicionamiento de señal — LM741 ±15V",
+    titleEn: "Signal conditioning — LM741 ±15V",
+    bodyEs: "Diseño completo de etapas de amplificación y filtrado para sensores. Simulación en OrCAD/PSpice for TI.",
+    bodyEn: "Full design of amplification and filtering stages for sensors. Simulated in OrCAD/PSpice for TI.",
+    meta: ["LM741", "OrCAD", "E24"] },
+  { tag: "FLUIDOS", titleEs: "Túnel de viento DIY — validación NACA 0012",
+    titleEn: "DIY wind tunnel — NACA 0012 validation",
+    bodyEs: "Diseño de la cámara de ensayos, calibración del anemómetro y medición de Cl/Cd.",
+    bodyEn: "Test chamber design, anemometer calibration and Cl/Cd measurement.",
+    meta: ["DIY", "NACA", "Calibración"] },
+];
+
+/* ════════════ ANIMACIÓN HERO — BARRA ARTICULADA ════════════ */
+function HeroMech({ theme }) {
+  const canvasRef = useRef(null);
+  const rafRef    = useRef(null);
+  const tRef      = useRef(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const style = getComputedStyle(document.documentElement);
+    const ink      = () => style.getPropertyValue("--ink").trim()      || "#0d2440";
+    const accent   = () => style.getPropertyValue("--accent").trim()   || "#b64a2a";
+    const accent2  = () => style.getPropertyValue("--ink-faint").trim()|| "#8a9aae";
+    const rulec    = () => style.getPropertyValue("--rule").trim()      || "#c7bd9f";
+
+    function draw(ts) {
+      const W = canvas.clientWidth;
+      const H = canvas.clientHeight;
+      if (canvas.width !== W || canvas.height !== H) {
+        canvas.width = W; canvas.height = H;
+      }
+      ctx.clearRect(0, 0, W, H);
+
+      tRef.current = ts * 0.0008;
+      const t = tRef.current;
+
+      const cx = W * 0.38, cy = H * 0.52;
+
+      // ── Manivela (crank) ──
+      const r = Math.min(W, H) * 0.18;
+      const ax = cx + r * Math.cos(t);
+      const ay = cy + r * Math.sin(t);
+
+      // ── Biela (connecting rod) ──
+      const rodLen = r * 2.4;
+      const sliderY = cy;
+      const dx = ax - (cx + r * 2.8);
+      const dy = ay - sliderY;
+      const d  = Math.sqrt(dx * dx + dy * dy);
+      const ang = Math.atan2(sliderY - ay, Math.sqrt(Math.max(0, rodLen * rodLen - (sliderY - ay) ** 2)));
+      const bx = ax + Math.cos(ang) * rodLen * Math.sign(cx + r * 2.8 - ax) * (Math.abs(cx + r * 2.8 - ax) / d || 1);
+      // simpler approach: project slider X
+      const slideX = ax + Math.sqrt(Math.max(0, rodLen * rodLen - (sliderY - ay) ** 2)) * Math.sign(cx + r * 2.8 - ax || 1);
+      const finalX = cx + r * 2.8 + (Math.cos(t) + 1) * r * 0.5;
+      const slx    = ax + Math.sqrt(Math.max(0, rodLen * rodLen - (sliderY - ay) ** 2));
+
+      const sty = getComputedStyle(document.documentElement);
+
+      // Grid lines (faint)
+      ctx.strokeStyle = rulec();
+      ctx.lineWidth = .5;
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath(); ctx.moveTo(0, sliderY); ctx.lineTo(W, sliderY); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Fixed pivot circle
+      ctx.strokeStyle = accent2();
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = rulec();
+      ctx.fill();
+
+      // Crank
+      ctx.strokeStyle = accent();
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ax, ay); ctx.stroke();
+
+      // Joint A
+      ctx.fillStyle = accent();
+      ctx.beginPath(); ctx.arc(ax, ay, 5, 0, Math.PI * 2); ctx.fill();
+
+      // Connecting rod
+      ctx.strokeStyle = ink();
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(slx, sliderY); ctx.stroke();
+
+      // Slider rail
+      ctx.strokeStyle = rulec();
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(cx + r * 0.8, sliderY); ctx.lineTo(cx + r * 4.2, sliderY); ctx.stroke();
+
+      // Slider block
+      const sw = 22, sh = 14;
+      ctx.fillStyle = ink();
+      ctx.beginPath();
+      ctx.roundRect(slx - sw / 2, sliderY - sh / 2, sw, sh, 3);
+      ctx.fill();
+
+      // Joint B (slider end of rod)
+      ctx.fillStyle = accent2();
+      ctx.beginPath(); ctx.arc(slx, sliderY, 4, 0, Math.PI * 2); ctx.fill();
+
+      // Labels
+      ctx.fillStyle = accent2();
+      ctx.font = `500 11px ${sty.getPropertyValue("--font-mono").trim() || "monospace"}`;
+      ctx.fillText("A", cx - 14, cy + 4);
+      ctx.fillText("B", slx + 10, sliderY - 10);
+
+      rafRef.current = requestAnimationFrame(draw);
+    }
+
+    rafRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [theme]);
+
+  return <canvas ref={canvasRef} id="hero-canvas" style={{width:"100%",height:"100%",minHeight:280}} />;
+}
+
+/* ════════════ COMPONENTES ════════════ */
+function LevelDots({ level, max = 3 }) {
+  return (
+    <div className="sim-card-level">
+      {Array.from({ length: max }, (_, i) => (
+        <span key={i} className={i < level ? "filled" : ""} />
+      ))}
+    </div>
+  );
+}
+
+function SimCard({ sim, lang, t, admin, onEdit, onDelete }) {
+  const subject = SUBJECTS.find(s => s.id === sim.subject);
+  const isEs    = lang === "es";
+  const canManage = admin && sim.tipo === "apunte";
+  return (
+    <div
+      className="sim-card"
+      role="button"
+      tabIndex={0}
+      onClick={() => SimOverlay.open(sim.id, lang)}
+      onKeyDown={e => { if (e.key === "Enter") SimOverlay.open(sim.id, lang); }}
+      title={isEs ? sim.titleEs : sim.titleEn}
+    >
+      <div className="sim-card-top">
+        <span className="sim-card-subject">
+          {subject ? (isEs ? subject.labelEs : subject.labelEn) : ""}
+        </span>
+        {canManage ? (
+          <div className="sim-admin">
+            <button title={t.editBtn} aria-label={t.editBtn}
+              onClick={e => { e.stopPropagation(); onEdit(sim); }}>✎</button>
+            <button title={t.delBtn} aria-label={t.delBtn}
+              onClick={e => { e.stopPropagation(); onDelete(sim); }}>🗑</button>
+          </div>
+        ) : (
+          <LevelDots level={sim.level} />
+        )}
+      </div>
+      <div className="sim-card-title">{isEs ? sim.titleEs : sim.titleEn}</div>
+      <div className="sim-card-body">{isEs ? sim.bodyEs : sim.bodyEn}</div>
+      <div className="sim-card-tags">
+        {sim.tags.map(tag => <span key={tag} className="sim-card-tag">{tag}</span>)}
+      </div>
+      <div className="sim-card-cta">
+        {sim.tipo === "apunte" ? t.s2openNote : sim.tipo === "herramienta" ? t.s2openTool : t.s2open}
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════ FILTRADO MULTIFACETA ════════════ */
+// Cómo se extrae el valor de cada faceta de un recurso (sim).
+// `multi: true` para facetas cuyo valor es una lista (tags).
+const FACET_FIELDS = [
+  { key: "universidad", get: s => s.universidad },
+  { key: "centro",      get: s => s.centro },
+  { key: "carrera",     get: s => s.carrera },
+  { key: "curso",       get: s => s.curso },
+  { key: "asignatura",  get: s => s.subject },
+  { key: "tipo",        get: s => s.tipo },
+  { key: "profesor",    get: s => s.profesor },
+  { key: "tags",        get: s => s.tags, multi: true },
+];
+
+// Facetas jerárquicas (cascada) vs transversales (chips multi-selección)
+const CASCADE_LEVELS     = ["universidad", "carrera", "curso", "asignatura"];
+const TRANSVERSAL_FACETS = ["tipo", "profesor", "tags"];
+
+// ¿El recurso pasa el filtro de UNA faceta? (OR dentro de la faceta)
+function passesFacet(sim, key, selected) {
+  if (!selected || selected.length === 0) return true;
+  const field = FACET_FIELDS.find(f => f.key === key);
+  const raw = field.get(sim);
+  const vals = Array.isArray(raw) ? raw : [raw];
+  return vals.some(v => selected.includes(v));
+}
+
+// ¿Pasa la búsqueda de texto libre?
+function passesQuery(sim, q) {
+  if (!q) return true;
+  const hay = [sim.titleEs, sim.titleEn, sim.bodyEs, sim.bodyEn, ...(sim.tags || [])]
+    .join(" ").toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+
+// ¿Pasa TODAS las facetas (AND entre facetas) y la búsqueda?
+// `exceptKey` permite calcular recuentos ignorando la propia faceta.
+function simPasses(sim, filters, q, exceptKey) {
+  for (const f of FACET_FIELDS) {
+    if (f.key === exceptKey) continue;
+    if (!passesFacet(sim, f.key, filters[f.key])) return false;
+  }
+  return passesQuery(sim, q);
+}
+
+// Opciones disponibles de una faceta, con recuento bajo los demás filtros.
+function facetOptions(key, filters, q, lang) {
+  const field = FACET_FIELDS.find(f => f.key === key);
+  const counts = new Map();
+  for (const sim of SIMS) {
+    if (!simPasses(sim, filters, q, key)) continue;
+    let vals = field.get(sim);
+    if (vals == null) continue;
+    if (!Array.isArray(vals)) vals = [vals];
+    for (const v of vals) counts.set(v, (counts.get(v) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([id, count]) => ({ id, count, label: facetValueLabel(key, id, lang) }))
+    .sort((a, b) => a.label.localeCompare(b.label, lang));
+}
+
+// ¿Merece la pena mostrar la faceta? Solo si aporta ≥2 opciones en todo el
+// catálogo, o si ya tiene algo seleccionado (para poder deseleccionar).
+function facetIsUseful(key, filters) {
+  if (filters[key] && filters[key].length) return true;
+  const field = FACET_FIELDS.find(f => f.key === key);
+  const seen = new Set();
+  for (const sim of SIMS) {
+    let vals = field.get(sim);
+    if (vals == null) continue;
+    if (!Array.isArray(vals)) vals = [vals];
+    vals.forEach(v => seen.add(v));
+    if (seen.size >= 2) return true;
+  }
+  return false;
+}
+
+/* ── Cascada jerárquica (flexible) ──
+   Universidad ▸ Carrera ▸ Curso ▸ Asignatura.
+   · Niveles con una sola opción se autoseleccionan y se muestran como miga.
+   · Elegir un nivel profundo rellena sus ancestros (cascada flexible).
+   · Elegir/limpiar un nivel limpia los inferiores (se revalidan). */
+function cascadeOptions(key, sel) {
+  if (key === "universidad") return TAXONOMY.universidad;
+  if (key === "carrera")
+    return TAXONOMY.carrera.filter(c => !sel.universidad || c.universidad === sel.universidad);
+  const asigs = TAXONOMY.asignatura.filter(a => !sel.carrera || a.carrera === sel.carrera);
+  if (key === "curso") {
+    const ids = [...new Set(asigs.map(a => a.curso).filter(Boolean))];
+    return TAXONOMY.curso.filter(c => ids.includes(c.id));
+  }
+  return asigs.filter(a => !sel.curso || String(a.curso) === String(sel.curso));
+}
+
+function CascadeBar({ filters, setFilters, query, lang, t }) {
+  // selecciones efectivas nivel a nivel. Un nivel solo se colapsa a miga si
+  // tiene UNA opción en toda la taxonomía (p. ej. una única universidad).
+  // Si queda una sola opción por culpa de los filtros actuales, el selector
+  // se mantiene visible — si no, el usuario pierde el control para cambiarla.
+  const sel = {};
+  const render = [];
+  for (const key of CASCADE_LEVELS) {
+    const globalOpts = cascadeOptions(key, {});
+    const opts = cascadeOptions(key, sel);
+    const chosen = filters[key] && filters[key][0];
+    if (globalOpts.length === 1) {
+      sel[key] = globalOpts[0].id;
+      render.push({ key, kind: "crumb", label: facetValueLabel(key, globalOpts[0].id, lang) });
+      continue;
+    }
+    if (chosen) sel[key] = chosen;
+    render.push({ key, kind: "select", opts, chosen: chosen || "" });
+  }
+
+  // resultados si se eligiera esta opción (los niveles inferiores se descartan)
+  const countFor = (key, id) => {
+    const f = { ...filters };
+    const idx = CASCADE_LEVELS.indexOf(key);
+    for (let i = idx; i < CASCADE_LEVELS.length; i++) delete f[CASCADE_LEVELS[i]];
+    f[key] = [id];
+    return SIMS.filter(s => simPasses(s, f, query, null)).length;
+  };
+
+  const choose = (key, id) => {
+    setFilters(prev => {
+      const next = { ...prev };
+      const idx = CASCADE_LEVELS.indexOf(key);
+      for (let i = idx; i < CASCADE_LEVELS.length; i++) delete next[CASCADE_LEVELS[i]];
+      if (!id) return next;
+      next[key] = [id];
+      // relleno hacia arriba: un nivel profundo fija sus ancestros
+      if (key === "asignatura") {
+        const a = TAXONOMY.asignatura.find(x => x.id === id);
+        if (a && a.curso)   next.curso   = [a.curso];
+        if (a && a.carrera) next.carrera = [a.carrera];
+      }
+      if (next.carrera) {
+        const c = TAXONOMY.carrera.find(x => x.id === next.carrera[0]);
+        if (c) next.universidad = [c.universidad];
+      }
+      return next;
+    });
+  };
+
+  return (
+    <div className="cascade-bar">
+      {render.map((lvl, i) => (
+        <React.Fragment key={lvl.key}>
+          {i > 0 && <span className="cascade-sep">▸</span>}
+          {lvl.kind === "crumb" ? (
+            <span className="cascade-crumb">{lvl.label}</span>
+          ) : (
+            <select
+              className={`cascade-select ${lvl.chosen ? "has-value" : ""}`}
+              value={lvl.chosen}
+              onChange={e => choose(lvl.key, e.target.value)}
+              aria-label={facetName(lvl.key, lang)}
+            >
+              <option value="">{facetName(lvl.key, lang)} · {t.filterAll}</option>
+              {lvl.opts.map(o => (
+                <option key={o.id} value={o.id}>
+                  {facetValueLabel(lvl.key, o.id, lang)} ({countFor(lvl.key, o.id)})
+                </option>
+              ))}
+            </select>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+function FacetBar({ filters, setFilters, query, setQuery, lang, t, resultCount }) {
+  const toggle = (key, id) => {
+    setFilters(prev => {
+      const cur = new Set(prev[key] || []);
+      cur.has(id) ? cur.delete(id) : cur.add(id);
+      const next = { ...prev };
+      if (cur.size) next[key] = [...cur]; else delete next[key];
+      return next;
+    });
+  };
+  const clearAll = () => { setFilters({}); setQuery(""); };
+  const hasAny = query || Object.keys(filters).length > 0;
+
+  const visibleFacets = FACETS.filter(f =>
+    TRANSVERSAL_FACETS.includes(f.key) && facetIsUseful(f.key, filters));
+
+  return (
+    <div className="filter-bar">
+      <CascadeBar filters={filters} setFilters={setFilters} query={query} lang={lang} t={t} />
+      <div className="filter-search-row">
+        <input
+          className="filter-search"
+          type="search"
+          value={query}
+          placeholder={t.filterSearchPh}
+          onChange={e => setQuery(e.target.value)}
+        />
+        <span className="filter-count">{resultCount} {t.filterResults}</span>
+      </div>
+
+      {visibleFacets.map(f => {
+        const opts = facetOptions(f.key, filters, query, lang);
+        if (opts.length === 0) return null;
+        const sel = filters[f.key] || [];
+        return (
+          <div key={f.key} className="facet-group">
+            <span className="facet-label">{lang === "es" ? f.labelEs : f.labelEn}</span>
+            <div className="facet-chips">
+              {opts.map(o => (
+                <button
+                  key={o.id}
+                  className={`facet-chip ${sel.includes(o.id) ? "active" : ""}`}
+                  onClick={() => toggle(f.key, o.id)}
+                >
+                  {o.label}
+                  <span className="facet-chip-count">{o.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      {hasAny && (
+        <div className="filter-active-row">
+          <button className="filter-clear" onClick={clearAll}>✕ {t.filterClear}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ════════════ AÑADIR APUNTE (subida local) ════════════ */
+function AddNoteModal({ lang, t, onClose, onAdded, editing }) {
+  // editing: recurso existente (modo edición) o null/undefined (alta nueva).
+  // Al editar, el id y la ruta del archivo se conservan; el archivo solo
+  // cambia si se adjunta uno nuevo.
+  const isEs = lang === "es";
+  const [fileText, setFileText] = useState("");
+  const [fileExt,  setFileExt]  = useState("");
+  const [srcName,  setSrcName]  = useState("");
+  const [preview,  setPreview]  = useState(editing ? editing.file : "");
+  const [drag,     setDrag]     = useState(false);
+
+  const [titleEs, setTitleEs] = useState(editing ? editing.titleEs : "");
+  const [titleEn, setTitleEn] = useState(editing ? (editing.titleEn || "") : "");
+  const [descEs,  setDescEs]  = useState(editing ? (editing.bodyEs || "") : "");
+  const [subject, setSubject] = useState(editing ? editing.subject : (SUBJECTS[0] ? SUBJECTS[0].id : ""));
+  const [curso,   setCurso]   = useState(editing ? (editing.curso || "") : "");
+  const [profSel, setProfSel] = useState(editing ? (editing.profesor || "") : "");   // "" | id | "__new"
+  const [profNew, setProfNew] = useState("");
+  const [tagsStr, setTagsStr] = useState(editing ? (editing.tags || []).join(", ") : "");
+  const [tagsTouched, setTagsTouched] = useState(!!editing);   // al editar, respetar las existentes
+
+  const [publishing, setPublishing] = useState(false);
+  const [result,     setResult]     = useState(null);
+  const [serverOk,   setServerOk]   = useState(false);
+
+  const fsOk = ApuntesStore.supportsFS();
+
+  // Detectar el servidor de desarrollo (serve.py) para la pista de guardado
+  useEffect(() => {
+    let alive = true;
+    ApuntesStore.ping().then(ok => { if (alive) setServerOk(ok); });
+    return () => { alive = false; };
+  }, []);
+
+  const hint = serverOk ? t.addHintServer : fsOk ? t.addHintFS : t.addHintNoFS;
+
+  // Etiquetas predeterminadas según título y asignatura,
+  // hasta que el usuario edite el campo a mano.
+  useEffect(() => {
+    if (tagsTouched) return;
+    setTagsStr(suggestTags(titleEs, subject).join(", "));
+  }, [titleEs, subject, tagsTouched]);
+
+  function ingest(file) {
+    if (!file) return;
+    const name = file.name || "";
+    const ext = /\.svg$/i.test(name) ? "svg" : /\.html?$/i.test(name) ? "html" : "";
+    if (!ext) { alert(isEs ? "Solo se admiten archivos .svg o .html" : "Only .svg or .html files are allowed"); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      setFileText(text); setFileExt(ext); setSrcName(name);
+      setPreview("data:" + (ext === "svg" ? "image/svg+xml" : "text/html")
+        + ";charset=utf-8," + encodeURIComponent(text));
+      if (!titleEs) setTitleEs(name.replace(/\.(svg|html?)$/i, "").replace(/[-_]+/g, " "));
+    };
+    reader.readAsText(file);
+  }
+
+  const canPublish = (editing || fileText) && titleEs.trim() && subject && !publishing;
+
+  async function publish() {
+    if (!canPublish) return;
+    setPublishing(true);
+    const tags = tagsStr.split(",").map(s => s.trim()).filter(Boolean);
+    let profesor = null, profesorLabel = null;
+    if (profSel === "__new" && profNew.trim()) {
+      profesor = ApuntesStore.slugify(profNew); profesorLabel = profNew.trim();
+    } else if (profSel && profSel !== "__new") {
+      profesor = profSel;
+    }
+    const meta = {
+      titleEs: titleEs.trim(), titleEn: titleEn.trim(),
+      bodyEs: descEs.trim(), subject, curso: curso || null,
+      profesor, profesorLabel, tags,
+      level: editing ? (editing.level || 1) : 1,
+    };
+    try {
+      if (editing) {
+        const entry = await ApuntesStore.update(editing.id, meta, fileText || null, fileText ? fileExt : null);
+        setResult({ entry, mode: "edited", fileName: entry.file.split("/").pop() });
+        onAdded(entry);
+      } else {
+        const res = await ApuntesStore.save(meta, fileText, fileExt);
+        setResult(res);
+        onAdded(res.entry);
+      }
+    } catch (e) {
+      alert((isEs ? "Error al guardar: " : "Save error: ") + (e && e.message ? e.message : e));
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  const filesPath = "apuntes/files/" + (result ? result.fileName : "");
+
+  return (
+    <div className="add-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="add-panel">
+        <div className="add-header">
+          <div>
+            <h3>{editing ? t.editTitle : t.addTitle}</h3>
+            <div className="add-sub">{editing ? t.editSub : t.addSub}</div>
+          </div>
+          <button className="add-close" onClick={onClose} aria-label={t.addCancel}>✕</button>
+        </div>
+
+        {result ? (
+          <div className={`add-result ${["folder","server","edited"].includes(result.mode) ? "ok" : "warn"}`}>
+            {result.mode === "edited" ? (
+              <span>{t.editOk} <code>{filesPath}</code></span>
+            ) : result.mode === "folder" || result.mode === "server" ? (
+              <span>{t.addOkFolder} <code>{filesPath}</code> {t.addOkFolder2}</span>
+            ) : result.error ? (
+              <span>{t.addLocalCancel} <code>{filesPath}</code>.</span>
+            ) : (
+              <span>{t.addLocalNoFS} <code>{filesPath}</code>{t.addLocalNoFS2}</span>
+            )}
+            {!["folder","server","edited"].includes(result.mode) && (
+              <div>
+                <button className="add-dl"
+                  onClick={() => ApuntesStore.download(result.fileName, result.fileText, result.ext)}>
+                  ⬇ {t.addDownload}
+                </button>
+              </div>
+            )}
+            <div style={{marginTop:"12px"}}>
+              <button className="add-publish" onClick={onClose}>{isEs ? "Cerrar" : "Close"}</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="add-body">
+              <div className="add-fields">
+                <div className="add-field">
+                  <label>{isEs ? "Archivo" : "File"} <span className="req">*</span></label>
+                  <div
+                    className={`add-dropzone ${drag ? "drag" : ""}`}
+                    onClick={() => document.getElementById("add-file-input").click()}
+                    onDragOver={e => { e.preventDefault(); setDrag(true); }}
+                    onDragLeave={() => setDrag(false)}
+                    onDrop={e => { e.preventDefault(); setDrag(false); ingest(e.dataTransfer.files[0]); }}
+                  >
+                    {t.addDz}
+                    {srcName && <div className="dz-file">{srcName}</div>}
+                  </div>
+                  <input id="add-file-input" type="file" accept=".svg,.html,.htm"
+                    style={{display:"none"}} onChange={e => ingest(e.target.files[0])} />
+                </div>
+
+                <div className="add-field">
+                  <label>{t.addFldTitleEs} <span className="req">*</span></label>
+                  <input type="text" value={titleEs} onChange={e => setTitleEs(e.target.value)} />
+                </div>
+                <div className="add-field">
+                  <label>{t.addFldTitleEn}</label>
+                  <input type="text" value={titleEn} onChange={e => setTitleEn(e.target.value)} />
+                </div>
+                <div className="add-field">
+                  <label>{t.addFldDescEs}</label>
+                  <textarea value={descEs} onChange={e => setDescEs(e.target.value)} />
+                </div>
+
+                <div className="add-row2">
+                  <div className="add-field">
+                    <label>{t.addFldSubject} <span className="req">*</span></label>
+                    <select value={subject} onChange={e => setSubject(e.target.value)}>
+                      {SUBJECTS.map(s => (
+                        <option key={s.id} value={s.id}>{isEs ? s.labelEs : s.labelEn}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="add-field">
+                    <label>{t.addFldCurso}</label>
+                    <select value={curso} onChange={e => setCurso(e.target.value)}>
+                      <option value="">{t.addCursoNone}</option>
+                      {TAXONOMY.curso.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="add-field">
+                  <label>{t.addFldProf}</label>
+                  <select value={profSel} onChange={e => setProfSel(e.target.value)}>
+                    <option value="">{t.addProfNone}</option>
+                    {TAXONOMY.profesor.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                    <option value="__new">{t.addProfNew}</option>
+                  </select>
+                </div>
+                {profSel === "__new" && (
+                  <div className="add-field">
+                    <label>{t.addFldProfPh}</label>
+                    <input type="text" value={profNew} onChange={e => setProfNew(e.target.value)} placeholder={t.addFldProfPh} />
+                  </div>
+                )}
+
+                <div className="add-field">
+                  <label>{t.addFldTags}</label>
+                  <input type="text" value={tagsStr}
+                    onChange={e => { setTagsTouched(true); setTagsStr(e.target.value); }}
+                    placeholder="Vigas, Esquema, SVG" />
+                </div>
+              </div>
+
+              <div className="add-preview">
+                <span className="add-preview-label">{t.addPreview}</span>
+                <div className="add-preview-box">
+                  {preview
+                    ? <iframe title="preview" src={preview} sandbox="allow-scripts allow-same-origin" />
+                    : <div className="dz-empty">{t.addDzEmpty}</div>}
+                </div>
+              </div>
+            </div>
+
+            <div className="add-footer">
+              <span className="add-hint">{hint}</span>
+              <div className="add-actions">
+                <button className="btn-ghost" onClick={onClose}>{t.addCancel}</button>
+                <button className="add-publish" disabled={!canPublish} onClick={publish}>
+                  {publishing ? t.addPublishing : (editing ? t.addSave : t.addPublish)}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════ APP ════════════ */
+function App() {
+  const [lang,     setLang]     = useState("es");
+  const [theme,    setTheme]    = useState("blueprint");
+  const [density,  setDensity]  = useState("comfortable");
+  const [filters,  setFilters]  = useState({});   // { facetKey: [id, …] }
+  const [query,    setQuery]    = useState("");
+  const [showAdd,  setShowAdd]  = useState(false);
+  const [editing,  setEditing]  = useState(null);   // apunte en edición (o null)
+  const [adminMode, setAdminMode] = useState(false); // serve.py activo → gestión
+  const [version,  setVersion]  = useState(0);     // fuerza re-render al mutar SIMS
+  const loadedRef = useRef(false);
+
+  const t = T[lang];
+
+  // ── Cargar apuntes de la carpeta apuntes/ (y locales) al arrancar ──
+  useEffect(() => {
+    if (loadedRef.current) return;   // evita doble carga (StrictMode)
+    loadedRef.current = true;
+    ApuntesStore.load().then(() => setVersion(v => v + 1)).catch(() => {});
+    ApuntesStore.ping().then(setAdminMode).catch(() => {});
+  }, []);
+
+  // ── Borrar apunte (modo gestor): confirmación + papelera ──
+  const handleDelete = (sim) => {
+    const title = lang === "es" ? sim.titleEs : sim.titleEn;
+    if (!window.confirm(`"${title}" ${t.delConfirm}`)) return;
+    ApuntesStore.remove(sim.id)
+      .then(() => setVersion(v => v + 1))
+      .catch(e => alert("Error: " + (e && e.message ? e.message : e)));
+  };
+
+  useEffect(() => {
+    document.documentElement.dataset.theme   = theme;
+    document.documentElement.dataset.density = density;
+    document.documentElement.lang            = lang;
+  }, [theme, density, lang]);
+
+  // ── Leer filtros de la URL al montar (vistas compartibles) ──
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const f = {};
+    FACET_FIELDS.forEach(({ key }) => {
+      const v = p.get(key);
+      if (v) f[key] = v.split(",");
+    });
+    if (Object.keys(f).length) setFilters(f);
+    if (p.get("q")) setQuery(p.get("q"));
+  }, []);
+
+  // ── Reflejar filtros en la URL (sin recargar) ──
+  useEffect(() => {
+    const p = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => { if (v && v.length) p.set(k, v.join(",")); });
+    if (query) p.set("q", query);
+    const qs = p.toString();
+    window.history.replaceState(null, "", qs ? "?" + qs : window.location.pathname);
+  }, [filters, query]);
+
+  const filteredSims = SIMS.filter(s => simPasses(s, filters, query, null));
+
+  // Los apuntes (§04) son los recursos reales tipo "apunte" del manifiesto,
+  // del más reciente al más antiguo. Comparten la faceta "asignatura" y la
+  // búsqueda con §02.
+  const asigSel = filters.asignatura || [];
+  const filteredNotes = SIMS
+    .filter(s => s.tipo === "apunte")
+    .filter(n => {
+      if (asigSel.length && !asigSel.includes(n.subject)) return false;
+      if (query) {
+        const hay = [n.titleEs, n.titleEn, ...(n.tags || [])].join(" ").toLowerCase();
+        if (!hay.includes(query.toLowerCase())) return false;
+      }
+      return true;
+    })
+    .slice()
+    .reverse();
+
+  // El glosario (§05) también responde al filtro de asignatura.
+  const filteredGlossary = GLOSSARY.filter(g =>
+    !asigSel.length || asigSel.includes(g.subjectId));
+
+  return (
+    <>
+      {/* ── NAV ── */}
+      <nav className="nav">
+        <div className="wrap nav-inner">
+          <a href="#" className="nav-logo">Palanca<span>.</span></a>
+
+          <ul className="nav-links">
+            <li><a href="#subjects">{t.navSubjects}</a></li>
+            <li><a href="#mechanisms">{t.navMech}</a></li>
+            <li><a href="#notes">{t.navNotes}</a></li>
+            <li><a href="#projects">{t.navProjects}</a></li>
+            <li><a href="#glossary">{t.navGlossary}</a></li>
+          </ul>
+
+          <div className="nav-controls">
+            <button className={`ctrl-btn hide-sm ${theme==="blueprint"?"active":""}`}
+              onClick={() => setTheme("blueprint")}>{t.themeBp}</button>
+            <button className={`ctrl-btn hide-sm ${theme==="lab"?"active":""}`}
+              onClick={() => setTheme("lab")}>{t.themeLab}</button>
+            <button className={`ctrl-btn hide-sm ${theme==="paper"?"active":""}`}
+              onClick={() => setTheme("paper")}>{t.themePaper}</button>
+            <div className="ctrl-sep" />
+            <button className={`ctrl-btn hide-sm ${density==="compact"?"active":""}`}
+              onClick={() => setDensity(d => d==="comfortable"?"compact":"comfortable")}>
+              {density==="comfortable" ? t.densComp : t.densComf}
+            </button>
+            <div className="ctrl-sep" />
+            <button className="ctrl-btn" onClick={() => setLang(l => l==="es"?"en":"es")}>
+              {t.langToggle}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* ── HERO ── */}
+      <section className="hero">
+        <div className="wrap" style={{display:"contents"}}>
+          <div className="hero-left" style={{padding:`0 var(--pad-inline)`}}>
+            <div>
+              <p style={{fontFamily:"var(--font-mono)",fontSize:".65rem",color:"var(--ink-faint)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"16px"}}>
+                {t.heroSup}
+              </p>
+              <h1>
+                {t.heroTitle[0]}<em>{t.heroTitle[1]}</em>{t.heroTitle[2]}
+              </h1>
+              <p className="hero-lede" style={{marginTop:"20px"}}>{t.heroLede}</p>
+            </div>
+            <div className="hero-actions">
+              <button className="btn-primary" onClick={() => document.getElementById("mechanisms")?.scrollIntoView({behavior:"smooth"})}>
+                {t.heroCta1}
+              </button>
+              <button className="btn-ghost" onClick={() => document.getElementById("notes")?.scrollIntoView({behavior:"smooth"})}>
+                {t.heroCta2}
+              </button>
+            </div>
+            <div className="hero-stats">
+              <div>
+                <div className="hero-stat-val">{SIMS.length}</div>
+                <div className="hero-stat-label">{t.heroStatSims}</div>
+              </div>
+              <div>
+                <div className="hero-stat-val">{SUBJECTS.length}</div>
+                <div className="hero-stat-label">{t.heroStatSubj}</div>
+              </div>
+              <div>
+                <div className="hero-stat-val">0€</div>
+                <div className="hero-stat-label">{t.heroStatPrice}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-right" style={{marginRight:"var(--pad-inline)"}}>
+            <span className="mech-label">{t.mechLabel}</span>
+            <HeroMech theme={theme} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── § 01 — QUÉ ENCONTRARÁS ── */}
+      <section id="what">
+        <div className="wrap">
+          <div className="section-head">
+            <div className="section-num">{t.s0num}</div>
+            <div>
+              <h2 className="section-title">
+                <span className="section-kicker">{t.s0kicker}</span>{t.s0title}
+              </h2>
+              <p className="section-lede">{t.s0lede}</p>
+            </div>
+          </div>
+          <div className="format-grid">
+            {FORMATS.map(f => (
+              <div key={f.titleEs} className="format-card">
+                <div className="format-icon">{f.icon}</div>
+                <div className="format-title">{lang==="es"?f.titleEs:f.titleEn}</div>
+                <div className="format-body">{lang==="es"?f.bodyEs:f.bodyEn}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── § 02 — POR ASIGNATURA ── */}
+      <section id="subjects">
+        <div className="wrap">
+          <div className="section-head">
+            <div className="section-num">{t.s1num}</div>
+            <div>
+              <h2 className="section-title">
+                <span className="section-kicker">{t.s1kicker}</span>{t.s1title}
+              </h2>
+              <p className="section-lede">{t.s1lede}</p>
+              <div className="section-head-actions">
+                {/* Solo con serve.py: en la web publicada las aportaciones van por el formulario. */}
+                {adminMode && <button className="btn-add" onClick={() => setShowAdd(true)}>{t.addBtn}</button>}
+              </div>
+            </div>
+          </div>
+          <FacetBar
+            filters={filters}
+            setFilters={setFilters}
+            query={query}
+            setQuery={setQuery}
+            lang={lang}
+            t={t}
+            resultCount={filteredSims.length}
+          />
+          {filteredSims.length === 0 ? (
+            <div className="filter-empty">{t.filterNone}</div>
+          ) : (
+            <div className="sim-grid">
+              {filteredSims.map(sim => (
+                <SimCard key={sim.id} sim={sim} lang={lang} t={t}
+                  admin={adminMode} onEdit={setEditing} onDelete={handleDelete} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── § 03 — MECANISMOS ── */}
+      <section id="mechanisms">
+        <div className="wrap">
+          <div className="section-head">
+            <div className="section-num">{t.s2num}</div>
+            <div>
+              <h2 className="section-title">
+                <span className="section-kicker">{t.s2kicker}</span>{t.s2title}
+              </h2>
+              <p className="section-lede">{t.s2lede}</p>
+            </div>
+          </div>
+          <div className="sim-grid">
+            {SIMS.filter(s => ["miller-3d","coriolis","corredera-barra","cortantes-flectores","barra-articulada"].includes(s.id))
+                 .map(sim => (
+                   <SimCard key={sim.id} sim={sim} lang={lang} t={t} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── § 04 — APUNTES ── */}
+      <section id="notes">
+        <div className="wrap">
+          <div className="section-head">
+            <div className="section-num">{t.s3num}</div>
+            <div>
+              <h2 className="section-title">
+                <span className="section-kicker">{t.s3kicker}</span>{t.s3title}
+              </h2>
+              <p className="section-lede">{t.s3lede}</p>
+            </div>
+          </div>
+          <div className="notes-list">
+            {filteredNotes.length === 0 ? (
+              <div className="filter-empty">{t.notesEmpty}</div>
+            ) : filteredNotes.map((n, i) => {
+              const subj = SUBJECTS.find(s => s.id === n.subject);
+              return (
+                <div key={n.id} className="note-row"
+                  role="button" tabIndex={0}
+                  onClick={() => SimOverlay.open(n.id, lang)}
+                  onKeyDown={e => { if (e.key === "Enter") SimOverlay.open(n.id, lang); }}
+                >
+                  <div>
+                    <div className="note-meta">
+                      {subj ? (lang==="es"?subj.labelEs:subj.labelEn) : ""} · {(n.formato || "svg").toUpperCase()}
+                    </div>
+                    <div className="note-title">{lang==="es"?n.titleEs:n.titleEn}</div>
+                  </div>
+                  <span className={`note-badge ${i===0?"new":""}`}>{i===0?"NUEVO":(n.formato || "svg").toUpperCase()}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── § 05 — GLOSARIO ── */}
+      <section id="glossary">
+        <div className="wrap">
+          <div className="section-head">
+            <div className="section-num">{t.s4num}</div>
+            <div>
+              <h2 className="section-title">
+                <span className="section-kicker">{t.s4kicker}</span>{t.s4title}
+              </h2>
+              <p className="section-lede">{t.s4lede}</p>
+            </div>
+          </div>
+          {filteredGlossary.length === 0 ? (
+            <div className="filter-empty">{t.filterNone}</div>
+          ) : (
+            <div className="glossary-grid">
+              {filteredGlossary.map(g => {
+                const subj = SUBJECTS.find(s => s.id === g.subjectId);
+                return (
+                  <div key={g.subjectId + g.sym} className="gloss-card">
+                    <div className="gloss-sym">{g.sym}</div>
+                    <div>
+                      <div className="gloss-sub">{subj ? (lang==="es"?subj.labelEs:subj.labelEn) : ""}</div>
+                      <div className="gloss-term">{lang==="es"?g.termEs:g.termEn}</div>
+                      <div className="gloss-def">{lang==="es"?g.defEs:g.defEn}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── § 06 — PROYECTOS ── */}
+      <section id="projects">
+        <div className="wrap">
+          <div className="section-head">
+            <div className="section-num">{t.s5num}</div>
+            <div>
+              <h2 className="section-title">
+                <span className="section-kicker">{t.s5kicker}</span>{t.s5title}
+              </h2>
+              <p className="section-lede">{t.s5lede}</p>
+            </div>
+          </div>
+          <div className="project-grid">
+            {PROJECTS.map(p => (
+              <div key={p.tag + p.titleEs} className="project-card">
+                <div className="project-tag">{p.tag}</div>
+                <div className="project-title">{lang==="es"?p.titleEs:p.titleEn}</div>
+                <div className="project-body">{lang==="es"?p.bodyEs:p.bodyEn}</div>
+                <div className="project-meta">
+                  {p.meta.map(m => <span key={m} className="project-chip">{m}</span>)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer>
+        <div className="wrap footer-inner">
+          <div className="footer-logo">Palanca<span>.</span></div>
+          <span className="footer-copy">{t.footerCopy}</span>
+          <ul className="footer-links">
+            <li><a href="#what">{t.navSubjects}</a></li>
+            <li><a href="#mechanisms">{t.navMech}</a></li>
+            <li><a href="#notes">{t.navNotes}</a></li>
+            <li><a href="aviso-legal.html">{t.footerLegal}</a></li>
+          </ul>
+        </div>
+      </footer>
+
+      {(showAdd || editing) && (
+        <AddNoteModal
+          key={editing ? editing.id : "new"}
+          lang={lang}
+          t={t}
+          editing={editing}
+          onClose={() => { setShowAdd(false); setEditing(null); }}
+          onAdded={() => setVersion(v => v + 1)}
+        />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

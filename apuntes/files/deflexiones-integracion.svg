@@ -1,0 +1,60 @@
+<svg viewBox="0 0 880 660" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'Cascadia Code',Consolas,monospace">
+  <rect width="880" height="660" fill="#f7f0d9"/>
+  <text x="30" y="42" fill="#0d2440" font-size="22" font-weight="bold">DEFLEXIÓN DE VIGAS — integrando la ecuación de la elástica</text>
+  <text x="30" y="64" fill="#b64a2a" font-size="13">EI·y'' = M(x) → dos integraciones → dos constantes → dos condiciones de contorno</text>
+
+  <!-- cadena de derivadas -->
+  <rect x="30" y="86" width="820" height="72" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="112" fill="#0d2440" font-size="13" font-weight="bold">LA CADENA (memorízala: subir = integrar, bajar = derivar)</text>
+  <text x="48" y="140" fill="#b64a2a" font-size="14">EI·y⁗ = −q   →   EI·y‴ = V   →   EI·y″ = M   →   EI·y′ = θ (giro)   →   y = flecha</text>
+
+  <!-- viga deformada -->
+  <g>
+    <line x1="90" y1="250" x2="430" y2="250" stroke="#0d2440" stroke-width="1" stroke-dasharray="5 4"/>
+    <path d="M 90 250 Q 260 330 430 250" fill="none" stroke="#b64a2a" stroke-width="3"/>
+    <path d="M 90 250 l -11 20 h 22 z" fill="none" stroke="#0d2440" stroke-width="2"/>
+    <circle cx="430" cy="260" r="9" fill="none" stroke="#0d2440" stroke-width="2"/>
+    <line x1="400" y1="272" x2="460" y2="272" stroke="#0d2440" stroke-width="2"/>
+    <line x1="260" y1="250" x2="260" y2="290" stroke="#b64a2a" stroke-width="1.5"/>
+    <text x="268" y="278" fill="#b64a2a" font-size="13">y (flecha)</text>
+    <path d="M 90 250 l 40 -14" stroke="#0d2440" stroke-width="1.5"/>
+    <path d="M 108 250 A 20 20 0 0 0 122 243" fill="none" stroke="#0d2440" stroke-width="1.2"/>
+    <text x="118" y="236" fill="#0d2440" font-size="13">θ</text>
+    <text x="120" y="206" fill="#0d2440" font-size="13">y &gt; 0 hacia abajo (convenio habitual)</text>
+  </g>
+
+  <!-- condiciones de contorno -->
+  <rect x="480" y="180" width="370" height="150" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="498" y="206" fill="#0d2440" font-size="13" font-weight="bold">CONDICIONES DE CONTORNO</text>
+  <text x="498" y="232" fill="#0d2440" font-size="12">Apoyo simple:  y = 0   (θ libre)</text>
+  <text x="498" y="256" fill="#0d2440" font-size="12">Empotramiento:  y = 0  y  θ = 0</text>
+  <text x="498" y="280" fill="#0d2440" font-size="12">Extremo libre:  M = 0  y  V = 0</text>
+  <text x="498" y="308" fill="#b64a2a" font-size="12">Simetría (centro del vano):  θ = 0</text>
+
+  <!-- metodo -->
+  <rect x="30" y="360" width="400" height="200" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="386" fill="#0d2440" font-size="13" font-weight="bold">MÉTODO (5 pasos)</text>
+  <text x="48" y="412" fill="#0d2440" font-size="12">1· Reacciones por equilibrio global.</text>
+  <text x="48" y="436" fill="#0d2440" font-size="12">2· M(x) por tramos (un corte por tramo).</text>
+  <text x="48" y="460" fill="#0d2440" font-size="12">3· Integrar EI·y″ = M(x) → EI·y′ = ∫M + C₁</text>
+  <text x="48" y="484" fill="#0d2440" font-size="12">4· Integrar otra vez → EI·y = ∫∫M + C₁x + C₂</text>
+  <text x="48" y="508" fill="#0d2440" font-size="12">5· C₁, C₂ con las condiciones de contorno.</text>
+  <text x="48" y="538" fill="#b64a2a" font-size="12">Con varios tramos: además continuidad de</text>
+  <text x="48" y="554" fill="#b64a2a" font-size="12">y y de θ en la frontera entre tramos.</text>
+
+  <!-- casos tipo -->
+  <rect x="450" y="360" width="400" height="200" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="468" y="386" fill="#0d2440" font-size="13" font-weight="bold">CASOS TIPO (para comprobar tu resultado)</text>
+  <text x="468" y="414" fill="#0d2440" font-size="12">Biapoyada + P centro:</text>
+  <text x="486" y="434" fill="#b64a2a" font-size="13">ymáx = P·L³/48EI    θ = P·L²/16EI</text>
+  <text x="468" y="460" fill="#0d2440" font-size="12">Biapoyada + q uniforme:</text>
+  <text x="486" y="480" fill="#b64a2a" font-size="13">ymáx = 5qL⁴/384EI    θ = qL³/24EI</text>
+  <text x="468" y="506" fill="#0d2440" font-size="12">Voladizo + P en punta:</text>
+  <text x="486" y="526" fill="#b64a2a" font-size="13">ymáx = P·L³/3EI    θ = P·L²/2EI</text>
+  <text x="468" y="550" fill="#0d2440" font-size="12">Voladizo + q: ymáx = qL⁴/8EI</text>
+
+  <!-- avisos -->
+  <text x="30" y="592" fill="#0d2440" font-size="12">⚠ La flecha va con L³ o L⁴: duplicar la luz multiplica la flecha por 8 o por 16. Es el término que manda.</text>
+  <text x="30" y="614" fill="#0d2440" font-size="12">⚠ Solo válido en régimen elástico y pequeñas deformaciones (y′ ≪ 1), que es donde se usa la ecuación linealizada.</text>
+  <text x="30" y="636" fill="#b64a2a" font-size="12">Comprobación rápida: la flecha máxima cae donde θ = 0.</text>
+</svg>

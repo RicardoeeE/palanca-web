@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Estructura de la Alúmina (Al₂O₃)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .container { display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header {
+            padding: 1rem 1.5rem;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+        h1 { font-size: 1.3rem; font-weight: 500; margin-bottom: 0.25rem; }
+        .subtitle { font-size: 0.85rem; opacity: 0.7; }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            min-height: 300px;
+            touch-action: none;
+        }
+        canvas { display: block; }
+        
+        /* Botón toggle para móvil */
+        .toggle-panel {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #2563eb;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+        .toggle-panel:active { transform: scale(0.95); }
+        
+        .sidebar {
+            width: 320px;
+            background: rgba(0,0,0,0.5);
+            padding: 1.25rem;
+            overflow-y: auto;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .section { margin-bottom: 1.25rem; }
+        .section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+            margin-bottom: 0.6rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .legend-sphere { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; }
+        .sphere-o { background: radial-gradient(circle at 30% 30%, #7cb3ff, #2563eb); }
+        .sphere-al { background: radial-gradient(circle at 30% 30%, #888, #333); }
+        .sphere-hueco { background: transparent; border: 2px dashed rgba(255,255,255,0.4); }
+        .legend-text { font-size: 0.85rem; }
+        .legend-text small { display: block; opacity: 0.6; font-size: 0.7rem; }
+        
+        .formula-box {
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(37, 99, 235, 0.4);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .formula { font-size: 1.4rem; font-weight: 600; }
+        .formula sub { font-size: 0.7em; }
+        
+        .layer-controls { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 0.75rem; }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+        }
+        .control-row label { font-size: 0.85rem; flex: 1; }
+        
+        .layer-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .layer-dot.base { background: #2563eb; }
+        .layer-dot.mid { background: #22c55e; }
+        .layer-dot.top { background: #f59e0b; }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #2563eb;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #2563eb;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+        .data-item { background: rgba(255,255,255,0.05); padding: 0.6rem; border-radius: 6px; }
+        .data-label { font-size: 0.65rem; text-transform: uppercase; opacity: 0.5; margin-bottom: 0.2rem; }
+        .data-value { font-size: 0.9rem; font-weight: 500; }
+        
+        .instructions {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        
+        .controls { display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        /* ============================================
+           TABLET (iPad) - max 1024px
+           ============================================ */
+        @media (max-width: 1024px) {
+            .sidebar { width: 280px; padding: 1rem; }
+            h1 { font-size: 1.2rem; }
+        }
+        
+        /* ============================================
+           MÓVIL - max 768px
+           ============================================ */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            #canvas-container {
+                height: 55vh;
+                min-height: 280px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 45vh;
+                border-left: none;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                padding: 1rem;
+            }
+            
+            header { padding: 0.75rem 1rem; }
+            h1 { font-size: 1.1rem; }
+            .subtitle { font-size: 0.75rem; }
+            
+            .section { margin-bottom: 1rem; }
+            
+            /* Grid de controles en móvil */
+            .mobile-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+            
+            .instructions { display: none; }
+        }
+        
+        /* ============================================
+           MÓVIL PEQUEÑO - max 480px
+           ============================================ */
+        @media (max-width: 480px) {
+            #canvas-container {
+                height: 50vh;
+            }
+            
+            .sidebar {
+                max-height: 50vh;
+            }
+            
+            h1 { font-size: 1rem; }
+            
+            .legend-item { padding: 0.4rem 0; }
+            .legend-sphere { width: 18px; height: 18px; }
+            .legend-text { font-size: 0.8rem; }
+            
+            .data-grid { gap: 0.3rem; }
+            .data-item { padding: 0.5rem; }
+            .data-value { font-size: 0.85rem; }
+            
+            .control-row label { font-size: 0.8rem; }
+        }
+        
+        /* ============================================
+           LANDSCAPE en móvil
+           ============================================ */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .main-content {
+                flex-direction: row;
+            }
+            
+            #canvas-container {
+                height: auto;
+                flex: 1;
+            }
+            
+            .sidebar {
+                width: 45%;
+                max-width: 320px;
+                max-height: none;
+                height: calc(100vh - 60px);
+                border-top: none;
+                border-left: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            header { padding: 0.5rem 1rem; }
+            h1 { font-size: 1rem; }
+            .subtitle { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Estructura cristalina de la Alúmina (Al₂O₃)</h1>
+            <div class="subtitle">HCP de O²⁻ con Al³⁺ en 2/3 de intersticios octaédricos</div>
+        </header>
+        
+        <div class="main-content">
+            <div id="canvas-container"></div>
+            
+            <div class="sidebar" id="sidebar">
+                <div class="section">
+                    <div class="formula-box">
+                        <div class="formula">Al<sub>2</sub>O<sub>3</sub></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Leyenda</div>
+                    <div class="legend-item">
+                        <div class="legend-sphere sphere-o"></div>
+                        <div class="legend-text">O²⁻ <small>r = 0.136 nm</small></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-sphere sphere-al"></div>
+                        <div class="legend-text">Al³⁺ <small>r = 0.056 nm</small></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-sphere sphere-hueco"></div>
+                        <div class="legend-text">Hueco <small>1/3 oct. vacíos</small></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Capas O²⁻</div>
+                    <div class="layer-controls">
+                        <div class="control-row">
+                            <div class="layer-dot base"></div>
+                            <label>Capa A (z=0)</label>
+                            <input type="checkbox" id="layerA" checked>
+                        </div>
+                        <div class="control-row">
+                            <div class="layer-dot mid"></div>
+                            <label>Capa B (z=c/2)</label>
+                            <input type="checkbox" id="layerB" checked>
+                        </div>
+                        <div class="control-row">
+                            <div class="layer-dot top"></div>
+                            <label>Capa A' (z=c)</label>
+                            <input type="checkbox" id="layerA2" checked>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Controles</div>
+                    <div class="controls">
+                        <div class="control-row">
+                            <label>Opacidad O²⁻</label>
+                            <input type="range" id="oxygenOpacity" min="0.2" max="1" step="0.1" value="0.7">
+                        </div>
+                        <div class="control-row">
+                            <label>Mostrar Al³⁺</label>
+                            <input type="checkbox" id="showAl" checked>
+                        </div>
+                        <div class="control-row">
+                            <label>Mostrar huecos</label>
+                            <input type="checkbox" id="showHoles" checked>
+                        </div>
+                        <div class="control-row">
+                            <label>Mostrar celda</label>
+                            <input type="checkbox" id="showCell" checked>
+                        </div>
+                        <div class="control-row">
+                            <label>Auto-rotación</label>
+                            <input type="checkbox" id="autoRotate" checked>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Parámetros</div>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">a = 2R</div>
+                            <div class="data-value">0.272 nm</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">c/a</div>
+                            <div class="data-value">1.633</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Coord. Al</div>
+                            <div class="data-value">6 (oct)</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">r(Al)/r(O)</div>
+                            <div class="data-value">0.412</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    🖱️ Arrastra para rotar • Scroll/Pinch para zoom
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/vendor/three.min.js"></script>
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE ESCENA
+        // ============================================
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+        
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+        
+        // Iluminación
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight1.position.set(5, 10, 5);
+        scene.add(dirLight1);
+        const dirLight2 = new THREE.DirectionalLight(0x4488ff, 0.3);
+        dirLight2.position.set(-5, -5, -5);
+        scene.add(dirLight2);
+        
+        // ============================================
+        // PARÁMETROS GEOMÉTRICOS
+        // ============================================
+        const R = 1.0;
+        const a = 2 * R;
+        const c = a * Math.sqrt(8/3);
+        const R_Al = 0.056 / 0.136;
+        const GB = (2 * R) / Math.sqrt(3);
+        
+        // ============================================
+        // GRUPOS
+        // ============================================
+        const layerAGroup = new THREE.Group();
+        const layerBGroup = new THREE.Group();
+        const layerA2Group = new THREE.Group();
+        const aluminumGroup = new THREE.Group();
+        const holeGroup = new THREE.Group();
+        const cellGroup = new THREE.Group();
+        
+        scene.add(layerAGroup, layerBGroup, layerA2Group, aluminumGroup, holeGroup, cellGroup);
+        
+        // ============================================
+        // MATERIALES
+        // ============================================
+        const matLayerA = new THREE.MeshPhongMaterial({ color: 0x2563eb, transparent: true, opacity: 0.7, shininess: 100 });
+        const matLayerB = new THREE.MeshPhongMaterial({ color: 0x22c55e, transparent: true, opacity: 0.7, shininess: 100 });
+        const matLayerA2 = new THREE.MeshPhongMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.7, shininess: 100 });
+        const aluminumMaterial = new THREE.MeshPhongMaterial({ color: 0x555555, shininess: 80 });
+        const holeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.5 });
+        
+        // Geometrías
+        const oxygenGeometry = new THREE.SphereGeometry(R * 0.85, 32, 32);
+        const aluminumGeometry = new THREE.SphereGeometry(R_Al * 0.85, 24, 24);
+        const holeGeometry = new THREE.SphereGeometry(R_Al * 0.6, 12, 12);
+        
+        const centerY = c / 2;
+        
+        // ============================================
+        // CAPA A (z = 0): 7 oxígenos
+        // ============================================
+        const sphereA0 = new THREE.Mesh(oxygenGeometry, matLayerA);
+        sphereA0.position.set(0, -centerY, 0);
+        layerAGroup.add(sphereA0);
+        
+        for (let i = 0; i < 6; i++) {
+            const angle = i * (Math.PI / 3);
+            const sphere = new THREE.Mesh(oxygenGeometry, matLayerA);
+            sphere.position.set(a * Math.cos(angle), -centerY, a * Math.sin(angle));
+            layerAGroup.add(sphere);
+        }
+        
+        // ============================================
+        // CAPA B (z = c/2): 3 oxígenos CENTRADOS
+        // ============================================
+        const anglesB = [Math.PI/6, Math.PI/6 + 2*Math.PI/3, Math.PI/6 + 4*Math.PI/3];
+        anglesB.forEach(angle => {
+            const sphere = new THREE.Mesh(oxygenGeometry, matLayerB);
+            sphere.position.set(GB * Math.cos(angle), c/2 - centerY, GB * Math.sin(angle));
+            layerBGroup.add(sphere);
+        });
+        
+        // ============================================
+        // CAPA A' (z = c): 7 oxígenos
+        // ============================================
+        const sphereA2_0 = new THREE.Mesh(oxygenGeometry, matLayerA2);
+        sphereA2_0.position.set(0, c - centerY, 0);
+        layerA2Group.add(sphereA2_0);
+        
+        for (let i = 0; i < 6; i++) {
+            const angle = i * (Math.PI / 3);
+            const sphere = new THREE.Mesh(oxygenGeometry, matLayerA2);
+            sphere.position.set(a * Math.cos(angle), c - centerY, a * Math.sin(angle));
+            layerA2Group.add(sphere);
+        }
+        
+        // ============================================
+        // INTERSTICIOS OCTAÉDRICOS
+        // ============================================
+        const octRadius = GB * 0.8;
+        
+        [
+            { y: c/4, angles: [0, 2*Math.PI/3, 4*Math.PI/3], occupied: [true, true, false] },
+            { y: 3*c/4, angles: [Math.PI/3, Math.PI, 5*Math.PI/3], occupied: [true, false, true] }
+        ].forEach(layer => {
+            layer.angles.forEach((angle, i) => {
+                const x = octRadius * Math.cos(angle);
+                const z = octRadius * Math.sin(angle);
+                if (layer.occupied[i]) {
+                    const al = new THREE.Mesh(aluminumGeometry, aluminumMaterial);
+                    al.position.set(x, layer.y - centerY, z);
+                    aluminumGroup.add(al);
+                } else {
+                    const hole = new THREE.Mesh(holeGeometry, holeMaterial);
+                    hole.position.set(x, layer.y - centerY, z);
+                    holeGroup.add(hole);
+                }
+            });
+        });
+        
+        // ============================================
+        // CELDA UNITARIA
+        // ============================================
+        const cellMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 });
+        const hexVertices = [];
+        for (let i = 0; i < 6; i++) {
+            const angle = i * (Math.PI / 3);
+            hexVertices.push({ x: a * Math.cos(angle), z: a * Math.sin(angle) });
+        }
+        
+        // Bases y aristas
+        [0, c].forEach(y => {
+            for (let i = 0; i < 6; i++) {
+                const v1 = hexVertices[i], v2 = hexVertices[(i + 1) % 6];
+                const geom = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(v1.x, y - centerY, v1.z),
+                    new THREE.Vector3(v2.x, y - centerY, v2.z)
+                ]);
+                cellGroup.add(new THREE.Line(geom, cellMaterial));
+            }
+        });
+        
+        hexVertices.forEach(v => {
+            const geom = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(v.x, -centerY, v.z),
+                new THREE.Vector3(v.x, c - centerY, v.z)
+            ]);
+            cellGroup.add(new THREE.Line(geom, cellMaterial));
+        });
+        
+        // Plano medio
+        const midMat = new THREE.LineBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.2 });
+        for (let i = 0; i < 6; i++) {
+            const v1 = hexVertices[i], v2 = hexVertices[(i + 1) % 6];
+            const geom = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(v1.x, c/2 - centerY, v1.z),
+                new THREE.Vector3(v2.x, c/2 - centerY, v2.z)
+            ]);
+            cellGroup.add(new THREE.Line(geom, midMat));
+        }
+        
+        // Triángulo capa B
+        const triMat = new THREE.LineBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.4 });
+        for (let i = 0; i < 3; i++) {
+            const a1 = anglesB[i], a2 = anglesB[(i + 1) % 3];
+            const geom = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(GB * Math.cos(a1), c/2 - centerY, GB * Math.sin(a1)),
+                new THREE.Vector3(GB * Math.cos(a2), c/2 - centerY, GB * Math.sin(a2))
+            ]);
+            cellGroup.add(new THREE.Line(geom, triMat));
+        }
+        
+        // ============================================
+        // CONTROLES (Mouse + Touch)
+        // ============================================
+        let isDragging = false;
+        let prevPos = { x: 0, y: 0 };
+        let rotY = 0.5, rotX = 0.4;
+        let autoRotate = true;
+        let zoom = 8;
+        let pinchStartDist = 0;
+        
+        // Mouse
+        renderer.domElement.addEventListener('mousedown', e => {
+            isDragging = true;
+            prevPos = { x: e.clientX, y: e.clientY };
+        });
+        
+        renderer.domElement.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            rotY += (e.clientX - prevPos.x) * 0.01;
+            rotX += (e.clientY - prevPos.y) * 0.01;
+            rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotX));
+            prevPos = { x: e.clientX, y: e.clientY };
+        });
+        
+        renderer.domElement.addEventListener('mouseup', () => isDragging = false);
+        renderer.domElement.addEventListener('mouseleave', () => isDragging = false);
+        
+        renderer.domElement.addEventListener('wheel', e => {
+            e.preventDefault();
+            zoom = Math.max(4, Math.min(15, zoom + e.deltaY * 0.01));
+        }, { passive: false });
+        
+        // Touch
+        renderer.domElement.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                prevPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                pinchStartDist = Math.sqrt(dx*dx + dy*dy);
+            }
+        }, { passive: true });
+        
+        renderer.domElement.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging) {
+                const touch = e.touches[0];
+                rotY += (touch.clientX - prevPos.x) * 0.01;
+                rotX += (touch.clientY - prevPos.y) * 0.01;
+                rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotX));
+                prevPos = { x: touch.clientX, y: touch.clientY };
+            } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const delta = pinchStartDist - dist;
+                zoom = Math.max(4, Math.min(15, zoom + delta * 0.02));
+                pinchStartDist = dist;
+            }
+        }, { passive: false });
+        
+        renderer.domElement.addEventListener('touchend', () => isDragging = false);
+        
+        // ============================================
+        // CONTROLES UI
+        // ============================================
+        document.getElementById('oxygenOpacity').addEventListener('input', e => {
+            const v = parseFloat(e.target.value);
+            matLayerA.opacity = matLayerB.opacity = matLayerA2.opacity = v;
+        });
+        
+        document.getElementById('layerA').addEventListener('change', e => layerAGroup.visible = e.target.checked);
+        document.getElementById('layerB').addEventListener('change', e => layerBGroup.visible = e.target.checked);
+        document.getElementById('layerA2').addEventListener('change', e => layerA2Group.visible = e.target.checked);
+        document.getElementById('showAl').addEventListener('change', e => aluminumGroup.visible = e.target.checked);
+        document.getElementById('showHoles').addEventListener('change', e => holeGroup.visible = e.target.checked);
+        document.getElementById('showCell').addEventListener('change', e => cellGroup.visible = e.target.checked);
+        document.getElementById('autoRotate').addEventListener('change', e => autoRotate = e.target.checked);
+        
+        // ============================================
+        // ANIMACIÓN
+        // ============================================
+        function animate() {
+            requestAnimationFrame(animate);
+            if (autoRotate && !isDragging) rotY += 0.004;
+            
+            camera.position.x = zoom * Math.sin(rotY) * Math.cos(rotX);
+            camera.position.y = zoom * Math.sin(rotX);
+            camera.position.z = zoom * Math.cos(rotY) * Math.cos(rotX);
+            camera.lookAt(0, 0, 0);
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // ============================================
+        // RESPONSIVE
+        // ============================================
+        function onResize() {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+        
+        window.addEventListener('resize', onResize);
+        window.addEventListener('orientationchange', () => setTimeout(onResize, 100));
+    </script>
+</body>
+</html>

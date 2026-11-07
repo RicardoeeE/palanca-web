@@ -1,0 +1,64 @@
+<svg viewBox="0 0 880 660" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'Cascadia Code',Consolas,monospace">
+  <rect width="880" height="660" fill="#f7f0d9"/>
+  <text x="30" y="42" fill="#0d2440" font-size="22" font-weight="bold">CARGA AXIAL Y EFECTO TÉRMICO — cuándo aparece tensión</text>
+  <text x="30" y="64" fill="#b64a2a" font-size="13">La regla que decide todo: dilatar libre NO genera tensión; dilatar impedido SÍ</text>
+
+  <!-- caso libre -->
+  <g>
+    <text x="60" y="112" fill="#0d2440" font-size="14" font-weight="bold">A· BARRA LIBRE (un extremo suelto)</text>
+    <rect x="70" y="130" width="180" height="30" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+    <rect x="58" y="124" width="12" height="42" fill="#0d2440"/>
+    <rect x="250" y="130" width="42" height="30" fill="#b64a2a" opacity="0.3" stroke="#b64a2a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <path d="M 258 178 h 30" stroke="#b64a2a" stroke-width="1.5"/>
+    <path d="M 292 178 l -10 -5 v 10 z" fill="#b64a2a"/>
+    <text x="248" y="200" fill="#b64a2a" font-size="12">δT = α·ΔT·L</text>
+    <text x="60" y="228" fill="#0d2440" font-size="12">Se alarga libremente.</text>
+    <text x="60" y="248" fill="#b64a2a" font-size="13" font-weight="bold">σ = 0  (¡no hay tensión!)</text>
+  </g>
+
+  <!-- caso impedido -->
+  <g>
+    <text x="360" y="112" fill="#0d2440" font-size="14" font-weight="bold">B· BARRA IMPEDIDA (biempotrada)</text>
+    <rect x="382" y="130" width="220" height="30" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+    <rect x="370" y="124" width="12" height="42" fill="#0d2440"/>
+    <rect x="602" y="124" width="12" height="42" fill="#0d2440"/>
+    <path d="M 420 178 h 26" stroke="#b64a2a" stroke-width="2"/>
+    <path d="M 414 178 l 10 -5 v 10 z" fill="#b64a2a"/>
+    <path d="M 570 178 h -26" stroke="#b64a2a" stroke-width="2"/>
+    <path d="M 576 178 l -10 -5 v 10 z" fill="#b64a2a"/>
+    <text x="440" y="200" fill="#b64a2a" font-size="12">reacciones de compresión</text>
+    <text x="360" y="228" fill="#0d2440" font-size="12">Quiere alargarse y no puede.</text>
+    <text x="360" y="248" fill="#b64a2a" font-size="13" font-weight="bold">σ = −E·α·ΔT   (¡independiente de L y A!)</text>
+  </g>
+
+  <!-- compatibilidad -->
+  <rect x="30" y="272" width="400" height="196" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="298" fill="#0d2440" font-size="13" font-weight="bold">MÉTODO GENERAL (hiperestáticos)</text>
+  <text x="48" y="324" fill="#0d2440" font-size="12">Superposición: sueltas la ligadura, dejas</text>
+  <text x="48" y="342" fill="#0d2440" font-size="12">dilatar, y luego aplicas la fuerza que</text>
+  <text x="48" y="360" fill="#0d2440" font-size="12">devuelve la barra a su sitio.</text>
+  <text x="48" y="388" fill="#b64a2a" font-size="14">δtotal = δT + δN = 0</text>
+  <text x="48" y="414" fill="#b64a2a" font-size="13">α·ΔT·L + N·L/(A·E) = 0</text>
+  <text x="48" y="440" fill="#0d2440" font-size="12">→ N = −α·ΔT·A·E   →   σ = N/A</text>
+  <text x="48" y="460" fill="#0d2440" font-size="12">Signo negativo = compresión al calentar.</text>
+
+  <!-- formulario -->
+  <rect x="450" y="272" width="400" height="196" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="468" y="298" fill="#0d2440" font-size="13" font-weight="bold">FORMULARIO BÁSICO</text>
+  <text x="468" y="326" fill="#0d2440" font-size="12">Tensión normal:</text>
+  <text x="486" y="346" fill="#b64a2a" font-size="14">σ = N/A</text>
+  <text x="468" y="372" fill="#0d2440" font-size="12">Alargamiento por carga:</text>
+  <text x="486" y="392" fill="#b64a2a" font-size="14">δ = N·L/(A·E)</text>
+  <text x="468" y="418" fill="#0d2440" font-size="12">Alargamiento por temperatura:</text>
+  <text x="486" y="438" fill="#b64a2a" font-size="14">δT = α·ΔT·L</text>
+  <text x="468" y="460" fill="#0d2440" font-size="12">Ley de Hooke: σ = E·ε,  ε = δ/L</text>
+
+  <!-- tramos y tornillos -->
+  <rect x="30" y="484" width="820" height="146" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="510" fill="#0d2440" font-size="13" font-weight="bold">LOS DOS REMATES QUE PIDEN EN EXAMEN</text>
+  <text x="48" y="536" fill="#0d2440" font-size="12">· <tspan font-weight="bold">Barra con varios tramos</tspan> (distinto diámetro o material): el alargamiento total es la SUMA de tramos,</text>
+  <text x="62" y="556" fill="#b64a2a" font-size="12">δ = Σ Nᵢ·Lᵢ/(Aᵢ·Eᵢ)   — mismo N si la carga es la misma, pero cada tramo aporta lo suyo.</text>
+  <text x="48" y="584" fill="#0d2440" font-size="12">· <tspan font-weight="bold">Comprobar el tornillo/pasador</tspan>: trabaja a CORTANTE, no a tracción. Con la fuerza N que sale</text>
+  <text x="62" y="604" fill="#b64a2a" font-size="12">de la barra:  τ = N/Atornillo  (o N/2A si tiene doble sección de corte) ≤ τadm  → resiste o no.</text>
+  <text x="48" y="624" fill="#0d2440" font-size="11">⚠ Cuidado con las unidades: α suele venir en (°C)⁻¹ y E en MPa = N/mm². Trabaja todo en mm y N.</text>
+</svg>

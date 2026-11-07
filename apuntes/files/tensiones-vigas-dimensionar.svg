@@ -1,0 +1,63 @@
+<svg viewBox="0 0 880 680" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'Cascadia Code',Consolas,monospace">
+  <rect width="880" height="680" fill="#f7f0d9"/>
+  <text x="30" y="42" fill="#0d2440" font-size="22" font-weight="bold">TENSIONES EN VIGAS — dimensionar a flexión, comprobar a cortante</text>
+  <text x="30" y="64" fill="#b64a2a" font-size="13">El ejercicio largo de casi todos los exámenes: primero σ manda el tamaño, luego τ verifica</text>
+
+  <!-- seccion con distribucion de sigma -->
+  <g>
+    <text x="60" y="110" fill="#0d2440" font-size="14" font-weight="bold">FLEXIÓN — tensión normal σ</text>
+    <rect x="80" y="130" width="70" height="150" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+    <line x1="60" y1="205" x2="240" y2="205" stroke="#0d2440" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="60" y="200" fill="#0d2440" font-size="11">eje neutro (CDG)</text>
+    <!-- triangulos de compresion/traccion -->
+    <path d="M 150 130 L 220 130 L 150 205 z" fill="#b64a2a" opacity="0.25"/>
+    <path d="M 150 205 L 80 280 L 150 280 z" fill="#b64a2a" opacity="0.25"/>
+    <line x1="150" y1="130" x2="220" y2="130" stroke="#b64a2a" stroke-width="2"/>
+    <line x1="150" y1="280" x2="80" y2="280" stroke="#b64a2a" stroke-width="2"/>
+    <text x="224" y="130" fill="#b64a2a" font-size="12">σ (−) comp.</text>
+    <text x="20" y="284" fill="#b64a2a" font-size="12">σ (+) tracc.</text>
+    <text x="158" y="122" fill="#0d2440" font-size="11">fibra superior</text>
+    <text x="158" y="298" fill="#0d2440" font-size="11">fibra inferior</text>
+    <text x="60" y="326" fill="#0d2440" font-size="12">σ LINEAL con la distancia al eje.</text>
+    <text x="60" y="346" fill="#b64a2a" font-size="14">σ = M·y / I     σmáx = M / W</text>
+    <text x="60" y="366" fill="#0d2440" font-size="12">W = I/ymáx = módulo resistente.</text>
+  </g>
+
+  <!-- seccion con distribucion de tau (parabola) -->
+  <g>
+    <text x="490" y="110" fill="#0d2440" font-size="14" font-weight="bold">CORTANTE — tensión tangencial τ</text>
+    <rect x="510" y="130" width="70" height="150" fill="#f1e7cd" stroke="#0d2440" stroke-width="2"/>
+    <path d="M 580 130 Q 660 205 580 280" fill="#b64a2a" opacity="0.22"/>
+    <path d="M 580 130 Q 660 205 580 280" fill="none" stroke="#b64a2a" stroke-width="2"/>
+    <line x1="580" y1="205" x2="662" y2="205" stroke="#b64a2a" stroke-width="1.5"/>
+    <text x="666" y="200" fill="#b64a2a" font-size="12">τmáx (en el eje)</text>
+    <text x="586" y="126" fill="#0d2440" font-size="11">τ = 0 en los bordes</text>
+    <text x="490" y="326" fill="#0d2440" font-size="12">τ PARABÓLICA: máxima en el eje neutro.</text>
+    <text x="490" y="346" fill="#b64a2a" font-size="14">τ = V·Q / (I·b)</text>
+    <text x="490" y="366" fill="#0d2440" font-size="12">Rectángulo: τmáx = 1.5·V/A (½ más</text>
+    <text x="490" y="382" fill="#0d2440" font-size="12">que la media V/A).</text>
+  </g>
+
+  <!-- variables Q y W -->
+  <rect x="30" y="400" width="400" height="128" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="426" fill="#0d2440" font-size="13" font-weight="bold">LAS DOS QUE SE ATASCAN</text>
+  <text x="48" y="452" fill="#0d2440" font-size="12">Q = momento estático del área POR ENCIMA</text>
+  <text x="48" y="468" fill="#0d2440" font-size="12">del punto: Q = A'·ȳ'  (A' área, ȳ' su brazo</text>
+  <text x="48" y="484" fill="#0d2440" font-size="12">al eje neutro). Máximo en el eje → τmáx ahí.</text>
+  <text x="48" y="508" fill="#0d2440" font-size="12">Rectángulo: I = b·h³/12,  W = b·h²/6.</text>
+
+  <!-- metodo dimensionado -->
+  <rect x="450" y="400" width="400" height="128" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="468" y="426" fill="#0d2440" font-size="13" font-weight="bold">DIMENSIONAR (el método del examen)</text>
+  <text x="468" y="452" fill="#0d2440" font-size="12">1· De los diagramas: Mmáx y Vmáx.</text>
+  <text x="468" y="470" fill="#0d2440" font-size="12">2· Flexión manda: W ≥ Mmáx/σadm → sale h.</text>
+  <text x="468" y="488" fill="#0d2440" font-size="12">3· Con esa h, comprueba τmáx ≤ τadm.</text>
+  <text x="468" y="508" fill="#b64a2a" font-size="12">4· Si τ no cumple, REDIMENSIONA por cortante.</text>
+
+  <!-- bloque final -->
+  <rect x="30" y="548" width="820" height="112" fill="#f1e7cd" stroke="#0d2440" stroke-width="1.2" rx="6"/>
+  <text x="48" y="574" fill="#0d2440" font-size="13" font-weight="bold">POR QUÉ ESTE ORDEN (y no al revés)</text>
+  <text x="48" y="600" fill="#0d2440" font-size="12">La flexión crece con M (que va con la carga × la luz) y con 1/h²; el cortante solo con V y 1/h. En vigas</text>
+  <text x="48" y="620" fill="#0d2440" font-size="12">normales (luz ≫ canto) σ es lo crítico: por eso se dimensiona a flexión PRIMERO. El cortante rara vez</text>
+  <text x="48" y="640" fill="#b64a2a" font-size="12">manda, salvo en vigas cortas y muy cargadas ("gran canto") — ahí sí puede pedir redimensionar.</text>
+</svg>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polos ⇄ Respuesta · Palanca</title>
+
+<link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+<script defer src="../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../assets/vendor/katex/auto-render.min.js"></script>
+
+<link href="../assets/vendor/fonts/edo.css" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#f7f0d9; --card:#fbf7e8; --ink:#0d2440; --ink-soft:#4C586B; --ink-faint:#8C95A3;
+  --s:#2C45C0; --s-tint:#E7EAFA;
+  --t:#b64a2a; --t-tint:#F4EBDD;
+  --good:#1F7A4D; --good-tint:#E1F2E8;
+  --bad:#B0303E; --bad-tint:#F7E4E7;
+  --line:#D9DBD5; --line-soft:#E6E8E2;
+  --display:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+  font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.katex{font-size:1.02em}
+.wrap{max-width:1040px;margin:0 auto;padding:34px clamp(16px,4vw,40px) 70px}
+
+header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:24px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--t);font-weight:600;margin-bottom:10px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(28px,5vw,42px);line-height:1.05;
+  letter-spacing:-.015em;margin:0 0 8px}
+h1 .a{color:var(--s)} h1 .b{color:var(--t)}
+.lede{color:var(--ink-soft);font-size:16.5px;max-width:64ch;margin:0}
+.lede b{color:var(--ink);font-weight:600}
+
+/* ---------- controls ---------- */
+.controls{display:grid;gap:18px;margin-bottom:8px}
+@media(min-width:760px){.controls{grid-template-columns:1fr 1fr}}
+.ctrl{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 18px}
+.ctrl .lab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.ctrl .lab span:first-child{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.ctrl .lab .val{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--ink)}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;
+  background:var(--line);outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--s);border:3px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer;transition:transform .12s}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--s);
+  border:3px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.15)}
+#zetaR::-webkit-slider-thumb,#zetaR::-moz-range-thumb{background:var(--t)}
+
+/* zeta regime track */
+.track{position:relative;height:14px;border-radius:7px;overflow:hidden;margin-bottom:4px;
+  background:linear-gradient(to right,
+    var(--bad) 0%, var(--bad) 8.57%,
+    #E7B9A8 8.57%, #E7B9A8 37.14%,
+    var(--s-tint) 37.14%, var(--s-tint) 65.71%,
+    var(--good-tint) 65.71%, var(--good-tint) 100%)}
+.track .tick{position:absolute;top:0;bottom:0;width:1.5px;background:rgba(22,30,41,.35)}
+
+.ticklabels{display:flex;font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);
+  position:relative;height:14px;margin-bottom:6px}
+.ticklabels span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+
+/* presets */
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
+.pbtn{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  padding:8px 13px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink-soft);cursor:pointer;transition:.14s}
+.pbtn:hover{border-color:var(--s);color:var(--ink)}
+.pbtn.active{border-color:var(--s);background:var(--s-tint);color:var(--s)}
+
+/* toggle */
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  font-family:var(--mono);font-size:12.5px;font-weight:600}
+.toggle button{border:none;background:var(--card);color:var(--ink-soft);padding:9px 16px;cursor:pointer;transition:.14s}
+.toggle button.on{background:var(--s);color:#fff}
+
+/* ---------- visuals ---------- */
+.panels{display:grid;gap:18px;margin:22px 0}
+@media(min-width:760px){.panels{grid-template-columns:1fr 1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px 10px}
+.panel h3{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:600;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+.panel h3 b{color:var(--ink);font-weight:600;letter-spacing:0;font-size:11.5px}
+.panel svg{width:100%;height:auto;display:block}
+.axlab{font-family:var(--mono);font-size:10px;fill:var(--ink-faint)}
+.gridline{stroke:var(--line-soft);stroke-width:1}
+.axis{stroke:var(--ink-faint);stroke-width:1}
+
+/* regime badge */
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;
+  font-weight:600;letter-spacing:.04em;padding:6px 13px;border-radius:9px;margin:14px 0}
+.badge .dot{width:9px;height:9px;border-radius:50%}
+.badge.b-good{background:var(--good-tint);color:var(--good)}
+.badge.b-good .dot{background:var(--good)}
+.badge.b-stable{background:var(--s-tint);color:var(--s)}
+.badge.b-stable .dot{background:var(--s)}
+.badge.b-bad{background:var(--bad-tint);color:var(--bad)}
+.badge.b-bad .dot{background:var(--bad)}
+.badge.b-mid{background:var(--t-tint);color:var(--t)}
+.badge.b-mid .dot{background:var(--t)}
+
+/* math readout */
+.readout{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-top:6px}
+.readout .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:9px 0}
+.readout .row .l{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:600;min-width:108px}
+.mb{overflow-x:auto}
+
+.note{border:1px solid var(--line);border-left:3px solid var(--t);border-radius:9px;
+  padding:13px 18px;margin:18px 0;background:var(--card);max-width:74ch;font-size:15.5px}
+.note .k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--t);font-weight:600;display:block;margin-bottom:5px}
+.note p{margin:0}
+
+footer{margin-top:34px;color:var(--ink-faint);font-family:var(--mono);font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Palanca · Laplace — herramienta conceptual</div>
+  <h1>Polos en <span class="a">s</span> ⇄ Respuesta en <span class="b">t</span></h1>
+  <p class="lede">Mueve <b>ζ</b> (amortiguamiento) y <b>ωₙ</b> (frecuencia natural) de un sistema <code>y″+2ζωₙy′+ωₙ²y=F(t)</code>. A la izquierda, dónde caen los polos — la geometría. A la derecha, cómo responde el sistema en el tiempo — la física. Es <b>el mismo número</b> visto dos veces.</p>
+</header>
+
+<div class="controls">
+  <div class="ctrl">
+    <div class="lab"><span>Amortiguamiento ζ</span><span class="val" id="zetaVal">1.061</span></div>
+    <div class="track"><div class="tick" id="t0" style="left:8.571%"></div><div class="tick" id="t1" style="left:37.143%"></div><div class="tick" id="t2" style="left:65.714%"></div></div>
+    <div class="ticklabels">
+      <span style="left:8.571%">ζ=−1</span>
+      <span style="left:37.143%">ζ=0 · Fourier</span>
+      <span style="left:65.714%">ζ=1 · crítico</span>
+    </div>
+    <input type="range" id="zetaR" min="-1.3" max="2.2" step="0.001" value="1.0607">
+  </div>
+  <div class="ctrl">
+    <div class="lab"><span>Frecuencia natural ωₙ</span><span class="val" id="wnVal">1.414</span></div>
+    <input type="range" id="wnR" min="0.4" max="3" step="0.001" value="1.41421356" style="margin-top:34px">
+  </div>
+</div>
+
+<div class="presets" id="presets">
+  <button class="pbtn active" data-z="1.06066017" data-w="1.41421356">Sobreamortiguado · (s+1)(s+2)</button>
+  <button class="pbtn" data-z="0.3" data-w="1.5">Subamortiguado</button>
+  <button class="pbtn" data-z="1" data-w="1.5">Crítico</button>
+  <button class="pbtn" data-z="0" data-w="1.5">No amortiguado (Fourier)</button>
+  <button class="pbtn" data-z="-0.3" data-w="1.5">Inestable (oscila y crece)</button>
+</div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:4px">
+  <div class="badge" id="regimeBadge"></div>
+  <div class="toggle" id="modeToggle">
+    <button class="on" data-mode="imp">Respuesta a impulso (δ)</button>
+    <button data-mode="step">Respuesta a escalón (u)</button>
+  </div>
+</div>
+
+<div class="panels">
+  <div class="panel">
+    <h3>Plano de Laplace <b>s = Re + i·Im</b> — geometría</h3>
+    <svg id="splane" viewBox="0 0 300 300"></svg>
+  </div>
+  <div class="panel">
+    <h3>Dominio del tiempo <b>y(t)</b> — física</h3>
+    <svg id="tplot" viewBox="0 0 300 200"></svg>
+  </div>
+</div>
+
+<div class="readout">
+  <div class="row"><span class="l">p(s)</span><span class="mb" id="rPoly"></span></div>
+  <div class="row"><span class="l">Polos</span><span class="mb" id="rPoles"></span></div>
+  <div class="row"><span class="l">Y(s)</span><span class="mb" id="rYs"></span></div>
+  <div class="row"><span class="l">y(t)</span><span class="mb" id="rYt"></span></div>
+</div>
+
+<div class="note" id="dynNote"></div>
+
+<footer>Palanca · visualizador polos↔respuesta · sistema canónico de 2.º orden y″+2ζωₙy′+ωₙ²y=F(t)</footer>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+const K=window.katex;
+function tex(el,s,display){try{el.innerHTML=K.renderToString(s,{throwOnError:false,displayMode:!!display});}catch(e){el.textContent=s;}}
+const f=(x,d=2)=>{const v=x.toFixed(d);return v==="-0.00"||v==="-0"?v.slice(1):v;};
+const fSigned=(x,d=2)=>{const v=x.toFixed(d);return (x>=0?"+":"")+v;};
+
+/* ============ MODELO (comprobado: pruebas/comprobar_polos_respuesta.py) ============ */
+function poles(zeta,wn){
+  const D=zeta*zeta-1;
+  if (D < -1e-9){const re=-zeta*wn, im=wn*Math.sqrt(-D); return {type:'complex',re,im,wd:im};}
+  if (Math.abs(D) < 1e-6) return {type:'double', p:-zeta*wn};
+  const sq=wn*Math.sqrt(D);
+  return {type:'real', p1:-zeta*wn+sq, p2:-zeta*wn-sq};
+}
+function impulseResponse(zeta,wn,t){
+  if (Math.abs(zeta) < 1-1e-9){const a=zeta*wn,wd=wn*Math.sqrt(1-zeta*zeta); return Math.exp(-a*t)*Math.sin(wd*t)/wd;}
+  if (Math.abs(Math.abs(zeta)-1) < 1e-6){const a=zeta*wn; return t*Math.exp(-a*t);}
+  const sq=wn*Math.sqrt(zeta*zeta-1), p1=-zeta*wn+sq, p2=-zeta*wn-sq;
+  return (Math.exp(p1*t)-Math.exp(p2*t))/(p1-p2);
+}
+function stepResponse(zeta,wn,t){
+  const wn2=wn*wn;
+  if (Math.abs(zeta) < 1-1e-9){const a=zeta*wn,wd=wn*Math.sqrt(1-zeta*zeta);
+    return (1/wn2)*(1-Math.exp(-a*t)*(Math.cos(wd*t)+(a/wd)*Math.sin(wd*t)));}
+  if (Math.abs(Math.abs(zeta)-1) < 1e-6){const a=zeta*wn; return (1/wn2)*(1-(1+a*t)*Math.exp(-a*t));}
+  const sq=wn*Math.sqrt(zeta*zeta-1), p1=-zeta*wn+sq, p2=-zeta*wn-sq;
+  return 1/wn2 + (Math.exp(p1*t)/p1 - Math.exp(p2*t)/p2)/(p1-p2);
+}
+function regimeOf(zeta){
+  if (Math.abs(zeta)<1e-6) return 'fourier';
+  if (Math.abs(zeta-1)<1e-6) return 'crit+';
+  if (Math.abs(zeta+1)<1e-6) return 'crit-';
+  if (zeta>1) return 'over';
+  if (zeta<-1) return 'pure-growth';
+  return zeta>0 ? 'under-stable' : 'under-unstable';
+}
+
+/* ============ ESTADO / DOM ============ */
+const zetaR=document.getElementById('zetaR'), wnR=document.getElementById('wnR');
+const zetaVal=document.getElementById('zetaVal'), wnVal=document.getElementById('wnVal');
+let mode='imp';
+document.getElementById('modeToggle').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  [...document.querySelectorAll('#modeToggle button')].forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); mode=b.dataset.mode; render();
+});
+
+
+/* presets */
+document.getElementById('presets').addEventListener('click',e=>{
+  const b=e.target.closest('.pbtn');if(!b)return;
+  [...document.querySelectorAll('.pbtn')].forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  zetaR.value=b.dataset.z; wnR.value=b.dataset.w; render();
+});
+[zetaR,wnR].forEach(inp=>inp.addEventListener('input',()=>{
+  document.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('active')); render();
+}));
+
+/* ============ S-PLANE SVG ============ */
+const SP=document.getElementById('splane'), W=300,H=300,CX=150,CY=150;
+function drawSPlane(zeta,wn,P){
+  const reList=[],imList=[wn];
+  if(P.type==='complex'){reList.push(P.re,P.re);imList.push(Math.abs(P.im));}
+  else if(P.type==='double'){reList.push(P.p);}
+  else {reList.push(P.p1,P.p2);}
+  let R=Math.max(...reList.map(Math.abs),...imList,1.8)*1.18;
+  R=Math.min(R,16);
+  const scale=(W/2-26)/R;
+  const X=re=>CX+re*scale, Y=im=>CY-im*scale;
+
+  let svg='';
+  // half-plane shading
+  svg+=`<rect x="0" y="0" width="${CX}" height="${H}" fill="var(--good-tint)" opacity="0.55"/>`;
+  svg+=`<rect x="${CX}" y="0" width="${W-CX}" height="${H}" fill="var(--bad-tint)" opacity="0.55"/>`;
+  // omega_n circle (only meaningful when poles are complex)
+  if(P.type==='complex'){
+    svg+=`<circle cx="${CX}" cy="${CY}" r="${wn*scale}" fill="none" stroke="var(--ink-faint)" stroke-dasharray="3 4" stroke-width="1"/>`;
+    svg+=`<text x="${X(0)+wn*scale*0.66+4}" y="${Y(0)-wn*scale*0.66-3}" class="axlab">ω<tspan baseline-shift="sub" font-size="7">n</tspan></text>`;
+  }
+  // axes
+  svg+=`<line x1="0" y1="${CY}" x2="${W}" y2="${CY}" class="axis"/>`;
+  svg+=`<line x1="${CX}" y1="0" x2="${CX}" y2="${H}" class="axis"/>`;
+  svg+=`<text x="${W-30}" y="${CY-7}" class="axlab">Re(s)</text>`;
+  svg+=`<text x="${CX+6}" y="13" class="axlab">Im(s)</text>`;
+  svg+=`<text x="6" y="${CY-7}" class="axlab" fill="var(--good)">estable</text>`;
+  svg+=`<text x="${W-46}" y="${H-8}" class="axlab" fill="var(--bad)">inestable</text>`;
+  // origin tick
+  svg+=`<circle cx="${CX}" cy="${CY}" r="1.6" fill="var(--ink-faint)"/>`;
+
+  function poleMark(re,im,key){
+    const x=X(re),y=Y(im),c=key==='s'?'var(--s)':'var(--t)';
+    return `<g stroke="${c}" stroke-width="2.4" stroke-linecap="round">
+      <line x1="${x-5}" y1="${y-5}" x2="${x+5}" y2="${y+5}"/>
+      <line x1="${x-5}" y1="${y+5}" x2="${x+5}" y2="${y-5}"/></g>`;
+  }
+  if(P.type==='complex'){
+    svg+=`<line x1="${X(P.re)}" y1="${Y(P.im)}" x2="${X(P.re)}" y2="${Y(-P.im)}" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="2 3"/>`;
+    svg+=poleMark(P.re,P.im,'s')+poleMark(P.re,-P.im,'t');
+  } else if(P.type==='double'){
+    svg+=poleMark(P.p,0.12,'s')+poleMark(P.p,-0.12,'t');
+  } else {
+    svg+=poleMark(P.p1,0,'s')+poleMark(P.p2,0,'t');
+  }
+  SP.innerHTML=svg;
+}
+
+/* ============ T-PLOT SVG ============ */
+const TP=document.getElementById('tplot'), TW=300,TH=200, padL=8,padR=8,padT=10,padB=22;
+function drawTPlot(zeta,wn,P){
+  const N=160;
+  let Tmax;
+  const decay=Math.abs(zeta*wn);
+  if(decay<0.02){
+    const w=(Math.abs(zeta)<1)? (P.wd||wn) : wn;
+    Tmax=3*2*Math.PI/w;
+  } else {
+    Tmax=(zeta>=0?5:3)/decay;
+  }
+  Tmax=Math.min(Math.max(Tmax,1),25);
+
+  const ys=[], env=[];
+  for(let i=0;i<N;i++){
+    const t=Tmax*i/(N-1);
+    ys.push(mode==='imp'?impulseResponse(zeta,wn,t):stepResponse(zeta,wn,t));
+  }
+  let showEnv=false;
+  if(mode==='imp' && P.type==='complex'){
+    showEnv=true;
+    const a=zeta*wn, wd=P.wd;
+    for(let i=0;i<N;i++){const t=Tmax*i/(N-1); env.push(Math.exp(-a*t)/wd);}
+  }
+  let yMin=Math.min(0,...ys), yMax=Math.max(0,...ys);
+  if(showEnv){yMin=Math.min(yMin,...env.map(v=>-v)); yMax=Math.max(yMax,...env);}
+  let range=yMax-yMin; if(range<1e-6)range=1;
+  yMin-=0.08*range; yMax+=0.08*range; range=yMax-yMin;
+
+  const X=t=>padL+(TW-padL-padR)*t/Tmax;
+  const Y=v=>padT+(TH-padT-padB)*(yMax-v)/range;
+
+  let svg='';
+  // gridlines (zero line + a few)
+  svg+=`<line x1="${padL}" y1="${Y(0)}" x2="${TW-padR}" y2="${Y(0)}" class="axis"/>`;
+  svg+=`<line x1="${X(0)}" y1="${padT}" x2="${X(0)}" y2="${TH-padB}" class="axis"/>`;
+  // steady-state line for step response
+  if(mode==='step' && zeta>0){
+    const ss=1/(wn*wn);
+    svg+=`<line x1="${padL}" y1="${Y(ss)}" x2="${TW-padR}" y2="${Y(ss)}" stroke="var(--ink-faint)" stroke-dasharray="3 4" stroke-width="1"/>`;
+    svg+=`<text x="${TW-padR-2}" y="${Y(ss)-4}" text-anchor="end" class="axlab">1/ωₙ²</text>`;
+  }
+  // envelope
+  if(showEnv){
+    let dPos="M",dNeg="M";
+    for(let i=0;i<N;i++){const t=Tmax*i/(N-1);
+      dPos+=`${i?'L':''}${X(t).toFixed(2)} ${Y(env[i]).toFixed(2)} `;
+      dNeg+=`${i?'L':''}${X(t).toFixed(2)} ${Y(-env[i]).toFixed(2)} `;}
+    svg+=`<path d="${dPos}" fill="none" stroke="var(--t)" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>`;
+    svg+=`<path d="${dNeg}" fill="none" stroke="var(--t)" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>`;
+  }
+  // curve
+  let d="M";
+  for(let i=0;i<N;i++){const t=Tmax*i/(N-1); d+=`${i?'L':''}${X(t).toFixed(2)} ${Y(ys[i]).toFixed(2)} `;}
+  const lineCol = (zeta<0) ? 'var(--bad)' : 'var(--s)';
+  svg+=`<path d="${d}" fill="none" stroke="${lineCol}" stroke-width="2"/>`;
+  // axis labels
+  svg+=`<text x="${TW-padR}" y="${TH-6}" text-anchor="end" class="axlab">t → (T≈${f(Tmax,1)})</text>`;
+  svg+=`<text x="${padL+2}" y="${padT+9}" class="axlab">${mode==='imp'?'h(t)':'y(t)'}</text>`;
+  TP.innerHTML=svg;
+}
+
+/* ============ READOUT (KaTeX) ============ */
+function setRegimeBadge(reg,zeta){
+  const b=document.getElementById('regimeBadge');
+  const map={
+    'fourier':['b-mid','Oscilación sostenida — eje imaginario (Fourier, ζ=0)'],
+    'crit+':['b-good','Crítico — polo real doble (frontera Caso II)'],
+    'crit-':['b-bad','Crítico inestable — polo real doble en semiplano derecho'],
+    'over':['b-good','Sobreamortiguado — dos polos reales (Caso I, fracciones simples)'],
+    'pure-growth':['b-bad','Crecimiento puro — dos polos reales positivos (inestable)'],
+    'under-stable':['b-stable','Subamortiguado — oscila y decae (Caso III, completar cuadrado)'],
+    'under-unstable':['b-bad','Oscilación creciente — polos complejos en semiplano derecho']
+  };
+  const [cls,txt]=map[regimeOf(zeta)];
+  b.className='badge '+cls;
+  b.innerHTML=`<span class="dot"></span>${txt}`;
+}
+
+function render(){
+  const zeta=parseFloat(zetaR.value), wn=parseFloat(wnR.value);
+  zetaVal.textContent=zeta.toFixed(3);
+  wnVal.textContent=wn.toFixed(3);
+  const P=poles(zeta,wn);
+
+  drawSPlane(zeta,wn,P);
+  drawTPlot(zeta,wn,P);
+  setRegimeBadge(regimeOf(zeta),zeta);
+
+  const A=(zeta*wn); // = -Re(pole) in complex/double cases
+  // p(s)
+  tex(document.getElementById('rPoly'), `p(s)=s^2+${f(2*zeta*wn)}\\,s+${f(wn*wn)}`);
+
+  let polesTex, YsTex, YtTex;
+  if(P.type==='complex'){
+    const Wd=P.wd;
+    polesTex=`s=${f(-A)}\\pm ${f(Wd)}\\,i`;
+    const Ys = mode==='imp'
+      ? `Y(s)=\\dfrac{1}{(s${fSigned(A)})^2+${f(Wd)}^2}`
+      : `Y(s)=\\dfrac{1}{s\\left[(s${fSigned(A)})^2+${f(Wd)}^2\\right]}`;
+    YsTex=Ys;
+    YtTex = mode==='imp'
+      ? `y(t)=\\dfrac{1}{${f(Wd)}}\\,e^{${f(-A)}t}\\sin(${f(Wd)}t)`
+      : `y(t)=\\dfrac{1}{${f(wn*wn)}}\\left[1-e^{${f(-A)}t}\\left(\\cos ${f(Wd)}t+${f(A/Wd)}\\sin ${f(Wd)}t\\right)\\right]`;
+  } else if(P.type==='double'){
+    const p=P.p;
+    polesTex=`s=${f(p)}\\ \\text{(doble)}`;
+    YsTex = mode==='imp' ? `Y(s)=\\dfrac{1}{(s${fSigned(-p)})^2}` : `Y(s)=\\dfrac{1}{s(s${fSigned(-p)})^2}`;
+    YtTex = mode==='imp'
+      ? `y(t)=t\\,e^{${f(p)}t}`
+      : `y(t)=\\dfrac{1}{${f(wn*wn)}}\\left[1-(1${fSigned(A)}t)\\,e^{${f(-A)}t}\\right]`;
+  } else {
+    const p1=P.p1,p2=P.p2;
+    polesTex=`s=${f(p1)}\\ \\text{y}\\ s=${f(p2)}`;
+    YsTex = mode==='imp'
+      ? `Y(s)=\\dfrac{1}{(s${fSigned(-p1)})(s${fSigned(-p2)})}=\\dfrac{1}{${f(p1-p2)}}\\left[\\dfrac{1}{s${fSigned(-p1)}}-\\dfrac{1}{s${fSigned(-p2)}}\\right]`
+      : `Y(s)=\\dfrac{1}{s(s${fSigned(-p1)})(s${fSigned(-p2)})}`;
+    YtTex = mode==='imp'
+      ? `y(t)=\\dfrac{1}{${f(p1-p2)}}\\left(e^{${f(p1)}t}-e^{${f(p2)}t}\\right)`
+      : `y(t)=\\dfrac{1}{${f(wn*wn)}}+\\dfrac{1}{${f(p1-p2)}}\\left(\\dfrac{e^{${f(p1)}t}}{${f(p1)}}-\\dfrac{e^{${f(p2)}t}}{${f(p2)}}\\right)`;
+  }
+  tex(document.getElementById('rPoles'),polesTex);
+  tex(document.getElementById('rYs'),YsTex,true);
+  tex(document.getElementById('rYt'),YtTex,true);
+
+  // dynamic note
+  const note=document.getElementById('dynNote');
+  const reg=regimeOf(zeta);
+  let html='';
+  if(reg==='over'){
+    html=`<span class="k">Lectura</span><p>Dos polos reales negativos: la solución es suma de dos exponenciales que decaen <b>sin oscilar</b>. Por ejemplo, <code>p(s)=s²+3s+2=(s+1)(s+2)</code>: el reparto en fracciones simples es literalmente esta descomposición.</p>`;
+  } else if(reg==='under-stable'){
+    html=`<span class="k">Lectura</span><p>Polos complejos conjugados en el semiplano izquierdo: <b>Re(s)=−ζωₙ</b> fija la envolvente de decaimiento (líneas punteadas), <b>Im(s)=ωd</b> fija la frecuencia de oscilación. Esto es Caso III — completar el cuadrado en §3 reconstruye exactamente <code>(s+ζωₙ)²+ωd²</code>.</p>`;
+  } else if(reg==='crit+'){
+    html=`<span class="k">Lectura</span><p>Los dos polos se han fusionado en uno real doble. Frontera entre oscilar y no oscilar: el sistema vuelve al equilibrio lo más rápido posible <b>sin pasarse</b>. Caso II de fracciones simples — aparece el factor <code>t·e^{pt}</code> característico del polo múltiple.</p>`;
+  } else if(reg==='fourier'){
+    html=`<span class="k">Lectura</span><p>ζ=0: los polos están <b>sobre el eje imaginario</b>. No hay decaimiento — oscilación pura y sostenida. Este es el caso particular donde Laplace (s=σ+iω) se reduce a Fourier (σ=0), tal como en §1: el sistema "suena" a su frecuencia natural ωₙ indefinidamente.</p>`;
+  } else if(reg==='under-unstable'){
+    html=`<span class="k">Lectura</span><p>Mismos polos complejos que el caso subamortiguado, pero ahora con <b>Re(s)>0</b> — semiplano derecho. La envolvente <code>e^{-ζωₙt}</code> con ζ&lt;0 crece en vez de decaer: oscilación que se amplifica. Geométricamente es el mismo par de polos reflejado al otro lado del eje imaginario.</p>`;
+  } else if(reg==='crit-'){
+    html=`<span class="k">Lectura</span><p>Polo real doble, pero ahora en <b>Re(s)>0</b>: crecimiento puro tipo <code>t·e^{+|p|t}</code>, sin oscilación. Frontera entre "oscila y crece" y "crece sin oscilar".</p>`;
+  } else {
+    html=`<span class="k">Lectura</span><p>Dos polos reales <b>positivos</b>: dos exponenciales que crecen sin límite, sin oscilación. El extremo opuesto al sobreamortiguado estable — misma estructura algebraica (Caso I), polos al otro lado del origen.</p>`;
+  }
+  note.innerHTML=html;
+}
+
+render();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Laboratorio de Cortantes y Flectores — Resistencia de Materiales</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', 'Cambria', serif;
+    background: #f7f6f2;
+    color: #1f2328;
+    line-height: 1.55;
+    padding: 20px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  /* ================= CABECERA ================= */
+  header { margin-bottom: 18px; border-bottom: 2px solid #1f2328; padding-bottom: 12px; }
+  h1 { font-size: 26px; font-weight: normal; }
+  .subtitle { color: #555; font-size: 15px; margin-top: 4px; font-style: italic; }
+
+  /* ================= PESTAÑAS ================= */
+  nav.tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #1f2328;
+  }
+  nav.tabs button {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 16px;
+    border: 1px solid #bbb;
+    border-bottom: none;
+    background: #e8e6dd;
+    cursor: pointer;
+    color: #333;
+    border-radius: 4px 4px 0 0;
+    transition: background 0.15s;
+  }
+  nav.tabs button:hover { background: #d6d2c4; }
+  nav.tabs button.active {
+    background: #1f2328;
+    color: #fff;
+    border-color: #1f2328;
+    font-weight: bold;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ================= CARDS ================= */
+  .card {
+    background: #ffffff;
+    border: 1px solid #d0d0c8;
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #1f2328;
+    border-bottom: 1px solid #e0e0d8;
+    padding-bottom: 5px;
+  }
+  .card h3 {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 8px 0 6px;
+    color: #1f2328;
+  }
+  .card p { margin: 6px 0; font-size: 14.5px; }
+  .card ul { margin: 6px 0 6px 22px; font-size: 14.5px; }
+  .card ul li { margin: 3px 0; }
+
+  /* ================= LAYOUT DE CASOS ================= */
+  .case-layout {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 1100px) { .case-layout { grid-template-columns: 1fr; } }
+
+  .diagram-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .panel-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  /* ================= CONTROLES ================= */
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .controls-row label {
+    font-size: 13px;
+    color: #333;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  select, input[type="range"] {
+    font-family: inherit;
+    font-size: 13px;
+  }
+  select {
+    padding: 4px 8px;
+    border: 1px solid #888;
+    border-radius: 3px;
+    background: #fff;
+  }
+  input[type="range"] { width: 130px; }
+
+  .slider-group {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 8px 12px;
+    align-items: center;
+    font-size: 13.5px;
+  }
+  .slider-group .val {
+    font-family: 'Cambria Math', serif;
+    color: #b00020;
+    font-weight: bold;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid #888;
+    background: #fafaf7;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  button:hover { background: #eceae0; }
+  button.active { background: #1f2328; color: white; border-color: #1f2328; }
+  button.play { background: #2a7a3c; color: white; border-color: #2a7a3c; }
+  button.pause { background: #b5892b; color: white; border-color: #b5892b; }
+  button.reset { background: #777; color: white; border-color: #777; }
+
+  /* ================= ECUACIONES Y NOTAS ================= */
+  .eq {
+    font-family: 'Cambria Math', 'Latin Modern Math', serif;
+    font-size: 15.5px;
+    padding: 6px 10px;
+    margin: 4px 0;
+    background: #f4f3ee;
+    border-left: 3px solid #888;
+  }
+  .eq .hl  { color: #b00020; font-weight: bold; }
+  .eq .hl2 { color: #c8570d; font-weight: bold; }
+  .eq .hl3 { color: #1c5aa0; font-weight: bold; }
+  .eq .hl4 { color: #2a7a3c; font-weight: bold; }
+  .eq .note { color: #555; font-size: 13px; font-style: italic; margin-left: 6px; display: block; }
+
+  .tramo-tag {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 8px;
+    background: #1f2328;
+    color: #fff;
+    border-radius: 10px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .intuitive-box {
+    background: #fff9ec;
+    border: 1px solid #e6ce9a;
+    border-left: 5px solid #c8570d;
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .intuitive-box strong { color: #c8570d; }
+
+  .math-box {
+    background: #eef3fb;
+    border: 1px solid #a9bedd;
+    border-left: 5px solid #1c5aa0;
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .math-box strong { color: #1c5aa0; }
+
+  .conclusion {
+    background: #f0f5ea;
+    border: 1px solid #b8cfa0;
+    border-left: 5px solid #2a7a3c;
+    padding: 14px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .conclusion strong { color: #2a7a3c; }
+
+  .error-box {
+    background: #fff6f6;
+    border: 1px solid #e6b5b5;
+    border-left: 5px solid #b00020;
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-size: 13.5px;
+  }
+  .error-box h4 { color: #b00020; margin-bottom: 4px; font-size: 14px; }
+
+  /* ================= SVG LABELS ================= */
+  .lbl       { font-family: 'Cambria Math', serif; font-size: 15px; fill: #1f2328; }
+  .lbl-small { font-family: 'Cambria Math', serif; font-size: 12px; fill: #555; }
+  .lbl-val   { font-family: 'Cambria Math', serif; font-size: 14px; font-weight: bold; }
+
+  /* ================= QUIZ ================= */
+  .quiz-question {
+    background: #fff;
+    border: 1px solid #d0d0c8;
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .quiz-question p.q { font-weight: bold; margin-bottom: 8px; font-size: 15px; }
+  .quiz-opt {
+    display: block;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fafaf7;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 14px;
+  }
+  .quiz-opt:hover { background: #eceae0; }
+  .quiz-opt.correct { background: #dff0d8; border-color: #2a7a3c; }
+  .quiz-opt.wrong   { background: #f8d7da; border-color: #b00020; }
+  .quiz-feedback {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 3px;
+    font-size: 13.5px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #f0f5ea; border-left: 4px solid #2a7a3c; }
+  .quiz-feedback.bad { background: #fff6f6; border-left: 4px solid #b00020; }
+
+  /* Pequeños helpers */
+  .small { font-size: 13px; color: #555; }
+  .center { text-align: center; }
+  hr { border: none; border-top: 1px dashed #bbb; margin: 10px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Laboratorio de Cortantes y Flectores</h1>
+  <p class="subtitle">Resistencia de Materiales · Interpretación visual e intuitiva de V(x) y M(x)</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="fund">1. Fundamentos</button>
+  <button class="tab-btn"        data-tab="rel">2. Relación q–V–M</button>
+  <button class="tab-btn"        data-tab="cases">3. Casos de estudio</button>
+  <button class="tab-btn"        data-tab="section">4. Sección móvil</button>
+  <button class="tab-btn"        data-tab="interp">5. Interpretación física</button>
+  <button class="tab-btn"        data-tab="quiz">6. Autoevaluación</button>
+</nav>
+
+<!-- ============================================================= -->
+<!-- PESTAÑA 1: FUNDAMENTOS                                        -->
+<!-- ============================================================= -->
+<section class="tab-panel active" id="tab-fund">
+
+  <div class="card">
+    <h2>¿Qué es una viga y qué son los esfuerzos internos?</h2>
+    <p>Una <strong>viga</strong> es un elemento estructural alargado que resiste cargas transversales a su eje (perpendiculares a su longitud). Para que no se deforme ni se rompa, en cada sección interna de la viga aparecen <strong>esfuerzos internos</strong> que equilibran las fuerzas exteriores que actúan a un lado del corte.</p>
+    <p>Los dos esfuerzos internos clave son:</p>
+    <ul>
+      <li><strong>Cortante V(x):</strong> fuerza vertical interna en la sección a distancia x del origen.</li>
+      <li><strong>Momento flector M(x):</strong> par interno en la sección a distancia x del origen.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Convención de signos</h2>
+    <p>Usamos la convención estándar de Resistencia de Materiales:</p>
+    <ul>
+      <li><strong>q(x) positiva hacia abajo</strong> (carga gravitatoria).</li>
+      <li><strong>V(x) positivo</strong>: suma algebraica de fuerzas verticales <em>a la izquierda</em> del corte con signo <span class="hl4" style="color:#2a7a3c;font-weight:bold;">+ hacia arriba</span>.</li>
+      <li><strong>M(x) positivo</strong>: flexión que <em>tracciona la fibra inferior</em> (<em>sagging</em> — la viga se "abre" por debajo).</li>
+    </ul>
+    <div class="error-box" style="margin-top:10px;">
+      <h4>Error típico</h4>
+      <p>Confundir <strong>dirección de una fuerza externa</strong> (hacia arriba/abajo) con <strong>signo del esfuerzo interno</strong> (cortante/momento). El esfuerzo interno tiene su propia convención: depende de la <em>cara</em> del corte y del sentido que produzca.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Definiciones precisas</h2>
+    <div class="eq"><span class="hl3">V(x)</span> = suma algebraica de fuerzas verticales <em>a la izquierda</em> del corte (+ hacia arriba)</div>
+    <div class="eq"><span class="hl">M(x)</span> = suma algebraica de momentos de esas fuerzas respecto al punto de corte (+ si tracciona la fibra inferior)</div>
+    <p class="small">Equivalentemente, V(x) y M(x) también pueden calcularse con la parte derecha del corte, con las reglas de signo correspondientes. Ambos resultados coinciden (equilibrio global).</p>
+  </div>
+
+</section>
+
+<!-- ============================================================= -->
+<!-- PESTAÑA 2: RELACIÓN q–V–M                                      -->
+<!-- ============================================================= -->
+<section class="tab-panel" id="tab-rel">
+
+  <div class="card">
+    <h2>Las tres funciones están encadenadas</h2>
+    <p>La carga, el cortante y el momento no son independientes: están ligadas por dos ecuaciones diferenciales sencillas que son el núcleo de toda la teoría:</p>
+    <div class="eq" style="font-size:18px; text-align:center;">
+      <span class="hl3">dV/dx = −q(x)</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span class="hl">dM/dx = V(x)</span>
+    </div>
+    <p class="small center">(con q positiva hacia abajo y V, M con las convenciones anteriores)</p>
+  </div>
+
+  <div class="card">
+    <h2>Lectura intuitiva de cada relación</h2>
+
+    <div class="intuitive-box" style="margin-bottom:10px;">
+      <strong>dV/dx = −q(x):</strong> si hay carga hacia abajo (q &gt; 0), el cortante <em>decrece</em> al avanzar. Cada trocito de carga distribuida "le quita" cortante al avanzar por la viga. No es que desaparezcan fuerzas: es que el cortante neto acumula el balance de lo que ha pasado por encima.
+    </div>
+
+    <div class="intuitive-box" style="margin-bottom:10px;">
+      <strong>dM/dx = V(x):</strong> el cortante <em>es la pendiente</em> del momento. Por eso:
+      <ul style="margin-top:6px;">
+        <li>Si V &gt; 0 → M crece.</li>
+        <li>Si V &lt; 0 → M decrece.</li>
+        <li>Si V = 0 → M tiene un extremo (máximo o mínimo).</li>
+        <li>Si V cambia de + a − → M pasa por un máximo.</li>
+      </ul>
+    </div>
+
+    <div class="math-box">
+      <strong>Consecuencia gráfica:</strong> si q es constante, V es lineal (pendiente −q) y M es parabólico. Si no hay carga entre dos puntos, V es constante y M es lineal. Si hay una carga puntual P, V da un salto de magnitud P y M tiene un pico anguloso.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>¿Por qué el máximo de M ocurre donde V = 0?</h2>
+    <p>Porque M es una función y su derivada es V. Como en cualquier función derivable, los máximos y mínimos están donde la derivada se anula:</p>
+    <div class="eq">dM/dx = V(x) = 0  ⟹  x donde M es extremo</div>
+    <p>Si además V pasa de positivo (M crecía) a negativo (M empieza a decrecer), ese extremo es un <strong>máximo</strong>. Si V pasa de negativo a positivo, es un mínimo.</p>
+    <div class="intuitive-box">
+      <strong>Lugar vs. valor:</strong> el <em>lugar</em> del máximo es la coordenada x donde V se anula. El <em>valor</em> del máximo es M(x) evaluado en ese x. <br>
+      Ejemplo: viga apoyada con UDL sobre toda la luz → el lugar es <span class="hl">x = L/2</span>, el valor es <span class="hl">M<sub>max</sub> = qL²/8</span>.
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================================= -->
+<!-- PESTAÑA 3: CASOS DE ESTUDIO                                    -->
+<!-- ============================================================= -->
+<section class="tab-panel" id="tab-cases">
+
+  <div class="card">
+    <div class="controls-row">
+      <label><strong>Caso:</strong>
+        <select id="caseSelect">
+          <option value="A">A · Viga apoyada + carga puntual P en x = a</option>
+          <option value="B" selected>B · Viga apoyada + UDL q en toda la luz</option>
+          <option value="C">C · Viga apoyada + UDL q en tramo parcial</option>
+          <option value="D">D · Voladizo + carga puntual P en el extremo</option>
+          <option value="E">E · Voladizo + UDL q</option>
+        </select>
+      </label>
+      <button id="btnMode" class="active">Modo matemático</button>
+      <button id="btnAreas">Ver áreas bajo V</button>
+      <button id="btnAnim" class="play">▶ Animar sección</button>
+      <button id="btnReset" class="reset">Reset</button>
+    </div>
+
+    <div class="slider-group" id="paramSliders"><!-- se rellena dinámicamente --></div>
+
+    <div class="slider-group" style="margin-top:8px;">
+      <label>Posición del corte x:</label>
+      <input type="range" id="xCutSlider" min="0" max="1" step="0.001" value="0.5">
+      <span class="val" id="xCutVal">0.50 m</span>
+    </div>
+  </div>
+
+  <div class="case-layout">
+
+    <!-- COLUMNA IZQUIERDA: DIAGRAMAS -->
+    <div class="diagram-stack">
+
+      <div class="card">
+        <h2>Viga, cargas, apoyos y sección de corte</h2>
+        <svg id="svgBeam" viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrLoad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#b00020"/>
+            </marker>
+            <marker id="arrReact" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#1c5aa0"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="card">
+        <h2>Diagrama de cortantes V(x)</h2>
+        <svg id="svgV" viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <div class="card">
+        <h2>Diagrama de momentos flectores M(x)</h2>
+        <svg id="svgM" viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: PANEL -->
+    <div class="panel-stack">
+
+      <div class="card">
+        <h2>Datos y reacciones</h2>
+        <div id="dataBlock"></div>
+      </div>
+
+      <div class="card">
+        <h2>Valores en la sección x</h2>
+        <div id="xBlock"></div>
+      </div>
+
+      <div class="card">
+        <h2>Ecuaciones por tramos</h2>
+        <div id="eqBlock"></div>
+      </div>
+
+      <div class="card">
+        <h2>Máximo momento flector</h2>
+        <div id="maxBlock"></div>
+      </div>
+
+      <div class="card">
+        <h2>Interpretación</h2>
+        <div id="interpBlock" class="intuitive-box"></div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================================= -->
+<!-- PESTAÑA 4: SECCIÓN MÓVIL                                       -->
+<!-- ============================================================= -->
+<section class="tab-panel" id="tab-section">
+
+  <div class="card">
+    <h2>¿Qué hace la sección móvil?</h2>
+    <p>Esta herramienta toma el caso seleccionado en la pestaña 3 y muestra <strong>el trozo de viga entre x = 0 y el corte</strong> como un sólido libre. Sobre él aparecen las fuerzas exteriores (reacciones y cargas) y los esfuerzos internos (V y M) que lo mantienen en equilibrio. Mueve el slider de x en la pestaña 3 para ver cómo cambia el trozo aislado.</p>
+  </div>
+
+  <div class="card">
+    <h2>Cuerpo libre del tramo [0, x]</h2>
+    <svg id="svgFBD" viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrLoadFBD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#b00020"/>
+        </marker>
+        <marker id="arrReactFBD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#1c5aa0"/>
+        </marker>
+        <marker id="arrIntFBD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#2a7a3c"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="card">
+    <h2>Ecuaciones de equilibrio en la sección</h2>
+    <div id="fbdEq"></div>
+  </div>
+
+  <div class="card">
+    <h2>¿De dónde sale el brazo x/2?</h2>
+    <div class="intuitive-box">
+      <p>Cuando hay una carga distribuida uniforme q sobre un tramo de longitud x (desde 0 hasta la sección), su resultante es:</p>
+      <div class="eq center" style="background:#fff9ec;"><span class="hl">F<sub>eq</sub> = q · x</span></div>
+      <p>Esta fuerza equivalente no actúa ni en 0 ni en x: actúa en el <strong>centroide del rectángulo de carga</strong>, que es el punto medio del tramo. Por eso:</p>
+      <div class="eq center" style="background:#fff9ec;">brazo respecto al corte = <span class="hl">x / 2</span></div>
+      <p>Al tomar momentos respecto al corte aparece por tanto el término q·x·(x/2) = q·x²/2. Este es el origen del término parabólico en M(x) cuando hay UDL.</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================================= -->
+<!-- PESTAÑA 5: INTERPRETACIÓN FÍSICA                               -->
+<!-- ============================================================= -->
+<section class="tab-panel" id="tab-interp">
+
+  <div class="card">
+    <h2>Ideas clave para no confundirse</h2>
+
+    <div class="intuitive-box" style="margin-bottom:10px;">
+      "El cortante indica <em>cómo cambia</em> el momento, no la 'fuerza total' en un punto aislado".
+      <p class="small" style="margin-top:4px;">V(x) = dM/dx. Es la pendiente de M, no su valor.</p>
+    </div>
+
+    <div class="intuitive-box" style="margin-bottom:10px;">
+      "Que el cortante <em>disminuya</em> significa que la carga distribuida va restando cortante al avanzar por la viga".
+      <p class="small" style="margin-top:4px;">No significa que haya menos fuerzas en ese punto: significa que se ha acumulado más carga repartida a la izquierda.</p>
+    </div>
+
+    <div class="intuitive-box" style="margin-bottom:10px;">
+      "El máximo flector NO coincide con el mínimo de cortantes".
+      <p class="small" style="margin-top:4px;">Coincide con el punto donde V se anula o cambia de signo — que es donde M deja de crecer y empieza a decrecer.</p>
+    </div>
+
+    <div class="intuitive-box" style="margin-bottom:10px;">
+      "Lugar del máximo ≠ valor del máximo".
+      <p class="small" style="margin-top:4px;">Ejemplo UDL: lugar = L/2; valor = qL²/8. Son dos datos distintos.</p>
+    </div>
+
+    <div class="intuitive-box">
+      "Un M(x) alto significa sección más exigida a flexión".
+      <p class="small" style="margin-top:4px;">σ<sub>max</sub> = M·c/I. A mayor M, mayores tensiones normales por flexión. El máximo de M es la <strong>sección crítica de diseño</strong>.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Mapa conceptual</h2>
+    <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" style="max-width:720px;margin:0 auto;">
+      <defs>
+        <marker id="arrMap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+        </marker>
+      </defs>
+      <!-- Nodos -->
+      <rect x="80"  y="30"  width="140" height="56" fill="#fff6e6" stroke="#c8570d" stroke-width="2" rx="6"/>
+      <text x="150" y="55" text-anchor="middle" class="lbl" font-weight="bold">Carga q(x)</text>
+      <text x="150" y="75" text-anchor="middle" class="lbl-small">acción externa</text>
+
+      <rect x="290" y="30"  width="140" height="56" fill="#eef3fb" stroke="#1c5aa0" stroke-width="2" rx="6"/>
+      <text x="360" y="55" text-anchor="middle" class="lbl" font-weight="bold">Cortante V(x)</text>
+      <text x="360" y="75" text-anchor="middle" class="lbl-small">pendiente de M</text>
+
+      <rect x="500" y="30"  width="140" height="56" fill="#f6efff" stroke="#6a2a8a" stroke-width="2" rx="6"/>
+      <text x="570" y="55" text-anchor="middle" class="lbl" font-weight="bold">Flector M(x)</text>
+      <text x="570" y="75" text-anchor="middle" class="lbl-small">exigencia interna</text>
+
+      <!-- Flechas -->
+      <line x1="220" y1="58" x2="285" y2="58" stroke="#333" stroke-width="2" marker-end="url(#arrMap)"/>
+      <text x="252" y="48" text-anchor="middle" class="lbl-small">dV/dx=−q</text>
+
+      <line x1="430" y1="58" x2="495" y2="58" stroke="#333" stroke-width="2" marker-end="url(#arrMap)"/>
+      <text x="462" y="48" text-anchor="middle" class="lbl-small">dM/dx=V</text>
+
+      <!-- Abajo -->
+      <rect x="80"  y="200" width="560" height="80" fill="#f0f5ea" stroke="#2a7a3c" stroke-width="2" rx="6"/>
+      <text x="360" y="225" text-anchor="middle" class="lbl" font-weight="bold">Sección crítica</text>
+      <text x="360" y="248" text-anchor="middle" class="lbl-small">donde V=0 y M alcanza su máximo absoluto</text>
+      <text x="360" y="268" text-anchor="middle" class="lbl-small">→ determina el dimensionado por flexión: σ = M·c / I</text>
+
+      <line x1="570" y1="86" x2="420" y2="198" stroke="#333" stroke-width="2" marker-end="url(#arrMap)"/>
+    </svg>
+  </div>
+
+</section>
+
+<!-- ============================================================= -->
+<!-- PESTAÑA 6: AUTOEVALUACIÓN                                      -->
+<!-- ============================================================= -->
+<section class="tab-panel" id="tab-quiz">
+  <div class="card">
+    <h2>Autoevaluación</h2>
+    <p>Seis preguntas clave sobre los conceptos del laboratorio. Pulsa sobre la opción que creas correcta.</p>
+  </div>
+  <div id="quizContainer"></div>
+</section>
+
+<!-- ============================================================= -->
+<!-- SCRIPT                                                        -->
+<!-- ============================================================= -->
+<script>
+/* =====================================================================
+   LABORATORIO DE CORTANTES Y FLECTORES
+   Organización:
+     1. Estado global
+     2. Definición de casos (parámetros, solver V(x)/M(x), ecuaciones)
+     3. Motor numérico (evaluación, máximos)
+     4. Renderizado SVG: viga, cargas, apoyos, reacciones, corte
+     5. Renderizado diagramas V(x) y M(x)
+     6. Renderizado cuerpo libre del tramo [0,x]
+     7. Panel textual (ecuaciones, máximo, interpretación)
+     8. Controles y eventos
+     9. Pestañas + animación + modo + áreas
+    10. Quiz
+===================================================================== */
+
+/* ---------- 1. ESTADO ---------- */
+const state = {
+  caseId: 'B',
+  params: {},        // parámetros del caso actual (L, q, P, a, c, d)
+  xCut: 0.5,         // absoluto, en metros
+  modeMath: true,    // true: matemático / false: intuitivo
+  showAreas: false,
+  animating: false,
+  animId: null
+};
+
+/* Unidad de longitud: metros. Unidad de fuerza: kN. Unidad de momento: kN·m. */
+
+/* ---------- 2. CASOS ---------- */
+/* Cada caso define:
+   - name
+   - defaultParams
+   - sliders: [{key, label, min, max, step, unit}]
+   - solve(params): devuelve {
+       L,
+       reactions: [{label, value, unit, at:x}],  // para dibujar reacciones
+       loads: [ ... ],   // cargas puntuales o distribuidas para dibujar
+       supports: [{type:'pin'|'roller'|'fixed', at:x}],
+       segments: [{xStart, xEnd, V:(x)=>..., M:(x)=>..., eqV:string, eqM:string}],
+       max: {x, M, V, reason:string}
+     }
+*/
+
+const CASES = {
+
+  /* ==================== CASO A ==================== */
+  A: {
+    name: 'Viga apoyada + carga puntual P en x = a',
+    defaults: { L: 6, P: 10, a: 2 },
+    sliders: [
+      { key: 'L', label: 'L (m)',  min: 2, max: 10, step: 0.1 },
+      { key: 'P', label: 'P (kN)', min: 1, max: 30, step: 0.5 },
+      { key: 'a', label: 'a (m) — posición de P', min: 0.2, max: 9.8, step: 0.1 }
+    ],
+    solve(p) {
+      const L = p.L, P = p.P, a = Math.min(Math.max(p.a, 0.01), L - 0.01);
+      const RA = P * (L - a) / L;
+      const RB = P * a / L;
+      const segments = [
+        {
+          xStart: 0, xEnd: a,
+          V: x => RA,
+          M: x => RA * x,
+          eqV: `V(x) = R_A = ${RA.toFixed(2)} kN`,
+          eqM: `M(x) = R_A · x = ${RA.toFixed(2)} · x`
+        },
+        {
+          xStart: a, xEnd: L,
+          V: x => RA - P,
+          M: x => RA * x - P * (x - a),
+          eqV: `V(x) = R_A − P = ${(RA - P).toFixed(2)} kN`,
+          eqM: `M(x) = R_A · x − P · (x − a)`
+        }
+      ];
+      const Mmax_val = RA * a;
+      return {
+        L,
+        reactions: [
+          { label: 'R_A', value: RA, at: 0, dir: 'up' },
+          { label: 'R_B', value: RB, at: L, dir: 'up' }
+        ],
+        loads: [
+          { type: 'point', at: a, value: P, label: 'P' }
+        ],
+        supports: [
+          { type: 'pin',    at: 0 },
+          { type: 'roller', at: L }
+        ],
+        segments,
+        max: {
+          x: a,
+          M: Mmax_val,
+          V: 0,
+          reason: `El máximo ocurre <strong>bajo la carga puntual</strong>, donde V cambia de +${RA.toFixed(2)} a ${(RA - P).toFixed(2)} kN (salto debido a P). M es lineal en cada tramo y alcanza su pico en x = a.`
+        },
+        interp: {
+          math: `Las reacciones valen R_A = P(L−a)/L = ${RA.toFixed(2)} kN, R_B = Pa/L = ${RB.toFixed(2)} kN. En el tramo izquierdo V es constante (+R_A), por lo que M crece linealmente. En x = a, la carga P hace <strong>saltar V</strong> a R_A − P. El momento es máximo justo en ese punto: M<sub>max</sub> = R_A · a = P·a(L−a)/L.`,
+          intuitive: `La carga P "empuja hacia abajo" y los apoyos empujan hacia arriba. Entre el apoyo izquierdo y la carga, el cortante es la reacción R_A (constante). En la carga, el cortante cae bruscamente por P. El momento crece linealmente hasta la carga y decrece linealmente después: su pico está <em>exactamente bajo la carga</em>.`
+        }
+      };
+    }
+  },
+
+  /* ==================== CASO B ==================== */
+  B: {
+    name: 'Viga apoyada + UDL q en toda la luz',
+    defaults: { L: 6, q: 4 },
+    sliders: [
+      { key: 'L', label: 'L (m)',     min: 2, max: 10, step: 0.1 },
+      { key: 'q', label: 'q (kN/m)',  min: 0.5, max: 15, step: 0.1 }
+    ],
+    solve(p) {
+      const L = p.L, q = p.q;
+      const RA = q * L / 2;
+      const RB = RA;
+      const segments = [
+        {
+          xStart: 0, xEnd: L,
+          V: x => RA - q * x,
+          M: x => RA * x - q * x * x / 2,
+          eqV: `V(x) = R_A − q·x = ${RA.toFixed(2)} − ${q.toFixed(2)}·x`,
+          eqM: `M(x) = R_A·x − q·x²/2`
+        }
+      ];
+      const xmax = L / 2;
+      const Mmax_val = q * L * L / 8;
+      return {
+        L,
+        reactions: [
+          { label: 'R_A', value: RA, at: 0, dir: 'up' },
+          { label: 'R_B', value: RB, at: L, dir: 'up' }
+        ],
+        loads: [
+          { type: 'dist', xStart: 0, xEnd: L, q: q, label: 'q' }
+        ],
+        supports: [
+          { type: 'pin',    at: 0 },
+          { type: 'roller', at: L }
+        ],
+        segments,
+        max: {
+          x: xmax,
+          M: Mmax_val,
+          V: 0,
+          reason: `V(x) es lineal y se anula en <strong>x = L/2</strong>. Ahí M alcanza su máximo: <strong>M<sub>max</sub> = qL²/8</strong>.`
+        },
+        interp: {
+          math: `Por simetría R_A = R_B = qL/2. V(x) es una recta que vale +qL/2 en A, se anula en L/2 y vale −qL/2 en B. M(x) es una parábola que empieza en 0, alcanza su máximo qL²/8 en L/2 y vuelve a 0 en B. El término −qx²/2 en M(x) proviene del momento de la resultante q·x (carga acumulada) multiplicada por su brazo x/2 (centroide del rectángulo de carga).`,
+          intuitive: `Es el caso más simétrico. La carga se reparte por igual entre los dos apoyos. En el centro, V = 0: ahí el flector ya no crece más. Por simetría, el <em>lugar</em> del máximo es x = L/2 y el <em>valor</em> del máximo es qL²/8. Todos los libros de resistencia muestran este caso porque es la referencia intuitiva.`
+        }
+      };
+    }
+  },
+
+  /* ==================== CASO C ==================== */
+  C: {
+    name: 'Viga apoyada + UDL q en tramo parcial',
+    defaults: { L: 8, q: 5, c: 2, d: 3 },
+    sliders: [
+      { key: 'L', label: 'L (m)',       min: 4, max: 12, step: 0.1 },
+      { key: 'q', label: 'q (kN/m)',    min: 0.5, max: 15, step: 0.1 },
+      { key: 'c', label: 'c (m) — inicio del tramo cargado', min: 0, max: 10, step: 0.1 },
+      { key: 'd', label: 'd (m) — longitud del tramo cargado', min: 0.1, max: 10, step: 0.1 }
+    ],
+    solve(p) {
+      const L = p.L, q = p.q;
+      let c = Math.max(0, Math.min(p.c, L - 0.1));
+      let d = Math.max(0.1, Math.min(p.d, L - c));
+      const W = q * d;
+      const xc = c + d / 2;
+      const RB = W * xc / L;
+      const RA = W - RB;
+      const segments = [
+        {
+          xStart: 0, xEnd: c,
+          V: x => RA,
+          M: x => RA * x,
+          eqV: `V(x) = R_A = ${RA.toFixed(2)} kN`,
+          eqM: `M(x) = R_A · x`
+        },
+        {
+          xStart: c, xEnd: c + d,
+          V: x => RA - q * (x - c),
+          M: x => RA * x - q * (x - c) * (x - c) / 2,
+          eqV: `V(x) = R_A − q·(x−c)`,
+          eqM: `M(x) = R_A·x − q·(x−c)²/2`
+        },
+        {
+          xStart: c + d, xEnd: L,
+          V: x => RA - W,
+          M: x => RA * x - W * (x - xc),
+          eqV: `V(x) = R_A − q·d = −R_B = ${(-RB).toFixed(2)} kN`,
+          eqM: `M(x) = R_A·x − q·d·(x − c − d/2)`
+        }
+      ];
+      /* Punto de V=0: dentro del tramo cargado si RA/q está entre 0 y d */
+      let xmax = null, Mmax_val = null, reason = '';
+      const x0 = c + RA / q;
+      if (x0 > c && x0 < c + d) {
+        xmax = x0;
+        Mmax_val = RA * xmax - q * (xmax - c) * (xmax - c) / 2;
+        reason = `V se anula <strong>dentro del tramo cargado</strong>, en x = c + R_A/q = ${xmax.toFixed(2)} m. M es parabólico ahí y alcanza su máximo.`;
+      } else if (RA <= 0) {
+        /* caso extremo: V ya es negativo desde el inicio */
+        xmax = c; Mmax_val = RA * c;
+        reason = `V es negativo en casi toda la viga. El máximo de M ocurre en el inicio del tramo cargado.`;
+      } else {
+        /* V nunca se anula dentro del tramo cargado: máximo en un extremo */
+        xmax = c + d; Mmax_val = RA * xmax - q * d * d / 2;
+        reason = `V no se anula dentro del tramo cargado con estos parámetros. El máximo de M ocurre al final del tramo cargado.`;
+      }
+      return {
+        L,
+        reactions: [
+          { label: 'R_A', value: RA, at: 0, dir: 'up' },
+          { label: 'R_B', value: RB, at: L, dir: 'up' }
+        ],
+        loads: [
+          { type: 'dist', xStart: c, xEnd: c + d, q: q, label: 'q' }
+        ],
+        supports: [
+          { type: 'pin',    at: 0 },
+          { type: 'roller', at: L }
+        ],
+        segments,
+        max: { x: xmax, M: Mmax_val, V: 0, reason },
+        interp: {
+          math: `Reacciones: R_B = q·d·(c+d/2)/L = ${RB.toFixed(2)} kN, R_A = q·d − R_B = ${RA.toFixed(2)} kN. La viga tiene tres tramos: en los no cargados V es constante y M lineal; en el tramo cargado V es lineal y M parabólico. El máximo de M está donde V = 0, que es en x = c + R_A/q (si está dentro del tramo cargado).`,
+          intuitive: `Zonas sin carga: V constante, M lineal (recta inclinada). Zona con carga: V inclinada descendente (la carga va "restando cortante"), M parabólica. El cambio de forma se ve claramente en los diagramas al cruzar los puntos x = c y x = c + d.`
+        }
+      };
+    }
+  },
+
+  /* ==================== CASO D ==================== */
+  D: {
+    name: 'Voladizo + carga puntual P en el extremo',
+    defaults: { L: 4, P: 8 },
+    sliders: [
+      { key: 'L', label: 'L (m)',  min: 1, max: 8, step: 0.1 },
+      { key: 'P', label: 'P (kN)', min: 1, max: 30, step: 0.5 }
+    ],
+    solve(p) {
+      const L = p.L, P = p.P;
+      /* Empotramiento en x=0, extremo libre en x=L con P hacia abajo */
+      const Remp = P;          // reacción vertical en empotramiento
+      const Memp = P * L;      // momento de reacción (valor absoluto); signo en empotramiento
+      const segments = [
+        {
+          xStart: 0, xEnd: L,
+          V: x => P,           // suma a la izq = +P (solo R_emp actúa)
+          M: x => -P * (L - x),
+          eqV: `V(x) = P = ${P.toFixed(2)} kN (constante)`,
+          eqM: `M(x) = −P · (L − x)`
+        }
+      ];
+      return {
+        L,
+        reactions: [
+          { label: 'R', value: Remp, at: 0, dir: 'up' },
+          { label: 'M₀', value: Memp, at: 0, dir: 'moment' }
+        ],
+        loads: [
+          { type: 'point', at: L, value: P, label: 'P' }
+        ],
+        supports: [
+          { type: 'fixed', at: 0 }
+        ],
+        segments,
+        max: {
+          x: 0,
+          M: -P * L,
+          V: P,
+          reason: `M es lineal y alcanza su valor extremo en el <strong>empotramiento</strong>: |M<sub>max</sub>| = P·L. El signo es negativo (fibra superior en tracción, <em>hogging</em>).`
+        },
+        interp: {
+          math: `Reacciones en el empotramiento: vertical R = P (arriba) y momento M₀ = P·L. El cortante es constante y vale +P en toda la viga. El momento es lineal: vale −PL en el empotramiento y 0 en el extremo libre.`,
+          intuitive: `El voladizo "cuelga" de la pared. La pared aplica una fuerza hacia arriba (igual al peso P) y un par que impide que gire. El momento máximo está donde sufre más: en el empotramiento. Por eso los voladizos se rompen siempre por la base.`
+        }
+      };
+    }
+  },
+
+  /* ==================== CASO E ==================== */
+  E: {
+    name: 'Voladizo + UDL q',
+    defaults: { L: 4, q: 3 },
+    sliders: [
+      { key: 'L', label: 'L (m)',    min: 1, max: 8, step: 0.1 },
+      { key: 'q', label: 'q (kN/m)', min: 0.5, max: 15, step: 0.1 }
+    ],
+    solve(p) {
+      const L = p.L, q = p.q;
+      const Remp = q * L;
+      const Memp = q * L * L / 2;
+      const segments = [
+        {
+          xStart: 0, xEnd: L,
+          V: x => q * (L - x),
+          M: x => -q * (L - x) * (L - x) / 2,
+          eqV: `V(x) = q · (L − x)`,
+          eqM: `M(x) = −q · (L − x)² / 2`
+        }
+      ];
+      return {
+        L,
+        reactions: [
+          { label: 'R', value: Remp, at: 0, dir: 'up' },
+          { label: 'M₀', value: Memp, at: 0, dir: 'moment' }
+        ],
+        loads: [
+          { type: 'dist', xStart: 0, xEnd: L, q: q, label: 'q' }
+        ],
+        supports: [
+          { type: 'fixed', at: 0 }
+        ],
+        segments,
+        max: {
+          x: 0,
+          M: -q * L * L / 2,
+          V: q * L,
+          reason: `M es una parábola que alcanza su valor extremo en el <strong>empotramiento</strong>: |M<sub>max</sub>| = qL²/2.`
+        },
+        interp: {
+          math: `Reacciones: R = qL (arriba) y M₀ = qL²/2. V(x) = q(L−x) es lineal (máximo en el empotramiento, nulo en el extremo). M(x) = −q(L−x)²/2 es parabólico con máximo en el empotramiento.`,
+          intuitive: `Toda la carga se acumula en la pared: ahí es donde se concentran los esfuerzos. El cortante va decreciendo conforme avanzas hacia el extremo libre (menos carga a la derecha del corte). El flector crece hacia la base porque hay más brazo de palanca.`
+        }
+      };
+    }
+  }
+};
+
+/* ---------- 3. UTILIDADES NUMÉRICAS ---------- */
+
+function evalAt(sol, x) {
+  /* Devuelve {V, M, segmentIndex} en x dado la solución */
+  const segs = sol.segments;
+  for (let i = 0; i < segs.length; i++) {
+    const s = segs[i];
+    /* En cargas puntuales, x = a pertenece al primer tramo por convención
+       para evitar salto no definido. */
+    if (x >= s.xStart - 1e-9 && x <= s.xEnd + 1e-9) {
+      return { V: s.V(x), M: s.M(x), segIndex: i };
+    }
+  }
+  /* fallback: último tramo */
+  const last = segs[segs.length - 1];
+  return { V: last.V(x), M: last.M(x), segIndex: segs.length - 1 };
+}
+
+function sampleDiagram(sol, nPerSeg = 40) {
+  /* Devuelve arrays {xs, Vs, Ms} muestreados en cada tramo.
+     Inserta saltos en V en cargas puntuales para que se dibujen verticales. */
+  const xs = [], Vs = [], Ms = [];
+  sol.segments.forEach((s, i) => {
+    for (let k = 0; k <= nPerSeg; k++) {
+      const x = s.xStart + (s.xEnd - s.xStart) * k / nPerSeg;
+      xs.push(x); Vs.push(s.V(x)); Ms.push(s.M(x));
+    }
+    /* Separador de tramos (para que la línea de V salte en puntual) */
+    if (i < sol.segments.length - 1) {
+      const nextS = sol.segments[i + 1];
+      xs.push(NaN); Vs.push(NaN); Ms.push(NaN);
+    }
+  });
+  return { xs, Vs, Ms };
+}
+
+function absMax(arr) {
+  let m = 0;
+  arr.forEach(v => { if (!isNaN(v) && Math.abs(v) > m) m = Math.abs(v); });
+  return m || 1;
+}
+
+/* ---------- 4. RENDER SVG ---------- */
+
+/* Coordenadas del lienzo de la viga */
+const BEAM = { x0: 60, x1: 660, y: 100, h: 14 };   // viga horizontal
+const DIAG = { x0: 60, x1: 660, yAxis: 90, h: 60 }; // diagrama V o M (yAxis = línea cero)
+
+function toBeamPx(x, L) { return BEAM.x0 + (x / L) * (BEAM.x1 - BEAM.x0); }
+function toDiagPx(x, L) { return DIAG.x0 + (x / L) * (DIAG.x1 - DIAG.x0); }
+
+/* ---------- 4.1. Dibujar viga, cargas, apoyos, reacciones ---------- */
+function renderBeamSVG(sol) {
+  const svg = document.getElementById('svgBeam');
+  /* Limpiar todo excepto <defs> */
+  [...svg.querySelectorAll(':scope > *')].forEach(el => {
+    if (el.tagName !== 'defs') svg.removeChild(el);
+  });
+
+  const L = sol.L;
+
+  /* Eje x (línea sutil) */
+  addLine(svg, BEAM.x0, BEAM.y + BEAM.h + 30, BEAM.x1, BEAM.y + BEAM.h + 30, '#bbb', 1, '2,3');
+
+  /* Viga (rectángulo) */
+  addRect(svg, BEAM.x0, BEAM.y, BEAM.x1 - BEAM.x0, BEAM.h, '#d9d5c7', '#333', 1.5);
+
+  /* Cargas distribuidas (flechas hacia abajo a lo largo del tramo) */
+  sol.loads.forEach(ld => {
+    if (ld.type === 'dist') {
+      const xA = toBeamPx(ld.xStart, L), xB = toBeamPx(ld.xEnd, L);
+      const qTop = BEAM.y - 40;
+      /* Línea superior */
+      addLine(svg, xA, qTop, xB, qTop, '#b00020', 1.5);
+      /* Flechas repartidas */
+      const n = Math.max(5, Math.round((xB - xA) / 25));
+      for (let i = 0; i <= n; i++) {
+        const px = xA + (xB - xA) * i / n;
+        addLine(svg, px, qTop, px, BEAM.y - 2, '#b00020', 1.2, null, 'url(#arrLoad)');
+      }
+      /* Label q */
+      addText(svg, (xA + xB) / 2, qTop - 8, `${ld.label} = ${ld.q.toFixed(1)} kN/m`, 'lbl', '#b00020', 'middle');
+    } else if (ld.type === 'point') {
+      const px = toBeamPx(ld.at, L);
+      addLine(svg, px, BEAM.y - 50, px, BEAM.y - 2, '#b00020', 2.5, null, 'url(#arrLoad)');
+      addText(svg, px, BEAM.y - 56, `${ld.label} = ${ld.value.toFixed(1)} kN`, 'lbl', '#b00020', 'middle');
+    }
+  });
+
+  /* Apoyos */
+  sol.supports.forEach(s => {
+    const px = toBeamPx(s.at, L);
+    const py = BEAM.y + BEAM.h;
+    if (s.type === 'pin') {
+      /* triángulo + hatching */
+      addPolygon(svg, `${px},${py} ${px - 12},${py + 20} ${px + 12},${py + 20}`, '#fff', '#333', 1.5);
+      for (let i = 0; i < 5; i++) addLine(svg, px - 12 + i * 6, py + 20, px - 12 + i * 6 - 4, py + 28, '#333', 1);
+      addLine(svg, px - 14, py + 20, px + 14, py + 20, '#333', 1.5);
+    } else if (s.type === 'roller') {
+      addCircle(svg, px - 6, py + 14, 6, '#fff', '#333', 1.5);
+      addCircle(svg, px + 6, py + 14, 6, '#fff', '#333', 1.5);
+      addLine(svg, px - 15, py + 20, px + 15, py + 20, '#333', 1.5);
+      for (let i = 0; i < 5; i++) addLine(svg, px - 15 + i * 7.5, py + 20, px - 15 + i * 7.5 - 4, py + 28, '#333', 1);
+    } else if (s.type === 'fixed') {
+      /* pared a la izquierda */
+      addRect(svg, px - 16, py - 30, 10, 60, '#fff', '#333', 1.5);
+      for (let i = 0; i < 10; i++) addLine(svg, px - 16, py - 30 + i * 6.5, px - 22, py - 24 + i * 6.5, '#333', 1);
+    }
+  });
+
+  /* Reacciones */
+  sol.reactions.forEach(r => {
+    const px = toBeamPx(r.at, L);
+    if (r.dir === 'up') {
+      addLine(svg, px, BEAM.y + BEAM.h + 45, px, BEAM.y + BEAM.h + 5, '#1c5aa0', 2.2, null, 'url(#arrReact)');
+      addText(svg, px, BEAM.y + BEAM.h + 62, `${r.label} = ${r.value.toFixed(2)} kN`, 'lbl', '#1c5aa0', 'middle');
+    } else if (r.dir === 'moment') {
+      /* arco de momento */
+      addPath(svg, `M ${px - 22} ${BEAM.y + BEAM.h + 12} A 14 14 0 1 0 ${px - 22} ${BEAM.y + BEAM.h + 14}`, 'none', '#1c5aa0', 2);
+      addText(svg, px - 24, BEAM.y + BEAM.h + 50, `M₀ = ${r.value.toFixed(2)} kN·m`, 'lbl', '#1c5aa0', 'end');
+    }
+  });
+
+  /* Etiquetas x=0 y x=L */
+  addText(svg, BEAM.x0, BEAM.y + BEAM.h + 42, '0', 'lbl-small', '#666', 'middle');
+  addText(svg, BEAM.x1, BEAM.y + BEAM.h + 42, `L = ${L.toFixed(2)} m`, 'lbl-small', '#666', 'middle');
+
+  /* Línea vertical del corte */
+  const pxCut = toBeamPx(state.xCut, L);
+  addLine(svg, pxCut, 20, pxCut, BEAM.y + BEAM.h + 40, '#2a7a3c', 2, '5,4');
+  addText(svg, pxCut, 14, `x = ${state.xCut.toFixed(2)} m`, 'lbl', '#2a7a3c', 'middle');
+}
+
+/* ---------- 4.2. Dibujar diagrama V(x) o M(x) ---------- */
+function renderDiagram(svgId, sol, which /* 'V' o 'M' */) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = '';
+  const L = sol.L;
+  const sample = sampleDiagram(sol, 80);
+  const data = (which === 'V') ? sample.Vs : sample.Ms;
+  const maxAbs = absMax(data);
+  const yAxis = DIAG.yAxis;
+  const h = DIAG.h;
+
+  /* Eje x */
+  addLine(svg, DIAG.x0 - 10, yAxis, DIAG.x1 + 10, yAxis, '#333', 1.5);
+  /* Eje y */
+  addLine(svg, DIAG.x0, yAxis - h - 10, DIAG.x0, yAxis + h + 10, '#333', 1.5);
+
+  /* Marcas y etiquetas de valores extremos */
+  addText(svg, DIAG.x0 - 6, yAxis - h, `+${maxAbs.toFixed(2)}`, 'lbl-small', '#333', 'end');
+  addText(svg, DIAG.x0 - 6, yAxis + h + 4, `−${maxAbs.toFixed(2)}`, 'lbl-small', '#333', 'end');
+  addText(svg, DIAG.x0 - 6, yAxis + 4, '0', 'lbl-small', '#333', 'end');
+
+  /* Etiquetas eje x */
+  addText(svg, DIAG.x0, yAxis + h + 28, '0', 'lbl-small', '#666', 'middle');
+  addText(svg, DIAG.x1, yAxis + h + 28, `L`, 'lbl-small', '#666', 'middle');
+
+  /* Color */
+  const color = (which === 'V') ? '#c8570d' : '#6a2a8a';
+  const fill  = (which === 'V') ? '#fceede' : '#efe4f6';
+
+  /* Área rellena (por tramos, respetando NaN como separador) */
+  const segsPaths = [];
+  let currPath = '';
+  for (let i = 0; i < sample.xs.length; i++) {
+    const x = sample.xs[i], v = data[i];
+    if (isNaN(x) || isNaN(v)) {
+      if (currPath) segsPaths.push(currPath);
+      currPath = '';
+      continue;
+    }
+    const px = toDiagPx(x, L);
+    const py = yAxis - (v / maxAbs) * h;
+    if (!currPath) {
+      currPath = `M ${px} ${yAxis} L ${px} ${py}`;
+    } else {
+      currPath += ` L ${px} ${py}`;
+    }
+    /* cerrar al final de cada tramo */
+    if (i === sample.xs.length - 1 || isNaN(sample.xs[i + 1])) {
+      currPath += ` L ${px} ${yAxis} Z`;
+      segsPaths.push(currPath);
+      currPath = '';
+    }
+  }
+  segsPaths.forEach(p => addPath(svg, p, fill, color, 1.8));
+
+  /* Si show areas (solo V): sombreado adicional */
+  if (state.showAreas && which === 'V') {
+    /* Sombrear con patrón a rayas el área total */
+    segsPaths.forEach(p => addPath(svg, p, 'rgba(200,87,13,0.25)', 'none', 0));
+  }
+
+  /* Punto destacado x_cut */
+  const vNow = evalAt(sol, state.xCut)[which];
+  const pxCut = toDiagPx(state.xCut, L);
+  const pyCut = yAxis - (vNow / maxAbs) * h;
+  /* Línea vertical discontinua */
+  addLine(svg, pxCut, yAxis - h - 10, pxCut, yAxis + h + 10, '#2a7a3c', 1.5, '5,4');
+  /* Círculo */
+  addCircle(svg, pxCut, pyCut, 5, '#fff', '#2a7a3c', 2);
+  /* Etiqueta con valor */
+  const lblText = `${which}(${state.xCut.toFixed(2)}) = ${vNow.toFixed(2)} ${which === 'V' ? 'kN' : 'kN·m'}`;
+  addText(svg, pxCut + 8, pyCut - 8, lblText, 'lbl-val', '#2a7a3c', 'start');
+
+  /* Punto de V=0 si es un diagrama V y hay cruce */
+  if (which === 'V' && sol.max && Math.abs(sol.max.V) < 1e-6) {
+    const xm = sol.max.x;
+    const pxm = toDiagPx(xm, L);
+    addCircle(svg, pxm, yAxis, 4, '#1c5aa0', '#1c5aa0', 1);
+    addText(svg, pxm, yAxis + 18, `V=0`, 'lbl-small', '#1c5aa0', 'middle');
+  }
+  /* Punto del máximo de M */
+  if (which === 'M' && sol.max) {
+    const xm = sol.max.x;
+    const vm = sol.max.M;
+    const pxm = toDiagPx(xm, L);
+    const pym = yAxis - (vm / maxAbs) * h;
+    addCircle(svg, pxm, pym, 5, '#b00020', '#b00020', 1);
+    addText(svg, pxm, pym - 10, `M_max = ${vm.toFixed(2)}`, 'lbl-val', '#b00020', 'middle');
+  }
+}
+
+/* ---------- 4.3. Cuerpo libre del tramo [0, x_cut] ---------- */
+function renderFBD(sol) {
+  const svg = document.getElementById('svgFBD');
+  [...svg.querySelectorAll(':scope > *')].forEach(el => {
+    if (el.tagName !== 'defs') svg.removeChild(el);
+  });
+  const L = sol.L;
+  const xc = state.xCut;
+  if (xc <= 0.001) {
+    addText(svg, 360, 140, 'Desplaza el slider de x a un valor > 0 para ver el cuerpo libre.', 'lbl', '#666', 'middle');
+    return;
+  }
+
+  /* El tramo [0, xc] se escala para ocupar casi todo el ancho útil */
+  const X0 = 80, X1 = 640, Y = 120, H = 14;
+  const pxCut = X0 + (xc / L) * (X1 - X0);  // posición del corte
+
+  /* Solo dibujamos de X0 a pxCut (el trozo aislado) */
+  addRect(svg, X0, Y, pxCut - X0, H, '#d9d5c7', '#333', 1.5);
+  /* Línea del corte (rayada) */
+  addLine(svg, pxCut, Y - 40, pxCut, Y + H + 40, '#2a7a3c', 2, '5,4');
+  addText(svg, pxCut, Y - 46, `corte en x = ${xc.toFixed(2)} m`, 'lbl', '#2a7a3c', 'middle');
+
+  /* Dibujar apoyos y cargas que caigan dentro del trozo */
+  sol.supports.forEach(s => {
+    if (s.at <= xc + 1e-6) {
+      const px = X0 + (s.at / L) * (X1 - X0);
+      const py = Y + H;
+      if (s.type === 'pin') {
+        addPolygon(svg, `${px},${py} ${px - 10},${py + 18} ${px + 10},${py + 18}`, '#fff', '#333', 1.5);
+        for (let i = 0; i < 4; i++) addLine(svg, px - 10 + i * 6, py + 18, px - 10 + i * 6 - 4, py + 24, '#333', 1);
+      } else if (s.type === 'roller') {
+        addCircle(svg, px - 5, py + 12, 5, '#fff', '#333', 1.5);
+        addCircle(svg, px + 5, py + 12, 5, '#fff', '#333', 1.5);
+        addLine(svg, px - 13, py + 18, px + 13, py + 18, '#333', 1.5);
+      } else if (s.type === 'fixed') {
+        addRect(svg, px - 14, py - 26, 8, 52, '#fff', '#333', 1.5);
+        for (let i = 0; i < 8; i++) addLine(svg, px - 14, py - 26 + i * 7, px - 20, py - 20 + i * 7, '#333', 1);
+      }
+    }
+  });
+
+  sol.reactions.forEach(r => {
+    if (r.at <= xc + 1e-6) {
+      const px = X0 + (r.at / L) * (X1 - X0);
+      if (r.dir === 'up') {
+        addLine(svg, px, Y + H + 40, px, Y + H + 3, '#1c5aa0', 2.2, null, 'url(#arrReactFBD)');
+        addText(svg, px, Y + H + 55, `${r.label} = ${r.value.toFixed(2)} kN`, 'lbl', '#1c5aa0', 'middle');
+      } else if (r.dir === 'moment') {
+        addPath(svg, `M ${px - 20} ${Y + H + 10} A 12 12 0 1 0 ${px - 20} ${Y + H + 12}`, 'none', '#1c5aa0', 2);
+        addText(svg, px - 22, Y + H + 50, `M₀ = ${r.value.toFixed(2)}`, 'lbl', '#1c5aa0', 'end');
+      }
+    }
+  });
+
+  /* Cargas */
+  sol.loads.forEach(ld => {
+    if (ld.type === 'point' && ld.at <= xc + 1e-6) {
+      const px = X0 + (ld.at / L) * (X1 - X0);
+      addLine(svg, px, Y - 45, px, Y - 2, '#b00020', 2.5, null, 'url(#arrLoadFBD)');
+      addText(svg, px, Y - 52, `${ld.label} = ${ld.value.toFixed(1)} kN`, 'lbl', '#b00020', 'middle');
+    } else if (ld.type === 'dist') {
+      const loadStart = Math.max(ld.xStart, 0);
+      const loadEnd   = Math.min(ld.xEnd, xc);
+      if (loadEnd > loadStart) {
+        const pxA = X0 + (loadStart / L) * (X1 - X0);
+        const pxB = X0 + (loadEnd   / L) * (X1 - X0);
+        const qTop = Y - 36;
+        addLine(svg, pxA, qTop, pxB, qTop, '#b00020', 1.5);
+        const n = Math.max(4, Math.round((pxB - pxA) / 25));
+        for (let i = 0; i <= n; i++) {
+          const px = pxA + (pxB - pxA) * i / n;
+          addLine(svg, px, qTop, px, Y - 2, '#b00020', 1.1, null, 'url(#arrLoadFBD)');
+        }
+        addText(svg, (pxA + pxB) / 2, qTop - 6, `q = ${ld.q.toFixed(1)} kN/m`, 'lbl', '#b00020', 'middle');
+
+        /* Fuerza equivalente: destacarla */
+        const Lload = loadEnd - loadStart;
+        const F_eq = ld.q * Lload;
+        const xcen = loadStart + Lload / 2;
+        const pxcen = X0 + (xcen / L) * (X1 - X0);
+        addLine(svg, pxcen, Y - 78, pxcen, Y - 40, '#c8570d', 3, null, 'url(#arrLoadFBD)');
+        addText(svg, pxcen, Y - 85, `F_eq = q·x = ${F_eq.toFixed(2)} kN`, 'lbl', '#c8570d', 'middle');
+        addText(svg, pxcen, Y + H + 18, `centroide`, 'lbl-small', '#c8570d', 'middle');
+        addText(svg, pxcen, Y + H + 32, `brazo al corte = ${(xc - xcen).toFixed(2)} m`, 'lbl-small', '#c8570d', 'middle');
+      }
+    }
+  });
+
+  /* Esfuerzos internos en el corte: V hacia abajo (en la cara derecha del trozo izquierdo, V positivo va hacia abajo) y M con sentido convenido */
+  const vals = evalAt(sol, xc);
+  const V_val = vals.V;
+  const M_val = vals.M;
+  /* V en la cara derecha: si V > 0, la fuerza sobre la cara derecha del trozo izquierdo es hacia abajo */
+  const V_y_start = Y + H / 2;
+  if (V_val >= 0) {
+    addLine(svg, pxCut + 4, V_y_start - 45, pxCut + 4, V_y_start + 5, '#2a7a3c', 2.5, null, 'url(#arrIntFBD)');
+    addText(svg, pxCut + 50, V_y_start - 25, `V = ${V_val.toFixed(2)} kN (↓)`, 'lbl-val', '#2a7a3c', 'start');
+  } else {
+    addLine(svg, pxCut + 4, V_y_start + 45, pxCut + 4, V_y_start - 5, '#2a7a3c', 2.5, null, 'url(#arrIntFBD)');
+    addText(svg, pxCut + 50, V_y_start + 25, `V = ${V_val.toFixed(2)} kN (↑)`, 'lbl-val', '#2a7a3c', 'start');
+  }
+  /* M como arco */
+  if (M_val >= 0) {
+    addPath(svg, `M ${pxCut + 22} ${Y + H/2 - 14} A 14 14 0 1 1 ${pxCut + 22} ${Y + H/2 + 14}`, 'none', '#6a2a8a', 2);
+    /* flecha */
+    addPolygon(svg, `${pxCut + 22},${Y + H/2 + 10} ${pxCut + 16},${Y + H/2 + 18} ${pxCut + 26},${Y + H/2 + 18}`, '#6a2a8a', '#6a2a8a', 1);
+  } else {
+    addPath(svg, `M ${pxCut + 22} ${Y + H/2 + 14} A 14 14 0 1 0 ${pxCut + 22} ${Y + H/2 - 14}`, 'none', '#6a2a8a', 2);
+    addPolygon(svg, `${pxCut + 22},${Y + H/2 - 10} ${pxCut + 16},${Y + H/2 - 18} ${pxCut + 26},${Y + H/2 - 18}`, '#6a2a8a', '#6a2a8a', 1);
+  }
+  addText(svg, pxCut + 50, V_y_start + 55, `M = ${M_val.toFixed(2)} kN·m`, 'lbl-val', '#6a2a8a', 'start');
+}
+
+/* ---------- Helpers SVG ---------- */
+function addLine(svg, x1, y1, x2, y2, stroke, w, dash, markerEnd) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  e.setAttribute('x1', x1); e.setAttribute('y1', y1);
+  e.setAttribute('x2', x2); e.setAttribute('y2', y2);
+  e.setAttribute('stroke', stroke); e.setAttribute('stroke-width', w);
+  if (dash) e.setAttribute('stroke-dasharray', dash);
+  if (markerEnd) e.setAttribute('marker-end', markerEnd);
+  svg.appendChild(e); return e;
+}
+function addRect(svg, x, y, w, h, fill, stroke, sw) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  e.setAttribute('x', x); e.setAttribute('y', y);
+  e.setAttribute('width', w); e.setAttribute('height', h);
+  e.setAttribute('fill', fill); e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw); svg.appendChild(e); return e;
+}
+function addCircle(svg, cx, cy, r, fill, stroke, sw) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  e.setAttribute('cx', cx); e.setAttribute('cy', cy); e.setAttribute('r', r);
+  e.setAttribute('fill', fill); e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw); svg.appendChild(e); return e;
+}
+function addPolygon(svg, points, fill, stroke, sw) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  e.setAttribute('points', points);
+  e.setAttribute('fill', fill); e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw); svg.appendChild(e); return e;
+}
+function addPath(svg, d, fill, stroke, sw) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  e.setAttribute('d', d);
+  e.setAttribute('fill', fill); e.setAttribute('stroke', stroke);
+  e.setAttribute('stroke-width', sw); svg.appendChild(e); return e;
+}
+function addText(svg, x, y, txt, cls, fill, anchor) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  e.setAttribute('x', x); e.setAttribute('y', y);
+  if (cls) e.setAttribute('class', cls);
+  if (fill) e.setAttribute('fill', fill);
+  if (anchor) e.setAttribute('text-anchor', anchor);
+  e.textContent = txt; svg.appendChild(e); return e;
+}
+
+/* ---------- 5. PANEL TEXTUAL ---------- */
+
+function renderPanel(sol) {
+  /* Datos */
+  const p = state.params;
+  let html = '';
+  Object.keys(p).forEach(k => {
+    html += `<div class="eq"><strong>${k}</strong> = <span class="hl3">${p[k].toFixed(2)}</span></div>`;
+  });
+  html += '<hr>';
+  sol.reactions.forEach(r => {
+    const unit = (r.dir === 'moment') ? 'kN·m' : 'kN';
+    html += `<div class="eq"><strong>${r.label}</strong> = <span class="hl3">${r.value.toFixed(2)} ${unit}</span></div>`;
+  });
+  document.getElementById('dataBlock').innerHTML = html;
+
+  /* Valores en x actual */
+  const vals = evalAt(sol, state.xCut);
+  document.getElementById('xBlock').innerHTML = `
+    <div class="eq">x = <span class="hl4">${state.xCut.toFixed(3)} m</span></div>
+    <div class="eq">V(x) = <span class="hl2">${vals.V.toFixed(3)} kN</span></div>
+    <div class="eq">M(x) = <span class="hl">${vals.M.toFixed(3)} kN·m</span></div>
+    <div class="eq">Tramo: <span class="tramo-tag">${vals.segIndex + 1}</span></div>
+  `;
+
+  /* Ecuaciones por tramos */
+  let eqHtml = '';
+  sol.segments.forEach((s, i) => {
+    eqHtml += `<div style="margin-bottom:8px;">
+      <span class="tramo-tag">Tramo ${i + 1}</span>
+      <span class="small">${s.xStart.toFixed(2)} ≤ x ≤ ${s.xEnd.toFixed(2)} m</span>
+      <div class="eq">${s.eqV}</div>
+      <div class="eq">${s.eqM}</div>
+    </div>`;
+  });
+  document.getElementById('eqBlock').innerHTML = eqHtml;
+
+  /* Máximo */
+  const mx = sol.max;
+  document.getElementById('maxBlock').innerHTML = `
+    <div class="eq"><strong>Lugar:</strong> x = <span class="hl3">${mx.x.toFixed(3)} m</span>
+      <span class="note">posición donde V se anula / extremo</span></div>
+    <div class="eq"><strong>Valor:</strong> M<sub>max</sub> = <span class="hl">${mx.M.toFixed(3)} kN·m</span>
+      <span class="note">tensión máxima de flexión en esta sección</span></div>
+    <div class="intuitive-box" style="margin-top:8px;">${mx.reason}</div>
+  `;
+
+  /* Interpretación */
+  const interpText = state.modeMath ? sol.interp.math : sol.interp.intuitive;
+  document.getElementById('interpBlock').innerHTML = interpText;
+
+  /* FBD ecuaciones */
+  renderFBDEq(sol);
+}
+
+function renderFBDEq(sol) {
+  const xc = state.xCut;
+  if (xc < 0.001) { document.getElementById('fbdEq').innerHTML = '<p class="small">Mueve el corte a x > 0 para ver las ecuaciones.</p>'; return; }
+  const vals = evalAt(sol, xc);
+  /* Construir ecuaciones paso a paso */
+  let html = '';
+  html += `<p><strong>Paso 1:</strong> aislar el tramo [0, x] y dibujar todas las fuerzas exteriores actuando sobre él.</p>`;
+  html += `<p><strong>Paso 2:</strong> añadir los esfuerzos internos V y M en la cara derecha del trozo (son los que el resto de la viga "pasa" al trozo por el corte).</p>`;
+  html += `<p><strong>Paso 3:</strong> aplicar equilibrio:</p>`;
+
+  /* Suma de fuerzas verticales */
+  const caso = state.caseId;
+  if (caso === 'A') {
+    const RA = sol.reactions[0].value;
+    if (xc < state.params.a) {
+      html += `<div class="eq">ΣF<sub>y</sub> = 0:  R<sub>A</sub> − V = 0  ⟹  V = <span class="hl3">${RA.toFixed(2)}</span> kN ✓</div>`;
+      html += `<div class="eq">ΣM<sub>corte</sub> = 0:  −R<sub>A</sub>·x + M = 0  ⟹  M = <span class="hl">R<sub>A</sub>·x</span> = ${vals.M.toFixed(2)} kN·m</div>`;
+    } else {
+      html += `<div class="eq">ΣF<sub>y</sub> = 0:  R<sub>A</sub> − P − V = 0  ⟹  V = ${vals.V.toFixed(2)} kN</div>`;
+      html += `<div class="eq">ΣM<sub>corte</sub> = 0:  −R<sub>A</sub>·x + P·(x − a) + M = 0  ⟹  M = R<sub>A</sub>·x − P·(x − a) = ${vals.M.toFixed(2)} kN·m</div>`;
+    }
+  } else if (caso === 'B') {
+    const RA = sol.reactions[0].value;
+    const q = state.params.q;
+    html += `<div class="eq">ΣF<sub>y</sub> = 0:  R<sub>A</sub> − q·x − V = 0</div>`;
+    html += `<div class="eq">⟹  V = R<sub>A</sub> − q·x = ${RA.toFixed(2)} − ${q.toFixed(2)}·${xc.toFixed(2)} = <span class="hl3">${vals.V.toFixed(2)} kN</span></div>`;
+    html += `<div class="eq">ΣM<sub>corte</sub> = 0:  −R<sub>A</sub>·x + q·x·(<span class="hl2">x/2</span>) + M = 0</div>`;
+    html += `<div class="eq note">El término x/2 es el brazo de la resultante q·x (centroide del rectángulo de carga).</div>`;
+    html += `<div class="eq">⟹  M = R<sub>A</sub>·x − q·x²/2 = <span class="hl">${vals.M.toFixed(2)} kN·m</span></div>`;
+  } else if (caso === 'C') {
+    const p = state.params;
+    html += `<p class="small">Dependiendo de dónde esté el corte (antes, dentro o después del tramo cargado), las ecuaciones varían:</p>`;
+    if (xc < p.c) {
+      html += `<div class="eq">Corte <strong>antes</strong> del tramo cargado. No hay carga en [0, x].</div>`;
+      html += `<div class="eq">V = R<sub>A</sub> = ${vals.V.toFixed(2)} kN,  M = R<sub>A</sub>·x = ${vals.M.toFixed(2)} kN·m</div>`;
+    } else if (xc <= p.c + p.d) {
+      html += `<div class="eq">Corte <strong>dentro</strong> del tramo cargado. Carga sobre [c, x] con longitud (x − c):</div>`;
+      html += `<div class="eq">Resultante = q·(x − c);  brazo al corte = (x − c)/2</div>`;
+      html += `<div class="eq">V = R<sub>A</sub> − q·(x − c) = ${vals.V.toFixed(2)} kN</div>`;
+      html += `<div class="eq">M = R<sub>A</sub>·x − q·(x − c)²/2 = ${vals.M.toFixed(2)} kN·m</div>`;
+    } else {
+      html += `<div class="eq">Corte <strong>después</strong> del tramo cargado. Carga total q·d actúa en c + d/2:</div>`;
+      html += `<div class="eq">V = R<sub>A</sub> − q·d = ${vals.V.toFixed(2)} kN</div>`;
+      html += `<div class="eq">M = R<sub>A</sub>·x − q·d·(x − c − d/2) = ${vals.M.toFixed(2)} kN·m</div>`;
+    }
+  } else if (caso === 'D') {
+    const P = state.params.P, L = sol.L;
+    html += `<div class="eq">Fuerzas sobre [0, x]: reacción R = P (↑), momento M₀ = P·L en empotramiento.</div>`;
+    html += `<div class="eq">ΣF<sub>y</sub> = 0:  P − V = 0  ⟹  V = P = ${P.toFixed(2)} kN</div>`;
+    html += `<div class="eq">ΣM<sub>corte</sub> = 0:  M₀ − P·x + M = 0  ⟹  M = P·x − P·L = −P·(L−x) = ${vals.M.toFixed(2)} kN·m</div>`;
+  } else if (caso === 'E') {
+    const q = state.params.q, L = sol.L;
+    html += `<div class="eq">Fuerzas sobre [0, x]: R = qL, M₀ = qL²/2, y carga distribuida q·x sobre el tramo.</div>`;
+    html += `<div class="eq">ΣF<sub>y</sub> = 0:  qL − q·x − V = 0  ⟹  V = q(L − x) = ${vals.V.toFixed(2)} kN</div>`;
+    html += `<div class="eq">ΣM<sub>corte</sub> = 0:  M₀ − qL·x + (q·x)·(x/2) + M = 0</div>`;
+    html += `<div class="eq">⟹  M = qL·x − qL²/2 − q·x²/2 = −q(L−x)²/2 = ${vals.M.toFixed(2)} kN·m</div>`;
+  }
+  document.getElementById('fbdEq').innerHTML = html;
+}
+
+/* ---------- 6. CONTROLES ---------- */
+
+function buildSliders() {
+  const caso = CASES[state.caseId];
+  state.params = Object.assign({}, caso.defaults);
+
+  const cont = document.getElementById('paramSliders');
+  cont.innerHTML = '';
+
+  caso.sliders.forEach(sl => {
+    const label = document.createElement('label');
+    label.textContent = sl.label + ':';
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = sl.min;
+    input.max = sl.max;
+    input.step = sl.step;
+    input.value = state.params[sl.key];
+    input.dataset.key = sl.key;
+    const span = document.createElement('span');
+    span.className = 'val';
+    span.textContent = Number(input.value).toFixed(2);
+    input.addEventListener('input', () => {
+      state.params[sl.key] = Number(input.value);
+      span.textContent = Number(input.value).toFixed(2);
+      /* Al cambiar L, recalibrar x_cut para seguir dentro */
+      const sol = CASES[state.caseId].solve(state.params);
+      if (state.xCut > sol.L) state.xCut = sol.L * 0.5;
+      updateXCutSlider();
+      rerender();
+    });
+    cont.appendChild(label);
+    cont.appendChild(input);
+    cont.appendChild(span);
+  });
+}
+
+function updateXCutSlider() {
+  const sol = CASES[state.caseId].solve(state.params);
+  const sl = document.getElementById('xCutSlider');
+  sl.min = 0;
+  sl.max = sol.L;
+  sl.step = 0.001;
+  if (state.xCut > sol.L) state.xCut = sol.L * 0.5;
+  sl.value = state.xCut;
+  document.getElementById('xCutVal').textContent = state.xCut.toFixed(3) + ' m';
+}
+
+function rerender() {
+  const sol = CASES[state.caseId].solve(state.params);
+  renderBeamSVG(sol);
+  renderDiagram('svgV', sol, 'V');
+  renderDiagram('svgM', sol, 'M');
+  renderFBD(sol);
+  renderPanel(sol);
+}
+
+/* ---------- 7. PESTAÑAS, ANIMACIÓN, MODO ---------- */
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+}
+
+function startAnim() {
+  if (state.animating) return;
+  state.animating = true;
+  const btn = document.getElementById('btnAnim');
+  btn.textContent = '⏸ Pausar'; btn.classList.remove('play'); btn.classList.add('pause');
+  let dir = 1;
+  state.animId = setInterval(() => {
+    const sol = CASES[state.caseId].solve(state.params);
+    state.xCut += dir * sol.L * 0.008;
+    if (state.xCut >= sol.L) { state.xCut = sol.L; dir = -1; }
+    if (state.xCut <= 0)     { state.xCut = 0;     dir =  1; }
+    document.getElementById('xCutSlider').value = state.xCut;
+    document.getElementById('xCutVal').textContent = state.xCut.toFixed(3) + ' m';
+    rerender();
+  }, 40);
+}
+function stopAnim() {
+  if (!state.animating) return;
+  state.animating = false;
+  clearInterval(state.animId);
+  const btn = document.getElementById('btnAnim');
+  btn.textContent = '▶ Animar sección'; btn.classList.remove('pause'); btn.classList.add('play');
+}
+
+/* ---------- 8. QUIZ ---------- */
+
+const QUIZ = [
+  {
+    q: '1. En una viga simplemente apoyada con UDL q en toda la luz, ¿dónde se sitúa el máximo momento?',
+    opts: ['En los apoyos', 'En x = L/4', 'En x = L/2', 'En x = L'],
+    correct: 2,
+    fb: 'En x = L/2. Por simetría V se anula en el centro, y como dM/dx = V, ahí M tiene un extremo.'
+  },
+  {
+    q: '2. ¿Qué significa que V(x) sea negativo?',
+    opts: [
+      'Que hay una fuerza hacia arriba en ese punto',
+      'Que el momento M(x) está decreciendo en ese punto',
+      'Que no hay carga en ese punto',
+      'Que hay un error en las reacciones'
+    ],
+    correct: 1,
+    fb: 'dM/dx = V. Si V < 0, M decrece con x.'
+  },
+  {
+    q: '3. ¿Por qué aparece el término q·x²/2 en el momento bajo una UDL?',
+    opts: [
+      'Porque la carga es cuadrática',
+      'Porque la resultante q·x actúa en el centroide x/2, dando momento q·x·(x/2)',
+      'Porque se integra dos veces',
+      'Por convención de signos'
+    ],
+    correct: 1,
+    fb: 'La resultante de la UDL sobre [0,x] es q·x y se coloca en el centroide del rectángulo de carga, a x/2 del origen. Su momento respecto al corte es q·x·(x/2) = q·x²/2.'
+  },
+  {
+    q: '4. ¿Qué diferencia hay entre "lugar del máximo" y "valor del máximo"?',
+    opts: [
+      'Son lo mismo',
+      'El lugar es la coordenada x donde ocurre; el valor es M(x) en ese x',
+      'El lugar tiene unidades de fuerza; el valor tiene unidades de longitud',
+      'El lugar es aproximado; el valor es exacto'
+    ],
+    correct: 1,
+    fb: 'Lugar: coordenada x (en metros). Valor: M(x) en esa coordenada (en kN·m). Para UDL sobre toda la luz: lugar = L/2, valor = qL²/8.'
+  },
+  {
+    q: '5. En un voladizo empotrado a la izquierda con carga P en el extremo, ¿dónde está el máximo de |M|?',
+    opts: ['En el extremo libre', 'En el centro del voladizo', 'En el empotramiento', 'Depende de P'],
+    correct: 2,
+    fb: 'En el empotramiento: |M_max| = P·L. Por eso los voladizos se rompen por la base.'
+  },
+  {
+    q: '6. Que el cortante disminuya al avanzar por la viga significa que…',
+    opts: [
+      'Las fuerzas externas desaparecen',
+      'La carga distribuida acumulada va restando cortante',
+      'El momento flector es negativo',
+      'La viga es más ligera en esa zona'
+    ],
+    correct: 1,
+    fb: 'dV/dx = −q. Con q > 0, V decrece al acumular carga. No es que desaparezcan fuerzas, es el balance acumulado.'
+  }
+];
+
+function buildQuiz() {
+  const cont = document.getElementById('quizContainer');
+  cont.innerHTML = '';
+  QUIZ.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-question';
+    let html = `<p class="q">${item.q}</p>`;
+    item.opts.forEach((opt, j) => {
+      html += `<div class="quiz-opt" data-q="${i}" data-o="${j}">${opt}</div>`;
+    });
+    html += `<div class="quiz-feedback" id="fb-${i}"></div>`;
+    div.innerHTML = html;
+    cont.appendChild(div);
+  });
+  cont.querySelectorAll('.quiz-opt').forEach(el => {
+    el.addEventListener('click', () => {
+      const qi = Number(el.dataset.q), oi = Number(el.dataset.o);
+      const item = QUIZ[qi];
+      const fb = document.getElementById(`fb-${qi}`);
+      /* limpiar estilos previos */
+      cont.querySelectorAll(`.quiz-opt[data-q="${qi}"]`).forEach(x => x.classList.remove('correct', 'wrong'));
+      if (oi === item.correct) {
+        el.classList.add('correct');
+        fb.className = 'quiz-feedback ok show';
+        fb.textContent = '✓ Correcto. ' + item.fb;
+      } else {
+        el.classList.add('wrong');
+        /* mostrar también la correcta */
+        const correctEl = cont.querySelector(`.quiz-opt[data-q="${qi}"][data-o="${item.correct}"]`);
+        if (correctEl) correctEl.classList.add('correct');
+        fb.className = 'quiz-feedback bad show';
+        fb.textContent = '✗ No. ' + item.fb;
+      }
+    });
+  });
+}
+
+/* ---------- 9. INIT Y EVENTOS ---------- */
+
+window.addEventListener('load', () => {
+  /* Pestañas */
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.addEventListener('click', () => switchTab(b.dataset.tab));
+  });
+
+  /* Selector de caso */
+  document.getElementById('caseSelect').addEventListener('change', e => {
+    state.caseId = e.target.value;
+    buildSliders();
+    updateXCutSlider();
+    rerender();
+  });
+
+  /* Slider x_cut */
+  document.getElementById('xCutSlider').addEventListener('input', e => {
+    state.xCut = Number(e.target.value);
+    document.getElementById('xCutVal').textContent = state.xCut.toFixed(3) + ' m';
+    rerender();
+  });
+
+  /* Botones */
+  document.getElementById('btnMode').addEventListener('click', () => {
+    state.modeMath = !state.modeMath;
+    const btn = document.getElementById('btnMode');
+    btn.textContent = state.modeMath ? 'Modo matemático' : 'Modo intuitivo';
+    btn.classList.toggle('active', state.modeMath);
+    rerender();
+  });
+
+  document.getElementById('btnAreas').addEventListener('click', () => {
+    state.showAreas = !state.showAreas;
+    document.getElementById('btnAreas').classList.toggle('active', state.showAreas);
+    rerender();
+  });
+
+  document.getElementById('btnAnim').addEventListener('click', () => {
+    if (state.animating) stopAnim(); else startAnim();
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    stopAnim();
+    state.params = Object.assign({}, CASES[state.caseId].defaults);
+    state.xCut = state.params.L ? state.params.L * 0.5 : 0.5;
+    buildSliders();
+    updateXCutSlider();
+    rerender();
+  });
+
+  /* Init */
+  buildSliders();
+  state.xCut = state.params.L * 0.5;
+  updateXCutSlider();
+  rerender();
+  buildQuiz();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Coriolis — Corredera sobre barra rotante</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080d12;color:#a0b4c4;font-family:'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.top{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#0a0f18;border-bottom:1px solid #1e2d3d;flex-shrink:0}
+.top h1{font-size:.82rem;color:#90cdf4;font-weight:600}
+.badge{background:#1a3a5c;color:#63b3ed;font-size:.6rem;padding:1px 7px;border-radius:8px;border:1px solid #2b6cb0}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:#0a0f18;border-right:1px solid #1e2d3d;padding:12px;overflow-y:auto;flex-shrink:0}
+.diagram{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#060b10;padding:10px;gap:8px}
+.sec{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:#1e3a4a;margin:12px 0 7px;padding-bottom:4px;border-bottom:1px solid #1a2535}
+.sec:first-child{margin-top:0}
+.param{margin-bottom:10px}
+.ph{display:flex;justify-content:space-between;margin-bottom:4px}
+.pn{font-size:.72rem;color:#5a7a8a}
+.pv{font-size:.72rem;color:#90cdf4;font-family:monospace}
+input[type=range]{width:100%;height:3px;-webkit-appearance:none;background:#1e2d3d;border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:#63b3ed;cursor:pointer}
+.btn-row{display:flex;gap:5px;margin-top:6px}
+.pbtn{flex:1;background:#0a0f18;border:1px solid #1e2d3d;color:#3a5a6a;font-size:.65rem;padding:4px 6px;border-radius:3px;cursor:pointer;transition:all .1s}
+.pbtn:hover{color:#90cdf4;border-color:#2b6cb0;background:#0e1c2a}
+.pbtn.on{background:#0e2038;border-color:#2b6cb0;color:#63b3ed}
+.eq{background:#060b10;border:1px solid #1a2535;border-radius:4px;padding:7px 9px;font-size:.7rem;font-family:monospace;line-height:1.9}
+.legend{background:#060b10;border:1px solid #1a2535;border-radius:4px;padding:8px;font-size:.68rem;line-height:1.55}
+.legend .lk{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.lk .sw{width:18px;height:2px;border-radius:1px;flex-shrink:0}
+#eq-strip{display:flex;gap:14px;font-size:.68rem;font-family:monospace;color:#2d4a62;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>⚙ Aceleración de Coriolis — corredera radial sobre barra rotante</h1>
+  <span class="badge">CORIOLIS</span>
+  <div id="eq-strip" style="margin-left:auto"></div>
+</div>
+<div class="main">
+<div class="sidebar">
+  <div class="sec">Animación</div>
+  <div class="btn-row">
+    <button class="pbtn on" id="btn-play">▶ Pausa</button>
+    <button class="pbtn" id="btn-reset">⟲ Reset</button>
+  </div>
+  <div class="sec">Parámetros</div>
+  <div id="sliders"></div>
+
+  <div class="sec">Capas</div>
+  <div id="layers"></div>
+
+  <div class="sec">Leyenda</div>
+  <div class="legend">
+    <div class="lk"><span class="sw" style="background:#8899aa"></span>Barra (gira con ω)</div>
+    <div class="lk"><span class="sw" style="background:#f6e05e"></span>Corredera P (desliza)</div>
+    <div class="lk"><span class="sw" style="background:#3498db"></span>v_rel = ṙ·êᵣ</div>
+    <div class="lk"><span class="sw" style="background:#e74c3c"></span>a_cor = 2ω×v_rel</div>
+    <div class="lk"><span class="sw" style="background:#e056a0"></span>êᵣ, êθ (ejes móviles)</div>
+    <div class="lk"><span class="sw" style="background:#9b59b6"></span>ω (⊙ sale / ⊗ entra)</div>
+  </div>
+
+  <div class="sec">Resultados</div>
+  <div class="eq" id="eq-panel">—</div>
+</div>
+<div class="diagram">
+  <div id="svg-wrap"></div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// PARÁMETROS
+// ═══════════════════════════════════════════════════
+let params = {
+  omega: 2,      // rad/s
+  rdot: 0.5,     // m/s (velocidad radial de la corredera)
+  r: 0.6,        // m (posición radial)
+  theta: 30      // grados (ángulo de la barra)
+};
+let layers = { v_rel: true, a_cor: true, ejes: true, omega: true, Q: true };
+let playing = true;
+const W = 620, H = 480;
+const Cx = 310, Cy = 240;       // centro (pivote O)
+const PX = 140;                  // escala: 1 m = 140 px
+const MAX_R = 2.0;               // longitud máxima de la barra (m)
+
+// ═══════════════════════════════════════════════════
+// MARKERS
+// ═══════════════════════════════════════════════════
+const MKS = ['arr-red:#e74c3c','arr-blue:#3498db','arr-pink:#e056a0','arr-purple:#9b59b6','arr-gray:#6b7a88']
+  .map(s=>{const[id,c]=s.split(':'),sz=7,h=sz/2;
+    return `<marker id="${id}" markerWidth="${sz}" markerHeight="${sz}" refX="${sz-1}" refY="${h}" orient="auto" markerUnits="strokeWidth"><polygon points="0,0 ${sz},${h} 0,${sz}" fill="${c}"/></marker>`;
+  }).join('');
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function render() {
+  const th = params.theta * Math.PI / 180;
+  const c = Math.cos(th), s = Math.sin(th);
+  // unit vectors (en coords pantalla, y invertido)
+  const er = { x: c, y: -s };
+  const et = { x: -s, y: -c };  // e_theta = k × er
+
+  // Corredera P
+  const Px = Cx + params.r * PX * er.x;
+  const Py = Cy + params.r * PX * er.y;
+
+  // Punto Q fijo (a mitad de barra, por ejemplo a r0=0.3)
+  const r0 = 0.3;
+  const Qx = Cx + r0 * PX * er.x;
+  const Qy = Cy + r0 * PX * er.y;
+
+  // Extremo de la barra
+  const Bx = Cx + MAX_R * PX * er.x;
+  const By = Cy + MAX_R * PX * er.y;
+
+  // Vectores físicos
+  const vRel_mag = params.rdot;
+  const aCor_mag = 2 * params.omega * params.rdot;
+
+  // Escalas visuales (px por unidad)
+  const V_SCALE = 80;   // m/s → px
+  const A_SCALE = 35;   // m/s² → px
+
+  // v_rel (radial)
+  const vRel_x = Px + er.x * vRel_mag * V_SCALE;
+  const vRel_y = Py + er.y * vRel_mag * V_SCALE;
+
+  // a_cor (tangencial, sentido = sign(omega*rdot) * e_theta)
+  const sgn = (params.omega * params.rdot) >= 0 ? 1 : -1;
+  const aCor_x = Px + et.x * aCor_mag * A_SCALE * sgn;
+  const aCor_y = Py + et.y * aCor_mag * A_SCALE * sgn;
+
+  let svg = '';
+
+  // Trayectoria de P (círculo de radio r)
+  svg += `<circle cx="${Cx}" cy="${Cy}" r="${params.r*PX}" fill="none" stroke="#1e2d3d" stroke-width="1" stroke-dasharray="3,4" opacity="0.6"/>`;
+
+  // Trayectoria de Q
+  if (layers.Q) {
+    svg += `<circle cx="${Cx}" cy="${Cy}" r="${r0*PX}" fill="none" stroke="#2d3748" stroke-width="0.8" stroke-dasharray="2,3" opacity="0.5"/>`;
+  }
+
+  // Barra (sombra + barra)
+  svg += `<line x1="${Cx}" y1="${Cy}" x2="${Bx}" y2="${By}" stroke="#1a2535" stroke-width="12" stroke-linecap="round"/>`;
+  svg += `<line x1="${Cx}" y1="${Cy}" x2="${Bx}" y2="${By}" stroke="#8899aa" stroke-width="3" stroke-linecap="round"/>`;
+  // Ranura (línea clara sobre la barra indicando guía de la corredera)
+  svg += `<line x1="${Cx}" y1="${Cy}" x2="${Bx}" y2="${By}" stroke="#a8b8c8" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>`;
+
+  // Pivote O (igual estilo que el skill)
+  svg += `<line x1="${Cx-22}" y1="${Cy+12}" x2="${Cx+22}" y2="${Cy+12}" stroke="#4a5568" stroke-width="2"/>`;
+  for (let i=-2;i<=2;i++) {
+    svg += `<line x1="${Cx+i*9-6}" y1="${Cy+12}" x2="${Cx+i*9+4}" y2="${Cy+22}" stroke="#2d3748" stroke-width="1.5"/>`;
+  }
+  svg += `<circle cx="${Cx}" cy="${Cy}" r="9" fill="#141b27" stroke="#4a6fa0" stroke-width="1.5"/>`;
+  svg += `<circle cx="${Cx}" cy="${Cy}" r="3.5" fill="#90cdf4"/>`;
+  svg += `<text x="${Cx-22}" y="${Cy-12}" fill="#90cdf4" font-family="serif" font-style="italic" font-size="14">O</text>`;
+
+  // Símbolo de ω: círculo con punto (saliendo del plano) cerca de O
+  if (layers.omega) {
+    const omX = Cx - 55, omY = Cy - 45;
+    svg += `<circle cx="${omX}" cy="${omY}" r="11" fill="#0d1117" stroke="#9b59b6" stroke-width="1.5"/>`;
+    if (params.omega >= 0) {
+      // Punto (sale del plano)
+      svg += `<circle cx="${omX}" cy="${omY}" r="3" fill="#9b59b6"/>`;
+    } else {
+      // Cruz (entra al plano)
+      svg += `<line x1="${omX-6}" y1="${omY-6}" x2="${omX+6}" y2="${omY+6}" stroke="#9b59b6" stroke-width="2"/>`;
+      svg += `<line x1="${omX+6}" y1="${omY-6}" x2="${omX-6}" y2="${omY+6}" stroke="#9b59b6" stroke-width="2"/>`;
+    }
+    svg += `<text x="${omX-20}" y="${omY+3}" fill="#9b59b6" font-family="serif" font-style="italic" font-size="13">ω</text>`;
+
+    // Arco con flecha indicando sentido
+    const arcR = 28;
+    const a1 = -Math.PI*0.75, a2 = -Math.PI*0.15;
+    const ax1 = Cx + arcR*Math.cos(a1), ay1 = Cy + arcR*Math.sin(a1);
+    const ax2 = Cx + arcR*Math.cos(a2), ay2 = Cy + arcR*Math.sin(a2);
+    const sweep = params.omega >= 0 ? 0 : 1;
+    svg += `<path d="M ${ax1} ${ay1} A ${arcR} ${arcR} 0 0 ${sweep} ${ax2} ${ay2}" fill="none" stroke="#9b59b6" stroke-width="1.5" marker-end="url(#arr-purple)" opacity="0.7"/>`;
+  }
+
+  // Punto Q (fijo a la barra) - para comparación (sin Coriolis)
+  if (layers.Q) {
+    svg += `<circle cx="${Qx}" cy="${Qy}" r="5" fill="#0d1117" stroke="#6b7a88" stroke-width="1.3"/>`;
+    svg += `<text x="${Qx+8}" y="${Qy-8}" fill="#6b7a88" font-family="serif" font-style="italic" font-size="12">Q (fijo a barra)</text>`;
+    svg += `<text x="${Qx+8}" y="${Qy+14}" fill="#4a5e6e" font-family="monospace" font-size="9.5">a_cor = 0</text>`;
+  }
+
+  // Ejes móviles êr, êθ en la corredera
+  if (layers.ejes) {
+    const eL = 42;
+    // er
+    svg += `<line x1="${Px}" y1="${Py}" x2="${Px+er.x*eL}" y2="${Py+er.y*eL}" stroke="#e056a0" stroke-width="1.5" marker-end="url(#arr-pink)" opacity="0.75"/>`;
+    svg += `<text x="${Px+er.x*eL+er.x*8-4}" y="${Py+er.y*eL+er.y*8+4}" fill="#e056a0" font-family="serif" font-size="12" font-style="italic">êᵣ</text>`;
+    // etheta
+    svg += `<line x1="${Px}" y1="${Py}" x2="${Px+et.x*eL}" y2="${Py+et.y*eL}" stroke="#e056a0" stroke-width="1.5" marker-end="url(#arr-pink)" opacity="0.75"/>`;
+    svg += `<text x="${Px+et.x*eL+et.x*8-5}" y="${Py+et.y*eL+et.y*8+4}" fill="#e056a0" font-family="serif" font-size="12" font-style="italic">êθ</text>`;
+  }
+
+  // v_rel (sobre la corredera, radial)
+  if (layers.v_rel && Math.abs(vRel_mag) > 0.01) {
+    const len = Math.hypot(vRel_x-Px, vRel_y-Py);
+    if (len > 4) {
+      const t = Math.max(0,(len-10)/len);
+      const xe = Px + (vRel_x-Px)*t, ye = Py + (vRel_y-Py)*t;
+      svg += `<line x1="${Px}" y1="${Py}" x2="${xe}" y2="${ye}" stroke="#3498db" stroke-width="2.5" marker-end="url(#arr-blue)" opacity="0.95"/>`;
+      // label con caja
+      const lx = vRel_x + er.x*18 - 25;
+      const ly = vRel_y + er.y*18 + 4;
+      const lbl = `v_rel=${vRel_mag.toFixed(2)}`;
+      svg += `<rect x="${lx-3}" y="${ly-11}" width="${lbl.length*6.5+6}" height="14" rx="2" fill="#080d12" opacity="0.85"/>`;
+      svg += `<text x="${lx}" y="${ly}" fill="#3498db" font-size="11" font-family="monospace">${lbl}</text>`;
+    }
+  }
+
+  // a_cor (tangencial)
+  if (layers.a_cor && Math.abs(aCor_mag) > 0.01) {
+    const len = Math.hypot(aCor_x-Px, aCor_y-Py);
+    if (len > 4) {
+      const t = Math.max(0,(len-10)/len);
+      const xe = Px + (aCor_x-Px)*t, ye = Py + (aCor_y-Py)*t;
+      svg += `<line x1="${Px}" y1="${Py}" x2="${xe}" y2="${ye}" stroke="#e74c3c" stroke-width="2.8" marker-end="url(#arr-red)" opacity="0.95"/>`;
+      const lx = aCor_x + et.x*sgn*18 - 30;
+      const ly = aCor_y + et.y*sgn*18 + 4;
+      const lbl = `a_cor=${aCor_mag.toFixed(2)}`;
+      svg += `<rect x="${lx-3}" y="${ly-11}" width="${lbl.length*6.5+6}" height="14" rx="2" fill="#080d12" opacity="0.85"/>`;
+      svg += `<text x="${lx}" y="${ly}" fill="#e74c3c" font-size="11" font-family="monospace">${lbl}</text>`;
+    }
+  }
+
+  // Corredera P (cuadrado como slider)
+  svg += `<rect x="${Px-11}" y="${Py-11}" width="22" height="22" rx="3" fill="#141b27" stroke="#f6e05e" stroke-width="1.8"/>`;
+  svg += `<circle cx="${Px}" cy="${Py}" r="3" fill="#f6e05e"/>`;
+  svg += `<text x="${Px+14}" y="${Py-12}" fill="#f6e05e" font-family="serif" font-style="italic" font-size="14">P</text>`;
+
+  // Título dentro del svg
+  svg += `<text x="20" y="30" fill="#3d5a6e" font-size="11" font-family="monospace">ω⃗ = ω k̂   |   v⃗_rel = ṙ·êᵣ   |   a⃗_cor = 2ω×v_rel</text>`;
+
+  document.getElementById('svg-wrap').innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" style="background:#060b10;border-radius:4px"><defs>${MKS}</defs>${svg}</svg>`;
+
+  // Panel de resultados
+  const sentido = params.omega*params.rdot > 0 ? 'favor del giro' : (params.omega*params.rdot < 0 ? 'contra del giro' : '—');
+  const eqs = {
+    'ω': params.omega.toFixed(2) + ' rad/s',
+    'ṙ': params.rdot.toFixed(2) + ' m/s',
+    'r': params.r.toFixed(2) + ' m',
+    'θ barra': params.theta.toFixed(1) + '°',
+    '|v_rel|': Math.abs(vRel_mag).toFixed(3) + ' m/s',
+    '|a_cor|=2ω|ṙ|': aCor_mag.toFixed(3) + ' m/s²',
+    'sentido a_cor': sentido,
+    'v_arrastre=ω·r': (params.omega*params.r).toFixed(3) + ' m/s',
+    'a_centríp=ω²r': (params.omega*params.omega*params.r).toFixed(3) + ' m/s²'
+  };
+  const strip = Object.entries(eqs).slice(4,7).map(([k,v])=>`<span><span style="color:#1e3a4a">${k}=</span><span style="color:#68d391;font-weight:700">${v}</span></span>`).join('');
+  document.getElementById('eq-strip').innerHTML = strip;
+  document.getElementById('eq-panel').innerHTML = Object.entries(eqs).map(([k,v])=>`<div><span style="color:#2d4a62">${k} = </span><span style="color:#68d391">${v}</span></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════
+const sliderDefs = [
+  {k:'omega', label:'ω (rad/s)', min:-4, max:4, step:0.1, fmt:v=>v.toFixed(1)},
+  {k:'rdot',  label:'ṙ (m/s)',   min:-1.5, max:1.5, step:0.05, fmt:v=>v.toFixed(2)},
+  {k:'r',     label:'r (m)',     min:0.1, max:1.8, step:0.05, fmt:v=>v.toFixed(2)},
+  {k:'theta', label:'θ barra (°)', min:0, max:359, step:1, fmt:v=>v.toFixed(0)+'°'}
+];
+
+function buildUI() {
+  const sl = document.getElementById('sliders');
+  sliderDefs.forEach(cfg => {
+    const div = document.createElement('div'); div.className='param';
+    const head = document.createElement('div'); head.className='ph';
+    const nm = document.createElement('span'); nm.className='pn'; nm.textContent = cfg.label;
+    const vl = document.createElement('span'); vl.className='pv'; vl.textContent = cfg.fmt(params[cfg.k]);
+    head.appendChild(nm); head.appendChild(vl);
+    const inp = document.createElement('input'); inp.type='range';
+    inp.min=cfg.min; inp.max=cfg.max; inp.step=cfg.step; inp.value=params[cfg.k];
+    inp.oninput = () => {
+      params[cfg.k] = parseFloat(inp.value);
+      vl.textContent = cfg.fmt(params[cfg.k]);
+      render();
+    };
+    div.appendChild(head); div.appendChild(inp); sl.appendChild(div);
+  });
+
+  const lr = document.getElementById('layers');
+  const layerDefs = [
+    {k:'v_rel', label:'v_rel'},
+    {k:'a_cor', label:'a_cor'},
+    {k:'ejes',  label:'êᵣ, êθ'},
+    {k:'omega', label:'ω'},
+    {k:'Q',     label:'Punto Q fijo'}
+  ];
+  lr.className = 'btn-row'; lr.style.flexWrap = 'wrap';
+  layerDefs.forEach(ld => {
+    const b = document.createElement('button');
+    b.className = 'pbtn' + (layers[ld.k] ? ' on' : '');
+    b.textContent = ld.label;
+    b.style.flex = '0 0 auto';
+    b.onclick = () => { layers[ld.k] = !layers[ld.k]; b.classList.toggle('on'); render(); };
+    lr.appendChild(b);
+  });
+
+  const btnPlay = document.getElementById('btn-play');
+  btnPlay.onclick = () => { playing = !playing; btnPlay.textContent = playing ? '▶ Pausa' : '▷ Play'; btnPlay.classList.toggle('on', playing); };
+  document.getElementById('btn-reset').onclick = () => {
+    params = { omega: 2, rdot: 0.5, r: 0.6, theta: 30 };
+    document.querySelectorAll('#sliders input').forEach((inp,i) => {
+      inp.value = params[sliderDefs[i].k];
+      inp.parentElement.querySelector('.pv').textContent = sliderDefs[i].fmt(params[sliderDefs[i].k]);
+    });
+    render();
+  };
+}
+
+// ═══════════════════════════════════════════════════
+// ANIMACIÓN
+// ═══════════════════════════════════════════════════
+let lastT = performance.now();
+function tick(now) {
+  const dt = Math.min(0.05, (now - lastT)/1000);
+  lastT = now;
+  if (playing) {
+    // La barra gira con ω
+    params.theta = (params.theta + params.omega * dt * 180/Math.PI) % 360;
+    if (params.theta < 0) params.theta += 360;
+    // La corredera desliza con ṙ
+    let newR = params.r + params.rdot * dt;
+    // Rebote en los extremos (mantener entre 0.1 y 1.8)
+    if (newR > 1.8) { newR = 1.8; params.rdot = -Math.abs(params.rdot); }
+    if (newR < 0.1) { newR = 0.1; params.rdot = Math.abs(params.rdot); }
+    params.r = newR;
+    // Actualizar sliders visuales
+    document.querySelectorAll('#sliders input').forEach((inp,i) => {
+      const k = sliderDefs[i].k;
+      inp.value = params[k];
+      inp.parentElement.querySelector('.pv').textContent = sliderDefs[i].fmt(params[k]);
+    });
+    render();
+  }
+  requestAnimationFrame(tick);
+}
+
+buildUI();
+render();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
