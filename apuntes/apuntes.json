@@ -226,6 +226,72 @@
         "Esquema"
       ],
       "level": 2
+    },
+    {
+      "id": "herr-edo-laplace-juego",
+      "file": "herramientas/edo-laplace-juego.html",
+      "formato": "html",
+      "tipo": "herramienta",
+      "subject": "edo",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Travesía t ⇄ s: juego de transformadas de Laplace",
+      "titleEn": "t ⇄ s crossing: Laplace transform game",
+      "bodyEs": "Juego de parejas entre f(t) y F(s), en tres niveles (tabla básica, desplazamientos, Heaviside, δ y Γ): cada opción falsa es un error típico, así que obliga a razonar la transformada y no a memorizarla.",
+      "bodyEn": "Matching game between f(t) and F(s) at three levels (basic table, shifts, Heaviside, δ and Γ): every wrong option is a typical mistake, so you have to reason about the transform instead of memorising it.",
+      "tags": [
+        "Laplace",
+        "Juego",
+        "Interactivo",
+        "Transformadas"
+      ],
+      "level": 2,
+      "origen": "propio",
+      "verificacion": "Las 42 parejas y sus 168 opciones se comprobaron con sympy leyendo el banco de la propia página (pruebas/comprobar_laplace_juego.py): cada respuesta correcta coincide con la transformada calculada desde el lado t, con límite inferior 0⁻, y ninguna opción falsa coincide. Una prueba de mutación (tres cambios a propósito) dio tres fallos, así que el comprobador los detecta."
+    },
+    {
+      "id": "herr-edo-coeficientes",
+      "file": "herramientas/edo-coeficientes.html",
+      "formato": "html",
+      "tipo": "herramienta",
+      "subject": "edo",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Coeficientes indeterminados: forma de y_p",
+      "titleEn": "Undetermined coefficients: the form of y_p",
+      "bodyEs": "Drill en tres pasos para elegir la forma de la solución particular: qué tipo de función es φ(x), si su r es raíz del polinomio característico y con qué multiplicidad, y qué forma resulta. Repite más los tipos en los que fallas.",
+      "bodyEn": "Three-step drill to choose the form of the particular solution: what kind of function φ(x) is, whether its r is a root of the characteristic polynomial and with what multiplicity, and which form follows. It repeats the types you get wrong more often.",
+      "tags": [
+        "Coeficientes indeterminados",
+        "Orden superior",
+        "Drill",
+        "Interactivo"
+      ],
+      "level": 2,
+      "origen": "propio",
+      "verificacion": "Los 24 problemas se comprobaron con sympy leyendo el banco y las opciones que genera la propia página (pruebas/comprobar_coeficientes.py): polinomio característico, factorización, tipo de φ, multiplicidad de su r, y que solo la forma correcta da un sistema compatible para sus coeficientes al sustituirla en la EDO (72 formas, 0 fallos). Una prueba de mutación con tres errores a propósito los detectó todos."
+    },
+    {
+      "id": "herr-edo-integrales",
+      "file": "herramientas/edo-integrales.html",
+      "formato": "html",
+      "tipo": "herramienta",
+      "subject": "edo",
+      "curso": "2",
+      "profesor": null,
+      "titleEs": "Práctica de integrales para EDO de orden 1",
+      "titleEn": "Integration practice for first-order ODEs",
+      "bodyEs": "21 integrales de las que salen al resolver EDO de orden 1, por método (sustitución, por partes, fracciones simples, completar el cuadrado) y nivel: primero la señal que delata el método y luego los pasos uno a uno.",
+      "bodyEn": "21 integrals of the kind that appear when solving first-order ODEs, by method (substitution, by parts, partial fractions, completing the square) and level: first the clue that gives the method away, then the steps one by one.",
+      "tags": [
+        "Integrales",
+        "Orden 1",
+        "Paso a paso",
+        "Interactivo"
+      ],
+      "level": 1,
+      "origen": "propio",
+      "verificacion": "Se leyó con Node el banco de la propia página y se comprobaron con sympy 41 igualdades (pruebas/comprobar_integrales.py): en cada paso «∫ f = F + C» la derivada de F es f, cada resultado final corresponde a su integrando, y cada descomposición en fracciones simples es igual al integrando de partida; 0 fallos. Una prueba de mutación con cuatro errores a propósito los detectó todos."
     }
   ]
 }

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coeficientes indeterminados: forma de y_p · Palanca</title>
+<link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+<script defer src="../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../assets/vendor/katex/auto-render.min.js"></script>
+<link href="../assets/vendor/fonts/edo.css" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f0d9; --panel:#fbf7e8; --panel2:#fffdf4;
+    --border:#D9DBD5; --border2:#c9c4b2;
+    --ink:#0d2440; --muted:#4C586B; --faint:#8C95A3;
+    --accent:#b64a2a; --accent-dim:#d9a28f; --accent-soft:#F4EBDD;
+    --ok:#1F7A4D; --ok-soft:#E1F2E8; --ok-bd:#9fceb4;
+    --bad:#B0303E; --bad-soft:#F7E4E7; --bad-bd:#e3a9b0;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+    --sans:"Newsreader",Georgia,serif;
+    --display:"Fraunces",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    -webkit-text-size-adjust:100%;line-height:1.5}
+  body{padding:18px 16px 40px}
+  .app{max-width:1080px;margin:0 auto}
+  a{color:var(--accent)}
+
+  /* header + streak */
+  header.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .brand{font-family:var(--mono);font-weight:700;letter-spacing:.16em;font-size:13px;
+    color:var(--accent);border:1px solid var(--accent-dim);padding:3px 8px;border-radius:5px}
+  h1{font-family:var(--display);font-size:21px;font-weight:600;margin:0;color:var(--ink)}
+  .sub{font-size:12.5px;color:var(--faint);font-family:var(--mono)}
+
+  .streak{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:12px 14px;margin-bottom:16px}
+  .streak .lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
+  .nodes{display:flex;gap:6px}
+  .node{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);
+    background:transparent;transition:background .25s,border-color .25s,box-shadow .25s}
+  .node.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 9px -1px var(--accent)}
+  .streak .count{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .streak .count b{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:1fr 326px;gap:20px;align-items:start}
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:20px 20px 22px;min-height:240px}
+  .pmeta{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .tag{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.05em;
+    padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);
+    border:1px solid var(--accent-dim)}
+  .pmeta .n{font-family:var(--mono);font-size:12px;color:var(--faint);margin-left:auto}
+
+  .eq{background:var(--panel2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;margin:0 0 6px;overflow-x:auto}
+  .eq .ed{font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:6px}
+  .eq .math{font-size:1.18rem}
+
+  .qline{margin:18px 0 10px;font-size:14.5px;color:var(--ink)}
+  .qline .step{font-family:var(--mono);font-size:12px;color:var(--accent);margin-right:8px}
+
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{display:flex;align-items:center;gap:10px;text-align:left;width:100%;
+    background:var(--panel2);border:1px solid var(--border2);color:var(--ink);
+    border-radius:10px;padding:13px 14px;font-size:1.02rem;cursor:pointer;
+    font-family:var(--sans);transition:border-color .15s,background .15s,transform .05s}
+  .opt:hover:not(:disabled){border-color:var(--accent-dim);background:var(--accent-soft)}
+  .opt:active:not(:disabled){transform:translateY(1px)}
+  .opt:disabled{cursor:default}
+  .opt .mk{font-family:var(--mono);font-size:12px;color:var(--faint);
+    width:18px;flex:none;text-align:center}
+  .opt.correct{border-color:var(--ok-bd);background:var(--ok-soft)}
+  .opt.correct .mk{color:var(--ok)}
+  .opt.wrong{border-color:var(--bad-bd);background:var(--bad-soft)}
+  .opt.wrong .mk{color:var(--bad)}
+  .opt.dim{opacity:.5}
+
+  /* answered-step summary chips */
+  .done{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;
+    background:var(--ok-soft);border:1px solid var(--ok-bd);color:var(--muted);
+    border-radius:8px;padding:6px 10px}
+  .chip .ck{color:var(--ok);font-weight:700}
+  .chip .v{color:var(--ink)}
+
+  .expl{margin-top:18px;border:1px solid var(--bad-bd);background:var(--bad-soft);
+    border-radius:12px;padding:16px 16px 6px}
+  .expl.win{border-color:var(--ok-bd);background:var(--ok-soft)}
+  .expl h3{margin:0 0 10px;font-size:13px;font-family:var(--mono);
+    letter-spacing:.06em;text-transform:uppercase;color:var(--bad)}
+  .expl.win h3{color:var(--ok)}
+  .expl .row{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:14px}
+  .expl .row:first-of-type{border-top:0}
+  .expl .row .k{font-family:var(--mono);font-size:12px;color:var(--accent);flex:none;width:18px;padding-top:2px}
+  .expl .row .t{color:var(--ink)}
+  .expl .row .t .muted{color:var(--muted)}
+  .final{margin-top:8px;background:var(--panel2);border:1px solid var(--border);
+    border-radius:9px;padding:12px 14px;font-size:1.08rem;overflow-x:auto}
+  .final .lab{font-size:11.5px;font-family:var(--mono);color:var(--faint);margin-bottom:5px}
+
+  .nextbar{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .btn{background:var(--accent);color:#fff;border:0;font-weight:700;font-size:14px;
+    padding:11px 18px;border-radius:9px;cursor:pointer;font-family:var(--sans)}
+  .btn:active{transform:translateY(1px)}
+  .verdict{font-family:var(--mono);font-size:12.5px}
+  .verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+
+  /* registry */
+  .reg{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .reg h2{font-size:12px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 12px;font-weight:600}
+  .last6{display:flex;gap:7px;margin-bottom:16px;align-items:center}
+  .last6 .l{font-size:11px;color:var(--faint);font-family:var(--mono);margin-right:2px}
+  .dot{width:15px;height:15px;border-radius:4px;border:1px solid var(--border2);background:var(--panel2)}
+  .dot.ok{background:var(--ok);border-color:var(--ok)}
+  .dot.bad{background:var(--bad);border-color:var(--bad)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-family:var(--mono);font-weight:500;
+    font-size:10.5px;letter-spacing:.05em;padding:0 0 6px;text-transform:uppercase}
+  th.r,td.r{text-align:right}
+  td{padding:6px 0;border-top:1px solid var(--border);color:var(--muted)}
+  td .st{font-family:var(--mono);color:var(--accent);font-weight:700}
+  .bar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:4px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--accent),var(--bad))}
+  .rate{font-family:var(--mono);color:var(--ink)}
+  .reg .hot{color:var(--accent)}
+  .reg .foot{margin-top:14px;display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;color:var(--faint);font-family:var(--mono)}
+  .reset{background:transparent;border:1px solid var(--border2);color:var(--muted);
+    font-size:11px;padding:5px 9px;border-radius:7px;cursor:pointer;font-family:var(--mono)}
+
+  footer{margin-top:22px;font-size:11px;color:var(--faint);font-family:var(--mono);
+    text-align:center;line-height:1.7}
+  .nostore{display:none;margin-bottom:14px;font-size:12px;font-family:var(--mono);
+    color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-dim);
+    border-radius:8px;padding:9px 12px}
+
+  @media (max-width:860px){
+    .grid{grid-template-columns:1fr}
+    .reg{order:2}
+    .eq .math{font-size:1.06rem}
+    .opt{font-size:.98rem}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <span class="brand">PALANCA · EDO</span>
+    <h1>Coeficientes indeterminados: forma de \(y_p\)</h1>
+    <span class="sub">tres pasos: tipo de φ(x) → ¿es raíz? → forma</span>
+  </header>
+
+  <div class="nostore" id="nostore">El navegador no deja guardar datos aquí: el progreso de esta sesión no se conservará al recargar.</div>
+
+  <div class="streak">
+    <span class="lab">Racha</span>
+    <div class="nodes" id="nodes"></div>
+    <span class="count" id="streakCount"></span>
+  </div>
+
+  <div class="grid">
+    <main class="card" id="card"><!-- problema --></main>
+
+    <aside class="reg">
+      <h2>Registro de errores</h2>
+      <div class="last6" id="last6"></div>
+      <table>
+        <thead><tr><th>Tipo</th><th class="r">Intentos</th><th class="r">Tasa err.</th></tr></thead>
+        <tbody id="regBody"></tbody>
+      </table>
+      <div class="foot">
+        <span id="totals"></span>
+        <button class="reset" id="resetBtn">Reiniciar</button>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    Tipos de \(\varphi(x)\): exponencial \(a\,e^{rx}\) · polinomio \(P_h(x)\) · polinomio por exponencial \(P_h(x)\,e^{rx}\) · \(a\cos\beta x+b\sin\beta x\) (con \(r=\pm\beta i\)).<br>
+    Si ese \(r\) es raíz de multiplicidad \(k\) del polinomio característico, la forma base se multiplica por \(x^{k}\).
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- persistencia (localStorage, compartido por todas las herramientas de Palanca) ---------- */
+let mem=null; // si el navegador no deja guardar, se queda en memoria
+async function loadState(){
+  try{const r=localStorage.getItem("palanca:edo-coeficientes:v1");return r?JSON.parse(r):null;}
+  catch(e){document.getElementById("nostore").style.display="block";return mem;}
+}
+async function saveState(s){
+  mem=s;
+  try{localStorage.setItem("palanca:edo-coeficientes:v1",JSON.stringify(s));}catch(e){}
+}
+
+/* ---------- KaTeX ---------- */
+function typeset(node){
+  if(typeof renderMathInElement!=="function"){return;}
+  renderMathInElement(node,{delimiters:[
+    {left:"\\(",right:"\\)",display:false},
+    {left:"\\[",right:"\\]",display:true}],throwOnError:false});
+}
+
+/* ---------- helpers de notación ---------- */
+function expArg(t){ // exponente para e^{ ... x}
+  if(t==="1")return "x"; if(t==="-1")return "-x"; return t+"x";
+}
+function trigArg(b){ return (b===1)?"x":(b+"x"); }
+function xpow(k){ return k===0?"":(k===1?"x\\,":("x^{"+k+"}\\,")); }
+function polyTex(h){ // grado h con coef. A,B,C...
+  const L="ABCDEFG";
+  if(h===0)return "A";
+  let parts=[];
+  for(let p=h,i=0;p>=0;p--,i++){
+    const c=L[i];
+    if(p===0)parts.push(c);
+    else if(p===1)parts.push(c+"x");
+    else parts.push(c+"x^{"+p+"}");
+  }
+  return parts.join("+");
+}
+
+/* base de forma (k=0) y degradación estructural por caso */
+function baseForm(p){
+  switch(p.c){
+    case 1: return "A\\,e^{"+expArg(p.rtok)+"}";
+    case 2: return polyTex(p.h);
+    case 3: return "\\left("+polyTex(p.h)+"\\right)e^{"+expArg(p.rtok)+"}";
+    case 4: return "A\\cos("+trigArg(p.beta)+")+B\\sin("+trigArg(p.beta)+")";
+  }
+}
+function wrapK(p,base,k){ // base canónica → forma con factor x^k
+  if(p.c===1){ return "A\\,"+xpow(k)+"e^{"+expArg(p.rtok)+"}"; }
+  if(k===0)return base;
+  if(p.c===2)return xpow(k)+"\\left("+polyTex(p.h)+"\\right)";
+  if(p.c===3)return xpow(k)+"\\left("+polyTex(p.h)+"\\right)e^{"+expArg(p.rtok)+"}";
+  if(p.c===4)return xpow(k)+"\\left(A\\cos("+trigArg(p.beta)+")+B\\sin("+trigArg(p.beta)+")\\right)";
+}
+function kVariant(p,k){ return wrapK(p,baseForm(p),k); } // misma estructura, distinta potencia
+function correctYpc(p){ return wrapK(p,baseForm(p),p.mult); }
+
+/* distractor con la k correcta pero estructura degradada (error típico) */
+function structuralDistractor(p){
+  const kc=p.mult;
+  if(p.c===1){ // caso 1 no tiene estructura que degradar → otra potencia distinta
+    const used=new Set([kc, kc===0?1:(kc===1?0:1)]);
+    for(const k of [0,1,2,3]) if(!used.has(k)) return kVariant(p,k);
+    return kVariant(p,kc+1);
+  }
+  if(p.c===2){ const inner=polyTex(Math.max(0,p.h-1)); return kc===0?inner:(xpow(kc)+"\\left("+inner+"\\right)"); }
+  if(p.c===3){ return "A\\,"+xpow(kc)+"e^{"+expArg(p.rtok)+"}"; } // olvida el polinomio
+  if(p.c===4){ // se queda con un solo término: el de φ (error típico) o el que indique el banco
+    const soloSeno=p.phi.includes("\\sin")&&!p.phi.includes("\\cos");
+    const usaSeno=p.solo?p.solo==="sin":soloSeno;
+    const inner=usaSeno?("B\\sin("+trigArg(p.beta)+")"):("A\\cos("+trigArg(p.beta)+")");
+    return kc===0?inner:(xpow(kc)+"\\left("+inner+"\\right)");
+  }
+}
+
+/* opciones del paso 3: correcta + potencia equivocada + estructura degradada (siempre 3 distintas) */
+function step3options(p){
+  const kc=p.mult;
+  const kAlt = kc===0?1:(kc===1?0:1);
+  const raw=[{tex:correctYpc(p),ok:true},{tex:kVariant(p,kAlt),ok:false},{tex:structuralDistractor(p),ok:false}];
+  const seen=new Set(); let out=[];
+  for(const o of raw){ if(!seen.has(o.tex)){seen.add(o.tex);out.push(o);} }
+  let k=0;
+  while(out.length<3 && k<=6){ const t=kVariant(p,k); if(!seen.has(t)){seen.add(t);out.push({tex:t,ok:false});} k++; }
+  return shuffle(out);
+}
+
+function checkLabel(p){
+  if(p.c===2)return "r=0";
+  if(p.c===4)return "r="+(p.beta===1?"i":(p.beta+"i"));
+  return "r="+p.rtok;
+}
+
+/* ---------- BANCO (24 problemas propios · comprobado con sympy: pruebas/comprobar_coeficientes.py) ---------- */
+// c: tipo 1..4 | rtok: exponente real (tipos 1,3) | beta (tipo 4) | h: grado pol. (tipos 2,3)
+// fac/roots: para la explicación | mult: multiplicidad del r asociado (0 = no es raíz)
+// solo (tipo 4, opcional): término que conserva el distractor «olvida uno de los dos» cuando el de φ,
+// él solo, sí resolvería la EDO (puede pasar cuando la EDO no tiene derivadas impares)
+function mk(sub,c,ode,phi,P,fac,roots,rtok,beta,h,mult,solo){
+  return {sub,c,ode,phi,P,fac,roots,rtok,beta,h,mult,solo,isRoot:mult>0};
+}
+const BANK=[
+ // exponencial, r no es raíz
+ mk("1a",1,"y''+y'-6y","4e^{3x}","r^2+r-6","(r+3)(r-2)","r=-3,\\;r=2","3",null,null,0),
+ mk("1a",1,"y''-9y","2e^{x}","r^2-9","(r-3)(r+3)","r=3,\\;r=-3","1",null,null,0),
+ mk("1a",1,"y''+5y'+6y","7e^{-x}","r^2+5r+6","(r+2)(r+3)","r=-2,\\;r=-3","-1",null,null,0),
+ // exponencial, r es raíz
+ mk("1b",1,"y''+y'-6y","e^{2x}","r^2+r-6","(r+3)(r-2)","r=-3,\\;r=2","2",null,null,1),
+ mk("1b",1,"y''+6y'+9y","3e^{-3x}","r^2+6r+9","(r+3)^2","r=-3\\;(\\text{doble})","-3",null,null,2),
+ mk("1b",1,"y''-5y'","2e^{5x}","r^2-5r","r(r-5)","r=0,\\;r=5","5",null,null,1),
+ // polinomio, r=0 no es raíz
+ mk("2a",2,"y''+3y'+2y","4x^2+1","r^2+3r+2","(r+1)(r+2)","r=-1,\\;r=-2",null,null,2,0),
+ mk("2a",2,"y''+9y","6x+2","r^2+9","(r-3i)(r+3i)","r=\\pm 3i",null,null,1,0),
+ mk("2a",2,"y''-6y'+9y","5x^2","r^2-6r+9","(r-3)^2","r=3\\;(\\text{doble})",null,null,2,0),
+ // polinomio, r=0 es raíz
+ mk("2b",2,"y''-3y'","2x+5","r^2-3r","r(r-3)","r=0,\\;r=3",null,null,1,1),
+ mk("2b",2,"y'''-y''","12x^2","r^3-r^2","r^2(r-1)","r=0\\;(\\text{doble}),\\;r=1",null,null,2,2),
+ mk("2b",2,"y''+5y'","3x^2-x","r^2+5r","r(r+5)","r=0,\\;r=-5",null,null,2,1),
+ // polinomio por exponencial, r no es raíz
+ mk("3a",3,"y''-y","(2x+3)e^{2x}","r^2-1","(r-1)(r+1)","r=1,\\;r=-1","2",null,1,0),
+ mk("3a",3,"y''+4y","x^2e^{-x}","r^2+4","(r-2i)(r+2i)","r=\\pm 2i","-1",null,2,0),
+ mk("3a",3,"y''+2y'-3y","(x-4)e^{2x}","r^2+2r-3","(r+3)(r-1)","r=-3,\\;r=1","2",null,1,0),
+ // polinomio por exponencial, r es raíz
+ mk("3b",3,"y''+2y'-3y","(6x+1)e^{x}","r^2+2r-3","(r+3)(r-1)","r=-3,\\;r=1","1",null,1,1),
+ mk("3b",3,"y''+2y'+y","(4x-2)e^{-x}","r^2+2r+1","(r+1)^2","r=-1\\;(\\text{doble})","-1",null,1,2),
+ mk("3b",3,"y''-3y'+2y","x^2e^{2x}","r^2-3r+2","(r-1)(r-2)","r=1,\\;r=2","2",null,2,1),
+ // seno y coseno, r=±βi no es raíz
+ mk("4a",4,"y''+3y'+2y","10\\cos x","r^2+3r+2","(r+1)(r+2)","r=-1,\\;r=-2",null,1,null,0),
+ mk("4a",4,"y''+4y'+13y","3\\sin 3x","r^2+4r+13","(r+2-3i)(r+2+3i)","r=-2\\pm 3i",null,3,null,0),
+ mk("4a",4,"y''+y","5\\sin 2x","r^2+1","(r-i)(r+i)","r=\\pm i",null,2,null,0,"cos"),
+ // seno y coseno, r=±βi es raíz
+ mk("4b",4,"y''+16y","2\\sin 4x","r^2+16","(r-4i)(r+4i)","r=\\pm 4i",null,4,null,1),
+ mk("4b",4,"y''+y","3\\cos x-\\sin x","r^2+1","(r-i)(r+i)","r=\\pm i",null,1,null,1),
+ mk("4b",4,"y^{(4)}+8y''+16y","\\sin 2x","r^4+8r^2+16","(r^2+4)^2","r=\\pm 2i\\;(\\text{doble})",null,2,null,2,"cos"),
+];
+const SUBS=["1a","1b","2a","2b","3a","3b","4a","4b"];
+const TIPO={1:"Exponencial",2:"Polinomio",3:"Polinomio × exponencial",4:"Seno y coseno"};
+const SUBNOMBRE={"1a":"exp","1b":"exp · raíz","2a":"pol","2b":"pol · raíz","3a":"pol·exp","3b":"pol·exp · raíz","4a":"trig","4b":"trig · raíz"};
+
+/* ---------- estado ---------- */
+let state=null;
+function freshState(){
+  const stats={}; SUBS.forEach(s=>stats[s]={a:0,e:0});
+  return {stats,last6:[],streak:0,best:0,phase1:false,completed:0};
+}
+
+/* ---------- selección adaptativa ---------- */
+function rate(s){const {a,e}=state.stats[s];return a>0?e/a:0.5;} // prior 0.5 → explora subcasos nuevos
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+let prevId=-1;
+function pickProblem(){
+  const w=SUBS.map(s=>1+4*rate(s));
+  let tot=w.reduce((x,y)=>x+y,0),roll=Math.random()*tot,sub=SUBS[0];
+  for(let i=0;i<SUBS.length;i++){roll-=w[i];if(roll<=0){sub=SUBS[i];break;}}
+  const pool=BANK.map((p,i)=>({p,i})).filter(o=>o.p.sub===sub);
+  let cand=pool.filter(o=>o.i!==prevId); if(cand.length===0)cand=pool;
+  const ch=cand[Math.floor(Math.random()*cand.length)];
+  prevId=ch.i; return ch.p;
+}
+
+/* ---------- runtime del problema ---------- */
+let cur=null, step=1, finished=false;
+let done=[]; // resumen de pasos acertados
+
+function newProblem(){
+  cur=pickProblem(); step=1; finished=false; done=[];
+  cur._s1=shuffle([1,2,3,4].map(c=>({c,ok:c===cur.c})));
+  cur._s2=[{m:0,ok:cur.mult===0},{m:1,ok:cur.mult===1},{m:2,ok:cur.mult===2}];
+  cur._s3=step3options(cur);
+  render();
+}
+
+const CASE_LABEL={
+ 1:"\\varphi(x)=a\\,e^{rx}",
+ 2:"\\varphi(x)=P_h(x)",
+ 3:"\\varphi(x)=P_h(x)\\,e^{rx}",
+ 4:"\\varphi(x)=a\\cos\\beta x+b\\sin\\beta x"};
+const STEP2_LABEL=["No es raíz","Sí, multiplicidad 1","Sí, multiplicidad 2"];
+
+function caseReason(p){
+  switch(p.c){
+    case 1:return "\\(\\varphi(x)\\) es una exponencial pura \\(a\\,e^{rx}\\).";
+    case 2:return "\\(\\varphi(x)\\) es un polinomio \\(P_h(x)\\); equivale a \\(P_h(x)\\,e^{0x}\\), así que se comprueba \\(r=0\\).";
+    case 3:return "\\(\\varphi(x)\\) es un polinomio por una exponencial, \\(P_h(x)\\,e^{rx}\\).";
+    case 4:return "\\(\\varphi(x)\\) combina \\(\\cos\\beta x\\) y \\(\\sin\\beta x\\); el valor asociado es \\(r=\\pm\\beta i\\).";
+  }
+}
+
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+
+function render(){
+  const card=document.getElementById("card");
+  card.innerHTML="";
+  const p=cur;
+
+  const meta=el("div","pmeta");
+  meta.appendChild(el("span","tag","¿tipo?")); // el tipo se muestra al terminar: antes daría la respuesta
+  meta.appendChild(el("span","n","#"+(state.completed+1)));
+  card.appendChild(meta);
+
+  const eq=el("div","eq");
+  eq.appendChild(el("div","ed","Ecuación completa"));
+  eq.appendChild(el("div","math","\\[ "+p.ode+" = "+p.phi+" \\]"));
+  card.appendChild(eq);
+
+  // pasos acertados (resumen)
+  if(done.length){
+    const d=el("div","done");
+    done.forEach(x=>{const c=el("span","chip");c.innerHTML='<span class="ck">✓</span> <span class="v">'+x+'</span>';d.appendChild(c);});
+    card.appendChild(d);
+  }
+
+  if(!finished){
+    if(step===1)renderStep1(card,p);
+    else if(step===2)renderStep2(card,p);
+    else renderStep3(card,p);
+  }
+  typeset(card);
+}
+
+function optButton(html,onClick){
+  const b=el("button","opt");
+  b.innerHTML='<span class="mk">○</span><span class="ot">'+html+'</span>';
+  b.addEventListener("click",onClick);
+  return b;
+}
+
+function renderStep1(card,p){
+  const q=el("div","qline",'<span class="step">①</span> ¿Qué tipo de función es \\(\\varphi(x)='+p.phi+'\\)?');
+  card.appendChild(q);
+  const box=el("div","opts");
+  p._s1.forEach(o=>{
+    const b=optButton(TIPO[o.c]+": \\("+CASE_LABEL[o.c]+"\\)",()=>answer1(o,box,b));
+    box.appendChild(b);
+  });
+  card.appendChild(box);
+}
+function answer1(o,box,btn){
+  lockOpts(box);
+  if(o.ok){ markOpt(btn,true); done.push(TIPO[cur.c]); step=2; setTimeout(render,260); }
+  else{ markOpt(btn,false); markCorrectAmong(box,c=>cur._s1[c].ok); fail(1); }
+}
+
+function renderStep2(card,p){
+  const q=el("div","qline",'<span class="step">②</span> ¿Es \\('+checkLabel(p)+'\\) raíz del polinomio característico \\(P(r)='+p.P+'\\)?');
+  card.appendChild(q);
+  const box=el("div","opts");
+  p._s2.forEach((o,idx)=>{
+    const b=optButton(STEP2_LABEL[idx],()=>answer2(o,idx,box,b));
+    box.appendChild(b);
+  });
+  card.appendChild(box);
+}
+function answer2(o,idx,box,btn){
+  lockOpts(box);
+  if(o.ok){ markOpt(btn,true); done.push(STEP2_LABEL[idx]); step=3; setTimeout(render,260); }
+  else{ markOpt(btn,false); markCorrectAmong(box,i=>cur._s2[i].ok); fail(2); }
+}
+
+function renderStep3(card,p){
+  const q=el("div","qline",'<span class="step">③</span> Selecciona la forma correcta de \\(y_p\\):');
+  card.appendChild(q);
+  const box=el("div","opts");
+  p._s3.forEach(o=>{
+    const b=optButton("\\("+o.tex+"\\)",()=>answer3(o,box,b));
+    box.appendChild(b);
+  });
+  card.appendChild(box);
+}
+function answer3(o,box,btn){
+  lockOpts(box);
+  if(o.ok){ markOpt(btn,true); success(); }
+  else{ markOpt(btn,false); markCorrectAmong(box,i=>cur._s3[i].ok); fail(3); }
+}
+
+function lockOpts(box){[...box.querySelectorAll(".opt")].forEach(b=>b.disabled=true);}
+function markOpt(btn,ok){btn.classList.add(ok?"correct":"wrong");btn.querySelector(".mk").textContent=ok?"✓":"✕";}
+function markCorrectAmong(box,isOk){
+  const bs=[...box.querySelectorAll(".opt")];
+  bs.forEach((b,i)=>{ if(isOk(i)){b.classList.add("correct");b.querySelector(".mk").textContent="✓";} else b.classList.add("dim"); });
+}
+
+/* ---------- explicación completa ---------- */
+function showExplanation(failedStep){
+  finished=true;
+  const card=document.getElementById("card");
+  const p=cur;
+  card.querySelector(".pmeta .tag").textContent=SUBNOMBRE[p.sub];
+  const box=el("div","expl"+(failedStep===0?" win":""));
+  box.appendChild(el("h3",null, failedStep===0?"Resuelto ✓":"Razonamiento completo"));
+
+  const r1=el("div","row");
+  r1.innerHTML='<span class="k">①</span><span class="t">Tipo: <b>'+TIPO[p.c]+'</b>. <span class="muted">'+caseReason(p)+'</span></span>';
+  box.appendChild(r1);
+
+  const rootTxt = p.mult===0
+    ? "\\("+checkLabel(p)+"\\) <b>no</b> es raíz."
+    : "\\("+checkLabel(p)+"\\) <b>sí</b> es raíz, multiplicidad \\(k="+p.mult+"\\).";
+  const r2=el("div","row");
+  r2.innerHTML='<span class="k">②</span><span class="t">\\(P(r)='+p.P+'='+p.fac+'\\Rightarrow '+p.roots+'\\). '+rootTxt+'</span>';
+  box.appendChild(r2);
+
+  const ruleTxt = p.mult===0
+    ? "como no es raíz, se toma la forma base sin factor \\(x^k\\)."
+    : "se multiplica la forma base por \\(x^{"+p.mult+"}\\) (multiplicidad de la raíz).";
+  const r3=el("div","row");
+  r3.innerHTML='<span class="k">③</span><span class="t">'+ruleTxt+'</span>';
+  box.appendChild(r3);
+
+  const fin=el("div","final");
+  fin.appendChild(el("div","lab","Forma de la solución particular"));
+  fin.appendChild(el("div","math","\\[ y_p="+correctYpc(p)+" \\]"));
+  box.appendChild(fin);
+
+  card.appendChild(box);
+
+  const bar=el("div","nextbar");
+  const v=el("span","verdict "+(failedStep===0?"ok":"bad"),
+    failedStep===0?"+1 racha":("Fallo en paso "+failedStep+" · racha reiniciada"));
+  const btn=el("button","btn",null);btn.textContent="Siguiente problema";
+  btn.addEventListener("click",()=>{ state.completed++; saveState(state); newProblem(); });
+  bar.appendChild(btn); bar.appendChild(v);
+  card.appendChild(bar);
+
+  typeset(card);
+}
+
+/* ---------- contabilidad ---------- */
+function record(ok){
+  const s=cur.sub;
+  state.stats[s].a++; if(!ok)state.stats[s].e++;
+  state.last6.push({sub:s,ok}); if(state.last6.length>6)state.last6.shift();
+  if(ok){ state.streak++; if(state.streak>state.best)state.best=state.streak;
+          if(state.streak>=8)state.phase1=true; }
+  else state.streak=0;
+  renderRegistry();
+}
+function success(){ record(true); showExplanation(0); }
+function fail(stepNo){ record(false); showExplanation(stepNo); }
+
+/* ---------- racha + registro ---------- */
+function renderStreak(){
+  const nodes=document.getElementById("nodes"); nodes.innerHTML="";
+  const filled=Math.min(state.streak,8);
+  for(let i=0;i<8;i++){const n=el("div","node"+(i<filled?" on":""));nodes.appendChild(n);}
+  const c=document.getElementById("streakCount");
+  c.innerHTML="<b>"+state.streak+"</b>/8 · mejor <b>"+state.best+"</b>"+
+    (state.phase1?' · <b style="color:var(--ok)">8 seguidos conseguidos</b>':"");
+}
+function renderRegistry(){
+  renderStreak();
+  // last 6
+  const l6=document.getElementById("last6"); l6.innerHTML='<span class="l">Últimos 6</span>';
+  const arr=state.last6.slice(); while(arr.length<6)arr.unshift(null);
+  arr.forEach(x=>{const d=el("div","dot"+(x?(x.ok?" ok":" bad"):""));if(x)d.title=SUBNOMBRE[x.sub];l6.appendChild(d);});
+  // tabla
+  const tb=document.getElementById("regBody"); tb.innerHTML="";
+  const rates=SUBS.map(s=>({s,r:state.stats[s].a>0?state.stats[s].e/state.stats[s].a:-1}));
+  const maxr=Math.max(...rates.map(x=>x.r));
+  SUBS.forEach(s=>{
+    const {a,e}=state.stats[s]; const r=a>0?e/a:0;
+    const hot=(a>0 && r===maxr && maxr>0);
+    const tr=el("tr");
+    tr.innerHTML='<td><span class="st'+(hot?' hot':'')+'">'+SUBNOMBRE[s]+'</span></td>'+
+      '<td class="r">'+(a?e+"/"+a:'<span style="color:var(--faint)">—</span>')+'</td>'+
+      '<td class="r"><span class="rate">'+(a?Math.round(r*100)+"%":"—")+'</span>'+
+      '<div class="bar"><i style="width:'+(a?Math.round(r*100):0)+'%"></i></div></td>';
+    tb.appendChild(tr);
+  });
+  document.getElementById("totals").textContent="Hechos: "+state.completed;
+}
+
+/* ---------- init ---------- */
+async function init(){
+  state=await loadState(); if(!state)state=freshState();
+  // saneado por si cambia el esquema
+  if(!state.stats){state=freshState();}
+  SUBS.forEach(s=>{if(!state.stats[s])state.stats[s]={a:0,e:0};});
+  document.getElementById("resetBtn").addEventListener("click",async()=>{
+    if(confirm("¿Reiniciar todo el progreso (estadísticas y racha)?")){
+      state=freshState(); await saveState(state); renderRegistry(); newProblem();
+    }
+  });
+  renderRegistry();
+  newProblem();
+  typeset(document.querySelector("header.top"));
+  typeset(document.querySelector("footer"));
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);
+else init();
+</script>
+</body>
+</html>

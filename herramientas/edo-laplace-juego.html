@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travesía t ⇄ s · Juego de Laplace · Palanca</title>
+
+<link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+<script defer src="../assets/vendor/katex/katex.min.js"></script>
+<script defer src="../assets/vendor/katex/auto-render.min.js"></script>
+
+<link href="../assets/vendor/fonts/edo.css" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#f7f0d9; --panel:#fbf7e8; --panel-2:#fffdf4;
+  --ink:#0d2440; --ink-soft:#4C586B; --ink-faint:#8C95A3;
+  --s:#2C45C0; --s-deep:#1E318F; --s-tint:#E7EAFA;
+  --t:#b64a2a; --t-deep:#8A3519; --t-tint:#F4EBDD;
+  --good:#1F7A4D; --bad:#B0303E;
+  --line:#D9DBD5;
+  --display:"Fraunces",Georgia,serif;
+  --body:"Newsreader",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+html,body{margin:0;height:100%}
+body{
+  background:
+    radial-gradient(1100px 520px at 50% -8%, rgba(44,69,192,.06), transparent 60%),
+    var(--paper);
+  color:var(--ink);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;min-height:100%;
+  display:flex;align-items:center;justify-content:center;padding:22px;
+}
+.katex{font-size:1em}
+.wrap{width:100%;max-width:680px}
+
+/* ---------- shared ---------- */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--t);font-weight:600}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,7vw,52px);line-height:1;
+  letter-spacing:-.02em;margin:10px 0 6px}
+h1 .a{color:var(--t)} h1 .b{color:var(--s)}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:6px;font-weight:600}
+.screen{display:none} .screen.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- start ---------- */
+.lede{color:var(--ink-soft);font-size:18px;max-width:52ch;margin:14px 0 26px;line-height:1.55}
+.lede b{color:var(--ink);font-weight:600}
+.group{margin:18px 0}
+.glab{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:9px}
+.opts{display:flex;gap:9px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:13px;font-weight:500;padding:11px 17px;border-radius:11px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);cursor:pointer;
+  transition:.16s;flex:1;min-width:130px;text-align:center}
+.chip:hover{border-color:var(--ink-faint);color:var(--ink)}
+.chip.sel{border-color:var(--s);background:var(--s-tint);color:var(--ink)}
+.chip small{display:block;font-size:10.5px;color:var(--ink-faint);margin-top:3px;letter-spacing:.02em;font-weight:400}
+.chip.sel small{color:var(--s)}
+.play{margin-top:26px;width:100%;font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.04em;
+  padding:17px;border-radius:13px;border:none;cursor:pointer;color:#fff;
+  background:linear-gradient(100deg,var(--t),var(--s));transition:.18s;box-shadow:0 10px 30px -12px var(--s-deep)}
+.play:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.best{margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--ink-faint);text-align:center}
+.best b{color:var(--t)}
+
+/* ---------- game HUD ---------- */
+.hud{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:8px 13px;line-height:1.1}
+.stat .v{font-family:var(--mono);font-weight:700;font-size:18px}
+.stat .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.stat.score .v{color:var(--ink)}
+.combo{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:8px 13px;
+  position:relative;overflow:hidden;transition:.2s}
+.combo.hot{border-color:var(--t);box-shadow:0 0 0 1px var(--t-tint),0 0 22px -4px var(--t)}
+.combo .v{font-family:var(--mono);font-weight:700;font-size:18px;color:var(--t)}
+.combo .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.lives{margin-left:auto;font-size:18px;letter-spacing:2px}
+.lives .x{opacity:.22;filter:grayscale(1)}
+.endbtn{font-family:var(--mono);font-size:11px;font-weight:600;background:none;border:1px solid var(--line);
+  color:var(--ink-faint);padding:8px 12px;border-radius:9px;cursor:pointer;transition:.16s}
+.endbtn:hover{color:var(--bad);border-color:var(--bad)}
+
+/* timer */
+.timer{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--s),var(--t));
+  transition:width .1s linear}
+.timer.warn i{background:var(--bad)}
+.timer.hide{visibility:hidden}
+
+/* prompt */
+.dirbadge{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+  font-weight:600;letter-spacing:.04em;padding:6px 13px;border-radius:9px;margin-bottom:12px}
+.dirbadge.fwd{background:var(--t-tint);color:var(--t)}
+.dirbadge.inv{background:var(--s-tint);color:var(--s)}
+.prompt{border:1px solid var(--line);border-radius:16px;padding:30px 22px;text-align:center;
+  background:var(--panel);margin-bottom:16px;min-height:96px;display:flex;align-items:center;justify-content:center}
+.prompt.fwd{border-color:rgba(182,74,42,.4);background:linear-gradient(var(--panel),var(--panel)) padding-box,var(--t-tint)}
+.prompt.inv{border-color:rgba(44,69,192,.4)}
+.prompt .math{font-size:30px}
+
+/* answers */
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(max-width:520px){.answers{grid-template-columns:1fr}}
+.ans{border:1px solid var(--line);background:var(--panel-2);border-radius:13px;padding:18px 14px;cursor:pointer;
+  display:flex;align-items:center;gap:12px;transition:.14s;text-align:left;min-height:62px;color:var(--ink)}
+.ans:hover:not(.locked){border-color:var(--s);background:var(--panel)}
+.ans .key{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-faint);
+  border:1px solid var(--line);border-radius:6px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ans .math{font-size:19px;flex:1}
+.ans.correct{border-color:var(--good);background:rgba(31,122,77,.10)}
+.ans.correct .key{border-color:var(--good);color:var(--good)}
+.ans.wrong{border-color:var(--bad);background:rgba(176,48,62,.08)}
+.ans.wrong .key{border-color:var(--bad);color:var(--bad)}
+.ans.locked{cursor:default}
+.ans.dim{opacity:.4}
+@keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-5px)}}
+.ans.shake{animation:shake .4s}
+@keyframes pop{50%{transform:scale(1.03)}}
+.ans.pop{animation:pop .3s}
+
+/* why */
+.why{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:13px 16px;
+  background:var(--panel);font-size:15px;color:var(--ink-soft);display:none;align-items:flex-start;gap:10px}
+.why.show{display:flex;animation:fade .25s}
+.why .ic{font-family:var(--mono);font-weight:700;flex-shrink:0}
+.why.ok .ic{color:var(--good)} .why.no .ic{color:var(--bad)}
+.why .pair{color:var(--ink);font-weight:500}
+
+.next{margin-top:14px;width:100%;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.05em;
+  padding:14px;border-radius:12px;border:none;cursor:pointer;color:#fff;background:var(--s);
+  display:none;transition:.16s}
+.next.show{display:block;animation:fade .25s}
+.next:hover{filter:brightness(1.1)}
+
+.levelup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:30}
+.levelup span{font-family:var(--display);font-weight:700;font-size:54px;color:var(--t);
+  opacity:0;transform:scale(.8)}
+.levelup.go span{animation:lvl 1.1s ease}
+@keyframes lvl{15%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1.15)}}
+
+/* over */
+.overcard{text-align:center}
+.bignum{font-family:var(--mono);font-weight:700;font-size:clamp(54px,14vw,84px);line-height:1;
+  background:linear-gradient(100deg,var(--t),var(--s));-webkit-background-clip:text;background-clip:text;color:transparent}
+.record{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:#fff;background:var(--t);padding:4px 11px;border-radius:7px;margin-top:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:26px 0}
+.cell{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 8px}
+.cell .v{font-family:var(--mono);font-weight:700;font-size:24px}
+.cell .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-top:3px}
+.row2{display:flex;gap:11px}
+.row2 button{flex:1}
+.ghost{font-family:var(--mono);font-size:13px;font-weight:600;padding:15px;border-radius:12px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);transition:.16s}
+.ghost:hover{color:var(--ink);border-color:var(--ink-faint)}
+.kbdhint{margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--ink-faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ START ============ -->
+<div class="screen on" id="start">
+  <div class="eyebrow">Palanca · EDO · práctica de Laplace</div>
+  <h1>Travesía <span class="a">t</span> ⇄ <span class="b">s</span></h1>
+  <p class="lede">Cruza entre el plano real y el de Laplace. Te dan una expresión en un plano; eliges su pareja en el otro. <b>ℒ</b> hacia adelante (cálido), <b>ℒ⁻¹</b> de vuelta (frío). Cada opción falsa es un error típico real: si solo memorizas, caes. Encadena aciertos para multiplicar.</p>
+
+  <div class="group">
+    <div class="glab">Dificultad</div>
+    <div class="opts" id="diff">
+      <button class="chip sel" data-d="1">Iniciado<small>tabla básica · N1</small></button>
+      <button class="chip" data-d="2">Avanzado<small>desplazamientos · N1–2</small></button>
+      <button class="chip" data-d="3">Maestro<small>Heaviside · δ · Γ · N1–3</small></button>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="glab">Modo</div>
+    <div class="opts" id="mode">
+      <button class="chip sel" data-m="race">Contrarreloj<small>tiempo · 3 vidas · combo</small></button>
+      <button class="chip" data-m="zen">Práctica<small>sin prisa · sin vidas</small></button>
+    </div>
+  </div>
+
+  <button class="play" id="playbtn">Empezar travesía →</button>
+  <div class="best" id="beststart"></div>
+</div>
+
+<!-- ============ GAME ============ -->
+<div class="screen" id="game">
+  <div class="hud">
+    <div class="stat score"><div class="v" id="hScore">0</div><div class="l">Puntos</div></div>
+    <div class="combo" id="hComboBox"><div class="v" id="hCombo">×1</div><div class="l">Combo</div></div>
+    <div class="stat"><div class="v" id="hLevel">N1</div><div class="l">Nivel</div></div>
+    <div class="lives" id="hLives"></div>
+    <button class="endbtn" id="endNow">Terminar</button>
+  </div>
+
+  <div class="timer" id="timer"><i id="timerBar"></i></div>
+
+  <div class="dirbadge" id="dirBadge"></div>
+  <div class="prompt" id="prompt"><span class="math" id="promptMath"></span></div>
+
+  <div class="answers" id="answers"></div>
+
+  <div class="why" id="why"><span class="ic" id="whyIc"></span><span id="whyTxt"></span></div>
+  <button class="next" id="nextBtn">Siguiente →</button>
+  <div class="kbdhint">teclas <b>1–4</b> para responder · <b>Enter</b> para continuar</div>
+</div>
+
+<!-- ============ OVER ============ -->
+<div class="screen" id="over">
+  <div class="overcard">
+    <div class="eyebrow">Travesía completada</div>
+    <div class="bignum" id="oScore">0</div>
+    <div id="oRecord"></div>
+    <div class="grid3">
+      <div class="cell"><div class="v" id="oAcc">0%</div><div class="l">Acierto</div></div>
+      <div class="cell"><div class="v" id="oStreak">0</div><div class="l">Mejor racha</div></div>
+      <div class="cell"><div class="v" id="oLevel">N1</div><div class="l">Nivel máx.</div></div>
+    </div>
+    <div class="row2">
+      <button class="play" id="again" style="margin-top:0">Otra vez →</button>
+      <button class="ghost" id="back">Cambiar ajustes</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="levelup" id="levelup"><span id="levelupTxt"></span></div>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+const K=window.katex;
+function tex(el,s,display){el.innerHTML="";K.render(s,el,{throwOnError:false,displayMode:!!display});}
+
+/* ============ BANCO DE PARES (comprobado con sympy: pruebas/comprobar_laplace_juego.py) ============ */
+/* dir: 'fwd' => dado f(t) en plano t, halla F(s) | 'inv' => dado F(s), halla f(t) */
+const DATA=[
+/* ---- Nivel 1 · directas ---- */
+{d:'fwd',l:1,g:"1",a:"\\dfrac{1}{s}",x:["s","\\dfrac{1}{s^2}","1"],w:"\\(\\mathcal L\\{1\\}=1/s\\)."},
+{d:'fwd',l:1,g:"t",a:"\\dfrac{1}{s^2}",x:["\\dfrac{1}{s}","\\dfrac{2}{s^2}","\\dfrac{1}{s^3}"],w:"\\(\\mathcal L\\{t^n\\}=n!/s^{n+1}\\), aquí \\(n=1\\)."},
+{d:'fwd',l:1,g:"t^2",a:"\\dfrac{2}{s^3}",x:["\\dfrac{1}{s^3}","\\dfrac{2}{s^2}","\\dfrac{1}{s^2}"],w:"\\(2!=2\\Rightarrow 2/s^3\\)."},
+{d:'fwd',l:1,g:"t^3",a:"\\dfrac{6}{s^4}",x:["\\dfrac{3}{s^4}","\\dfrac{6}{s^3}","\\dfrac{1}{s^4}"],w:"\\(3!=6\\)."},
+{d:'fwd',l:1,g:"e^{2t}",a:"\\dfrac{1}{s-2}",x:["\\dfrac{1}{s+2}","\\dfrac{2}{s-2}","\\dfrac{1}{s^2-2}"],w:"\\(\\mathcal L\\{e^{at}\\}=1/(s-a)\\)."},
+{d:'fwd',l:1,g:"e^{-3t}",a:"\\dfrac{1}{s+3}",x:["\\dfrac{1}{s-3}","-\\dfrac{1}{s+3}","\\dfrac{1}{s^2+3}"],w:"\\(a=-3\\Rightarrow 1/(s+3)\\)."},
+{d:'fwd',l:1,g:"\\sin 2t",a:"\\dfrac{2}{s^2+4}",x:["\\dfrac{s}{s^2+4}","\\dfrac{2}{s^2-4}","\\dfrac{4}{s^2+4}"],w:"\\(\\omega/(s^2+\\omega^2)\\) con \\(\\omega=2\\)."},
+{d:'fwd',l:1,g:"\\cos 3t",a:"\\dfrac{s}{s^2+9}",x:["\\dfrac{3}{s^2+9}","\\dfrac{s}{s^2-9}","\\dfrac{s}{s^2+3}"],w:"coseno \\(\\to s/(s^2+\\omega^2)\\)."},
+{d:'fwd',l:1,g:"\\sinh 2t",a:"\\dfrac{2}{s^2-4}",x:["\\dfrac{2}{s^2+4}","\\dfrac{s}{s^2-4}","\\dfrac{4}{s^2-4}"],w:"hiperbólico \\(\\to\\) signo \\(-\\) en el denominador."},
+{d:'fwd',l:1,g:"\\cosh 3t",a:"\\dfrac{s}{s^2-9}",x:["\\dfrac{3}{s^2-9}","\\dfrac{s}{s^2+9}","\\dfrac{s}{s^2-3}"],w:"\\(s/(s^2-\\omega^2)\\)."},
+/* ---- Nivel 1 · inversas ---- */
+{d:'inv',l:1,g:"\\dfrac{1}{s-2}",a:"e^{2t}",x:["e^{-2t}","2e^{2t}","t\\,e^{2t}"],w:"polo simple en \\(s=2\\)."},
+{d:'inv',l:1,g:"\\dfrac{3}{s^2+9}",a:"\\sin 3t",x:["\\cos 3t","3\\sin 3t","\\sin 9t"],w:"\\(\\omega=3\\) y el coeficiente ya es \\(\\omega\\)."},
+{d:'inv',l:1,g:"\\dfrac{s}{s^2+4}",a:"\\cos 2t",x:["\\sin 2t","\\tfrac12\\sin 2t","\\cos 4t"],w:"numerador \\(s\\Rightarrow\\) coseno, \\(\\omega=2\\)."},
+{d:'inv',l:1,g:"\\dfrac{2}{s^3}",a:"t^2",x:["\\tfrac{t^2}{2}","2t^2","t^3"],w:"\\(2/s^3=2!/s^3\\Rightarrow t^2\\)."},
+{d:'inv',l:1,g:"\\dfrac{1}{s^2}",a:"t",x:["1","\\tfrac{t^2}{2}","\\dfrac{1}{t}"],w:"\\(1/s^2\\to t\\)."},
+{d:'inv',l:1,g:"\\dfrac{2}{s^2-4}",a:"\\sinh 2t",x:["\\sin 2t","\\cosh 2t","2\\sinh 2t"],w:"denominador \\(s^2-\\omega^2\\Rightarrow\\) hiperbólico."},
+{d:'inv',l:1,g:"\\dfrac{s}{s^2-9}",a:"\\cosh 3t",x:["\\cos 3t","\\sinh 3t","3\\cosh 3t"],w:"\\(s/(s^2-\\omega^2)\\Rightarrow\\cosh\\)."},
+
+/* ---- Nivel 2 · directas (desplazamiento en s, repetidos, t·trig) ---- */
+{d:'fwd',l:2,g:"e^{-t}\\sin 2t",a:"\\dfrac{2}{(s+1)^2+4}",x:["\\dfrac{2}{(s-1)^2+4}","\\dfrac{s+1}{(s+1)^2+4}","\\dfrac{2}{s^2+5}"],w:"desplazamiento en s: \\(s\\to s+1\\)."},
+{d:'fwd',l:2,g:"e^{2t}\\cos t",a:"\\dfrac{s-2}{(s-2)^2+1}",x:["\\dfrac{s+2}{(s+2)^2+1}","\\dfrac{1}{(s-2)^2+1}","\\dfrac{s-2}{s^2+1}"],w:"coseno amortiguado, \\(\\gamma=2\\)."},
+{d:'fwd',l:2,g:"t\\,e^{-t}",a:"\\dfrac{1}{(s+1)^2}",x:["\\dfrac{1}{s+1}","\\dfrac{1}{(s-1)^2}","\\dfrac{2}{(s+1)^2}"],w:"\\(\\mathcal L\\{t\\,e^{at}\\}=1/(s-a)^2\\)."},
+{d:'fwd',l:2,g:"t^2 e^{-t}",a:"\\dfrac{2}{(s+1)^3}",x:["\\dfrac{1}{(s+1)^3}","\\dfrac{2}{(s+1)^2}","\\dfrac{2}{(s-1)^3}"],w:"\\(n!/(s-a)^{n+1}\\) con \\(n=2\\)."},
+{d:'fwd',l:2,g:"t\\sin t",a:"\\dfrac{2s}{(s^2+1)^2}",x:["\\dfrac{2}{(s^2+1)^2}","\\dfrac{s}{(s^2+1)^2}","\\dfrac{s^2-1}{(s^2+1)^2}"],w:"\\(t\\sin\\omega t:\\ 2\\omega s/(s^2+\\omega^2)^2\\)."},
+{d:'fwd',l:2,g:"t\\cos t",a:"\\dfrac{s^2-1}{(s^2+1)^2}",x:["\\dfrac{2s}{(s^2+1)^2}","\\dfrac{s^2+1}{(s^2+1)^2}","\\dfrac{1-s^2}{(s^2+1)^2}"],w:"\\(t\\cos\\omega t:\\ (s^2-\\omega^2)/(s^2+\\omega^2)^2\\)."},
+{d:'fwd',l:2,g:"e^{-2t}\\cos 3t",a:"\\dfrac{s+2}{(s+2)^2+9}",x:["\\dfrac{s-2}{(s-2)^2+9}","\\dfrac{3}{(s+2)^2+9}","\\dfrac{s+2}{s^2+9}"],w:"\\(\\gamma=-2,\\ \\omega=3\\)."},
+/* ---- Nivel 2 · inversas (completar el cuadrado, polos múltiples) ---- */
+{d:'inv',l:2,g:"\\dfrac{1}{s^2+2s+5}",a:"\\tfrac12 e^{-t}\\sin 2t",x:["e^{-t}\\sin 2t","\\tfrac12 e^{t}\\sin 2t","\\tfrac12 e^{-t}\\cos 2t"],w:"\\((s+1)^2+4\\Rightarrow \\tfrac1\\omega e^{-t}\\sin\\omega t\\), \\(\\omega=2\\)."},
+{d:'inv',l:2,g:"\\dfrac{s+1}{s^2+2s+5}",a:"e^{-t}\\cos 2t",x:["e^{-t}\\sin 2t","e^{t}\\cos 2t","\\cos 2t"],w:"numerador \\((s+1)\\Rightarrow\\) coseno amortiguado."},
+{d:'inv',l:2,g:"\\dfrac{1}{(s+1)^2}",a:"t\\,e^{-t}",x:["e^{-t}","t\\,e^{t}","\\tfrac12 t^2 e^{-t}"],w:"\\(1/(s-a)^2\\to t\\,e^{at}\\)."},
+{d:'inv',l:2,g:"\\dfrac{2}{(s+1)^3}",a:"t^2 e^{-t}",x:["\\tfrac12 t^2 e^{-t}","t^3 e^{-t}","t^2 e^{t}"],w:"\\(2/(s+1)^3=2!/(s+1)^3\\)."},
+{d:'inv',l:2,g:"\\dfrac{1}{s(s-1)}",a:"e^{t}-1",x:["1-e^{t}","e^{t}","e^{-t}-1"],w:"\\(\\frac1{s-1}-\\frac1s\\)."},
+{d:'inv',l:2,g:"\\dfrac{1}{(s+1)(s+2)}",a:"e^{-t}-e^{-2t}",x:["e^{-2t}-e^{-t}","e^{t}-e^{2t}","e^{-t}+e^{-2t}"],w:"\\(\\frac1{s+1}-\\frac1{s+2}\\)."},
+{d:'inv',l:2,g:"\\dfrac{s}{(s+1)^3}",a:"\\left(t-\\tfrac12 t^2\\right)e^{-t}",x:["\\left(\\tfrac12 t^2-t\\right)e^{-t}","\\left(t+\\tfrac12 t^2\\right)e^{-t}","t\\,e^{-t}"],w:"\\(s=(s+1)-1:\\ \\frac1{(s+1)^2}-\\frac1{(s+1)^3}\\)."},
+
+/* ---- Nivel 3 · directas (Heaviside, δ, Γ) ---- */
+{d:'fwd',l:3,g:"\\delta(t)",a:"1",x:["\\dfrac{1}{s}","e^{-s}","s"],w:"\\(\\mathcal L\\{\\delta(t)\\}=1\\)."},
+{d:'fwd',l:3,g:"\\delta(t-2)",a:"e^{-2s}",x:["e^{2s}","\\dfrac{e^{-2s}}{s}","2e^{-s}"],w:"\\(\\mathcal L\\{\\delta(t-a)\\}=e^{-as}\\)."},
+{d:'fwd',l:3,g:"u(t-1)",a:"\\dfrac{e^{-s}}{s}",x:["e^{-s}","\\dfrac{e^{s}}{s}","\\dfrac{e^{-s}}{s^2}"],w:"escalón: \\(e^{-as}/s\\)."},
+{d:'fwd',l:3,g:"(t-1)\\,u(t-1)",a:"\\dfrac{e^{-s}}{s^2}",x:["\\dfrac{e^{-s}}{s}","e^{-s}","\\dfrac{e^{-s}}{s^3}"],w:"2.ª traslación con \\(f(t)=t\\Rightarrow 1/s^2\\)."},
+{d:'fwd',l:3,g:"\\dfrac{1}{\\sqrt{t}}",a:"\\sqrt{\\dfrac{\\pi}{s}}",x:["\\dfrac{\\sqrt{\\pi}}{s}","\\dfrac{1}{\\sqrt{s}}","\\dfrac{\\sqrt{\\pi}}{s^{3/2}}"],w:"\\(t^{-1/2}\\Rightarrow \\Gamma(1/2)/s^{1/2}=\\sqrt{\\pi/s}\\)."},
+{d:'fwd',l:3,g:"\\sqrt{t}",a:"\\dfrac{\\sqrt{\\pi}}{2\\,s^{3/2}}",x:["\\dfrac{\\sqrt{\\pi}}{s^{3/2}}","\\dfrac{1}{s^{3/2}}","\\dfrac{\\sqrt{\\pi}}{2\\sqrt{s}}"],w:"\\(t^{1/2}\\Rightarrow \\Gamma(3/2)/s^{3/2},\\ \\Gamma(3/2)=\\tfrac12\\sqrt\\pi\\)."},
+/* ---- Nivel 3 · inversas (factor e^{-as}) ---- */
+{d:'inv',l:3,g:"\\dfrac{e^{-2s}}{s}",a:"u(t-2)",x:["u(t+2)","\\delta(t-2)","e^{-2t}u(t)"],w:"\\(e^{-as}/s\\to u(t-a)\\)."},
+{d:'inv',l:3,g:"\\dfrac{e^{-s}}{s^2}",a:"(t-1)\\,u(t-1)",x:["t\\,u(t-1)","(t+1)\\,u(t-1)","(t-1)\\,u(t)"],w:"\\(1/s^2\\to t\\), 2.ª traslación \\(\\Rightarrow t-1\\)."},
+{d:'inv',l:3,g:"e^{-3s}",a:"\\delta(t-3)",x:["u(t-3)","e^{-3t}","3\\delta(t)"],w:"\\(e^{-as}\\to\\delta(t-a)\\)."},
+{d:'inv',l:3,g:"\\dfrac{e^{-s}}{s-1}",a:"e^{\\,t-1}\\,u(t-1)",x:["e^{t}u(t-1)","e^{t-1}u(t)","e^{-(t-1)}u(t-1)"],w:"\\(\\frac1{s-1}\\to e^{t}\\), desplazado a \\(t-1\\)."},
+{d:'inv',l:3,g:"\\dfrac{e^{-s}}{s(s-1)}",a:"\\left(e^{\\,t-1}-1\\right)u(t-1)",x:["(e^{t}-1)u(t-1)","(1-e^{t-1})u(t-1)","(e^{t-1}-1)u(t)"],w:"Heaviside: \\(\\frac1{s(s-1)}\\to e^{t}-1\\), desplazado."}
+];
+
+/* ============ ESTADO ============ */
+let S={};
+const el=id=>document.getElementById(id);
+const screens={start:el("start"),game:el("game"),over:el("over")};
+function go(n){for(const k in screens)screens[k].classList.toggle("on",k===n);}
+
+let diff=1, mode="race";
+el("diff").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+  [...el("diff").children].forEach(c=>c.classList.remove("sel"));b.classList.add("sel");diff=+b.dataset.d;updateBest();});
+el("mode").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+  [...el("mode").children].forEach(c=>c.classList.remove("sel"));b.classList.add("sel");mode=b.dataset.m;updateBest();});
+
+function bestKey(){return diff+"_"+mode;}
+function getBest(){try{return JSON.parse(localStorage.getItem("palanca:edo-laplace-juego:"+bestKey()))||{score:0,streak:0};}catch(e){return{score:0,streak:0};}}
+function updateBest(){const b=getBest();
+  el("beststart").innerHTML = b.score>0 ? "Mejor marca aquí: <b>"+b.score+"</b> pts · racha <b>"+b.streak+"</b>" : "Sin marca todavía. A por la primera.";}
+updateBest();
+
+/* ============ JUEGO ============ */
+let timerInt=null;
+function startGame(){
+  S={score:0,streak:0,bestStreak:0,lives:3,correct:0,answered:0,level:1,pool:[],seen:[],item:null,locked:false,tMax:0,tLeft:0,maxLevel:1};
+  go("game");
+  el("timer").classList.toggle("hide",mode!=="zen"?false:true);
+  if(mode==="zen")el("timer").classList.add("hide");else el("timer").classList.remove("hide");
+  renderHUD();
+  nextQuestion();
+}
+function allowedLevels(){return diff===1?[1]:diff===2?[1,2]:[1,2,3];}
+function buildPool(){
+  const lv=allowedLevels();
+  // sesgo: a mayor nivel de juego, más peso a items difíciles dentro de lo permitido
+  let pool=DATA.filter(d=>lv.includes(d.l));
+  return pool;
+}
+function pickItem(){
+  let pool=buildPool().filter(d=>!S.seen.includes(d));
+  if(pool.length===0){S.seen=[];pool=buildPool();}
+  // ponderar por nivel de juego
+  const lv=allowedLevels();
+  if(lv.length>1){
+    const target=Math.min(lv.length, Math.ceil(S.level/2)); // sube el techo de dificultad
+    const want=lv.slice(0,target);
+    const hard=pool.filter(d=>want.includes(d.l));
+    if(hard.length && Math.random()<0.7) pool=hard;
+  }
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function nextQuestion(){
+  S.locked=false;
+  el("why").className="why";el("nextBtn").className="next";
+  const it=pickItem();S.item=it;S.seen.push(it);
+
+  // dirección + colores
+  const fwd=it.d==="fwd";
+  el("dirBadge").className="dirbadge "+(fwd?"fwd":"inv");
+  el("dirBadge").innerHTML=fwd
+    ? '<span>ℒ &nbsp;·&nbsp; te dan f(t) &nbsp;→&nbsp; halla F(s)</span>'
+    : '<span>ℒ⁻¹ &nbsp;·&nbsp; te dan F(s) &nbsp;→&nbsp; halla f(t)</span>';
+  el("prompt").className="prompt "+(fwd?"fwd":"inv");
+  tex(el("promptMath"),it.g,true);
+
+  // opciones
+  const opts=shuffle([{t:it.a,ok:true},...it.x.map(t=>({t,ok:false}))]);
+  const cont=el("answers");cont.innerHTML="";
+  opts.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="ans";b.dataset.ok=o.ok?"1":"0";
+    const k=document.createElement("span");k.className="key";k.textContent=(i+1);
+    const m=document.createElement("span");m.className="math";tex(m,o.t,false);
+    b.appendChild(k);b.appendChild(m);
+    b.addEventListener("click",()=>answer(b));
+    cont.appendChild(b);
+  });
+
+  // timer
+  if(mode==="race"){
+    S.tMax=Math.max(5, 13-(S.level-1));
+    S.tLeft=S.tMax;
+    el("timer").classList.remove("warn");
+    el("timerBar").style.width="100%";
+    clearInterval(timerInt);
+    timerInt=setInterval(tick,100);
+  }
+}
+function tick(){
+  S.tLeft-=0.1;
+  const pct=Math.max(0,S.tLeft/S.tMax*100);
+  el("timerBar").style.width=pct+"%";
+  el("timer").classList.toggle("warn",S.tLeft<=S.tMax*0.28);
+  if(S.tLeft<=0){clearInterval(timerInt);timeOut();}
+}
+
+function comboMult(){return 1+Math.floor(S.streak/3)*0.5;}
+
+function answer(btn){
+  if(S.locked)return;S.locked=true;clearInterval(timerInt);
+  S.answered++;
+  const ok=btn.dataset.ok==="1";
+  [...el("answers").children].forEach(b=>{
+    b.classList.add("locked");
+    if(b.dataset.ok==="1")b.classList.add("correct");
+    else if(b===btn)b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  if(ok){
+    btn.classList.add("pop");
+    S.correct++;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);
+    let pts=100;
+    if(mode==="race")pts+=Math.round(S.tLeft/S.tMax*100);
+    pts=Math.round(pts*comboMult());
+    S.score+=pts;
+    showWhy(true,pts);
+    // subir de nivel cada 5 aciertos
+    if(S.correct%5===0){S.level++;S.maxLevel=Math.max(S.maxLevel,S.level);levelUp();}
+  }else{
+    btn.classList.add("shake");
+    S.streak=0;
+    if(mode==="race"){S.lives--;}
+    showWhy(false,0);
+  }
+  renderHUD();
+
+  if(mode==="race" && S.lives<=0){
+    el("nextBtn").textContent="Ver resultados →";
+    el("nextBtn").classList.add("show");
+    el("nextBtn").dataset.end="1";
+  }else{
+    el("nextBtn").textContent="Siguiente →";
+    el("nextBtn").dataset.end="0";
+    el("nextBtn").classList.add("show");
+  }
+}
+function timeOut(){
+  if(S.locked)return;S.locked=true;S.answered++;S.streak=0;
+  [...el("answers").children].forEach(b=>{b.classList.add("locked");
+    if(b.dataset.ok==="1")b.classList.add("correct");else b.classList.add("dim");});
+  if(mode==="race")S.lives--;
+  showWhy(false,0,true);
+  renderHUD();
+  if(mode==="race" && S.lives<=0){el("nextBtn").textContent="Ver resultados →";el("nextBtn").dataset.end="1";}
+  else{el("nextBtn").textContent="Siguiente →";el("nextBtn").dataset.end="0";}
+  el("nextBtn").classList.add("show");
+}
+
+function showWhy(ok,pts,timeout){
+  const w=el("why");w.className="why show "+(ok?"ok":"no");
+  el("whyIc").textContent=ok?"✓":"✕";
+  let pre = ok ? ("+"+pts+" pts"+(comboMult()>1?" · combo ×"+comboMult().toFixed(1):"")+" — ")
+              : (timeout? "Tiempo. " : "");
+  const it=S.item;
+  const pair = it.d==="fwd"
+    ? '<span class="pair">ℒ{'+texInline(it.g)+'} = '+texInline(it.a)+'</span>. '
+    : '<span class="pair">ℒ⁻¹{'+texInline(it.g)+'} = '+texInline(it.a)+'</span>. ';
+  el("whyTxt").innerHTML=pre+pair+it.w;
+  K.__r=el("whyTxt");
+  renderMathInElement(el("whyTxt"),{delimiters:[{left:"\\(",right:"\\)",display:false}],throwOnError:false});
+}
+/* inline katex helper que devuelve HTML string */
+function texInline(s){try{return K.renderToString(s,{throwOnError:false,displayMode:false});}catch(e){return s;}}
+
+function levelUp(){
+  const lu=el("levelup");el("levelupTxt").textContent="¡Nivel "+S.level+"!";
+  lu.classList.remove("go");void lu.offsetWidth;lu.classList.add("go");
+}
+function renderHUD(){
+  el("hScore").textContent=S.score;
+  el("hCombo").textContent="×"+comboMult().toFixed(comboMult()%1?1:0);
+  el("hComboBox").classList.toggle("hot",S.streak>=3);
+  el("hLevel").textContent="N"+Math.min(3,Math.ceil(S.level/2));
+  // vidas
+  if(mode==="race"){
+    let h="";for(let i=0;i<3;i++)h+= i<S.lives?'<span>◆</span>':'<span class="x">◇</span>';
+    el("hLives").innerHTML=h;el("hLives").style.color="var(--t)";
+  }else{el("hLives").innerHTML='<span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint)">∞ práctica</span>';}
+}
+
+el("nextBtn").addEventListener("click",()=>{
+  if(el("nextBtn").dataset.end==="1")endGame();else nextQuestion();
+});
+el("endNow").addEventListener("click",endGame);
+
+function endGame(){
+  clearInterval(timerInt);
+  const acc=S.answered?Math.round(S.correct/S.answered*100):0;
+  el("oScore").textContent=S.score;
+  el("oAcc").textContent=acc+"%";
+  el("oStreak").textContent=S.bestStreak;
+  el("oLevel").textContent="N"+Math.min(3,Math.ceil(S.maxLevel/2));
+  const b=getBest();let rec=false;
+  if(S.score>b.score){rec=true;
+    try{localStorage.setItem("palanca:edo-laplace-juego:"+bestKey(),JSON.stringify({score:S.score,streak:S.bestStreak}));}catch(e){}}
+  el("oRecord").innerHTML=rec?'<span class="record">★ nueva mejor marca</span>':'';
+  go("over");
+}
+
+el("playbtn").addEventListener("click",startGame);
+el("again").addEventListener("click",startGame);
+el("back").addEventListener("click",()=>{updateBest();go("start");});
+
+/* teclado */
+document.addEventListener("keydown",e=>{
+  if(screens.game.classList.contains("on")){
+    if(["1","2","3","4"].includes(e.key)){
+      const b=el("answers").children[+e.key-1];if(b&&!S.locked)answer(b);
+    }else if(e.key==="Enter"&&el("nextBtn").classList.contains("show")){el("nextBtn").click();}
+  }else if(screens.start.classList.contains("on")&&e.key==="Enter"){el("playbtn").click();}
+  else if(screens.over.classList.contains("on")&&e.key==="Enter"){el("again").click();}
+});
+});
+</script>
+</body>
+</html>
